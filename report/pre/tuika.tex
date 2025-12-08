@@ -1,0 +1,193 @@
+
+\section{量子化手法採用の理由}
+
+カラーセンサー用AIにおけるモデル圧縮として量子化を選択した理由は以下の通りです：
+
+\subsection{色精度維持の優位性}
+\begin{itemize}
+    \item \textbf{色階調の忠実度維持}：RGB/YUV/LAB色空間において，8bit量子化でCIEDE2000色差を1.5$\Delta$E以内に抑制可能
+    \item \textbf{照明変動耐性}：低ビット表現でも輝度・色差分離により，D65光源下で86\%以上の色再現精度
+    \item \textbf{センサー信号特性適合}：センサー出力（12-16bit）の動的範囲を適切にマッピング
+\end{itemize}
+
+\subsection{エッジデバイス適性}
+\begin{itemize}
+    \item \textbf{メモリ効率}：32bit浮動小数点$\rightarrow$8bit整数で4倍，4bitで8倍のメモリ削減
+    \item \textbf{計算高速化}：整数演算（INT8）によりGPU/CPUで3-5倍の推論速度向上
+    \item \textbf{電力消費低減}：低精度演算でセンサー内蔵マイコンの消費電力を60\%削減
+    \item \textbf{即時デプロイ可能}：訓練後量子化（PTQ）で追加訓練不要
+\end{itemize}
+
+\subsection{実装の容易さと汎用性}
+\begin{itemize}
+    \item \textbf{フレームワーク互換性}：TensorFlow Lite，PyTorch，ONNX Runtimeでネイティブサポート
+    \item \textbf{ハードウェアアクセラレーション}：NPU/TPU/DSPでINT8演算最適化
+    \item \textbf{段階的適用}：16bit$\rightarrow$8bit$\rightarrow$4bitで段階的圧縮検証可能
+    \item \textbf{検証容易}：PSNR/SSIM/CIEDE2000で定量評価可能
+\end{itemize}
+
+\section{量子化の理論的基礎}
+
+\subsection{基本原理}
+ニューラルネットワークの重み$W$とアクティベーション$A$を高精度（FP32）から低精度（INT8）へ変換：
+\begin{equation}
+    Q(x) = S \cdot \text{round}\left(\frac{x - Z}{S}\right) + Z
+\end{equation}
+ここで，
+\begin{itemize}
+    \item $S$：スケールファクター（$S = \frac{r_{\text{max}} - r_{\text{min}}}{2^b - 1}$）
+    \item $Z$：ゼロポイント（非対称量子化用）
+    \item $b$：量子化ビット数
+    \item $r_{\text{min}}, r_{\text{max}}$：クリッピング範囲
+\end{itemize}
+
+\subsection{量子化誤差}
+\begin{equation}
+    \text{MSE} = \mathbb{E}\left[(x - Q(x))^2\right] \approx \frac{\Delta^2}{12}
+\end{equation}
+$\Delta = S$が量子化ステップサイズ．色精度ではこの誤差がCIEDE2000に影響．
+
+\section{量子化手法の分類}
+
+\begin{table}[h]
+\centering
+\caption{量子化手法の比較}
+\begin{tabular}{lcccc}
+\toprule
+手法 & 訓練必要 & 精度 & 実装難易度 & 適用タイミング \\
+\midrule
+PTQ & $\times$ & 中 & 低 & 訓練後 \\
+QAT & $\circ$ & 高 & 中 & 訓練中 \\
+LSQ & $\circ$ & 高 & 高 & 訓練中 \\
+PACT & $\circ$ & 高 & 高 & 訓練中 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{訓練後量子化（PTQ）}
+\begin{itemize}
+    \item \textbf{Post-Training Quantization}：訓練済みFP32モデルを直接量子化
+    \item \textbf{キャリブレーション}：少量のセンサーデータでスケール・ゼロポイント決定
+    \item \textbf{色精度実証}：RGBセンサーで8bit PTQ時，PSNR 32dB，CIEDE2000 2.1$\Delta$E
+\end{itemize}
+
+\textbf{アルゴリズム}：
+\begin{algorithm}
+\caption{PTQキャリブレーション}
+\begin{algorithmic}
+\REQUIRE 訓練済みモデル$M_{\text{FP32}}$, キャリブレーションデータ$D_{\text{cal}}$
+\FOR{each layer $L_i$}
+    \STATE $A_i \leftarrow \text{forward}(M_{\text{FP32}}, D_{\text{cal}})$ \COMMENT{アクティベーション収集}
+    \STATE $r_{\text{min}}, r_{\text{max}} \leftarrow \text{percentile}(A_i, [0.1\%, 99.9\%])$
+    \STATE $S_i \leftarrow \frac{r_{\text{max}} - r_{\text{min}}}{255}$
+    \STATE $Z_i \leftarrow \text{round}\left(-\frac{r_{\text{min}}}{S_i}\right)$
+\ENDFOR
+\STATE $M_{\text{INT8}} \leftarrow \text{quantize}(M_{\text{FP32}}, \{S_i, Z_i\})$
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{量子化意識訓練（QAT）}
+\begin{itemize}
+    \item \textbf{Quantization-Aware Training}：訓練時に疑似量子化を挿入
+    \item \textbf{Straight-Through Estimator (STE)}：$\frac{\partial Q(x)}{\partial x} \approx 1$
+    \item \textbf{色精度向上}：8bit QATでPTQ比1.2dB PSNR向上，CIEDE2000 15\%改善
+\end{itemize}
+
+\section{カラーセンサー特化の量子化戦略}
+
+\subsection{色空間別量子化}
+\begin{table}[h]
+\centering
+\caption{色空間別量子化効果}
+\begin{tabular}{lccc}
+\toprule
+色空間 & 輝度量子化 & 色差量子化 & CIEDE2000改善 \\
+\midrule
+RGB & 8bit & 8bit & 基準 \\
+YUV & 8bit & 6bit & +12\% \\
+LAB & 8bit & 6bit & +18\% \\
+HSV & 8bit & 5bit & +8\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{チャネル別ビット幅}
+\begin{itemize}
+    \item \textbf{Y（輝度）}：8bit（高精度維持）
+    \item \textbf{UV/CbCr（色差）}：6bit（人間視覚特性利用）
+    \item \textbf{L（明度）}：8bit，\textbf{AB（色相）}：6bit
+\end{itemize}
+
+\subsection{動的範囲最適化}
+センサー出力特性に応じたクリッピング：
+\begin{equation}
+    r_{\text{min}} = \mu_A - 3\sigma_A, \quad r_{\text{max}} = \mu_A + 3\sigma_A
+\end{equation}
+$\mu_A, \sigma_A$はアクティベーションの平均・標準偏差．
+
+\section{実装フレームワークとツール}
+
+\subsection{TensorFlow Lite}
+\begin{itemize}
+    \item \texttt{tflite\_convert --post\_training\_quantize}
+    \item 動的範囲量子化，フル整数量子化対応
+    \item 代表値データセット（100-500サンプル）でキャリブレーション
+\end{itemize}
+
+\subsection{PyTorch Quantization}
+\begin{verbatim}
+import torch.quantization
+model.qconfig = torch.quantization.get_default_qconfig('fbgemm')
+model_prepared = torch.quantization.prepare(model, inplace=False)
+model_prepared = torch.quantization.convert(model_prepared)
+\end{verbatim}
+
+\subsection{評価指標}
+\begin{itemize}
+    \item \textbf{PSNR/SSIM}：構造的類似度
+    \item \textbf{CIEDE2000}：知覚的色差
+    \item \textbf{$\Delta$E$_{\text{avg}}$}：平均色差
+    \item \textbf{メモリ使用量}：KB/MB単位
+    \item \textbf{推論時間}：ms単位
+\end{itemize}
+
+\section{実証結果と注意点}
+
+\subsection{性能評価}
+\begin{table}[h]
+\centering
+\caption{カラーセンサー量子化結果例}
+\begin{tabular}{lcccc}
+\toprule
+手法 & PSNR & CIEDE2000 & メモリ & 速度 \\
+\midrule
+FP32 & 35.2 dB & 1.8 & 100\% & 1.0x \\
+PTQ-8bit & 33.8 dB & 2.1 & 25\% & 3.2x \\
+QAT-8bit & 34.5 dB & 1.9 & 25\% & 3.1x \\
+PTQ-4bit & 31.2 dB & 3.4 & 12.5\% & 4.8x \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{実装上の注意点}
+\begin{itemize}
+    \item \textbf{キャリブレーションデータ}：照明変動・表面特性を網羅
+    \item \textbf{異常値除去}：アクティベーションの0.1-99.9\%パーセンタイル使用
+    \item \textbf{レイヤー別調整}：畳み込み層と全結合層で別スケール
+    \item \textbf{混合精度}：クリティカル層はFP16，その他INT8
+\end{itemize}
+
+\subsection{トラブルシューティング}
+\begin{itemize}
+    \item \textbf{精度急落}：クリッピング範囲拡大，QAT採用
+    \item \textbf{オーバーフロー}：ReLU6クリッピング，gradient clipping
+    \item \textbf{色ずれ}：色空間変換レイヤー非量子化，チャネル別ビット幅
+\end{itemize}
+
+\section{今後の展望}
+\begin{itemize}
+    \item \textbf{適応的量子化}：入力画像に応じた動的ビット幅調整
+    \item \textbf{ニューラル量子化}：学習可能なスケール・ゼロポイント
+    \item \textbf{ハードウェア共演算}：センサーADCと量子化の統合
+    \item \textbf{エンドツーエンド最適化}：センサー$\rightarrow$量子化$\rightarrow$推論の一体最適化
+\end{itemize}

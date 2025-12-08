@@ -1,0 +1,425 @@
+\documentclass[a4paper,12pt]{jsarticle}  % 日本語論文向け（uplatex推奨）
+
+% 基本エンコーディング・フォント
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+% 日本語対応（uplatex + dvipdfmx用）
+\usepackage{japanese}
+\usepackage[dvipdfmx]{pxjahyper}
+
+% ページ設定
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+
+% 数学・数式
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+
+% 表・列制御
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{multirow}
+\usepackage{colortbl}
+
+% 図・キャプション
+\usepackage[dvipdfmx]{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+
+% アルゴリズム
+\usepackage{algorithm}
+\usepackage{algorithmic}
+
+% ハイパーリンク
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=red,
+    urlcolor=green
+}
+
+% コードハイライト
+\usepackage{listings}
+\lstset{
+  language=Python,
+  basicstyle=\small\ttfamily,
+  breaklines=true,
+  columns=fixed,
+  keepspaces=true,
+  showstringspaces=false,
+  frame=single,
+  numbers=left,
+  numberstyle=\tiny,
+  captionpos=b
+}
+
+\begin{document}
+
+\title{2025年度　アジャイルワーク レポート課題}
+\author{24G1089　武本 龍}
+\maketitle
+
+\clearpage
+\section{はじめに}
+
+
+\section{実験の概要}
+以下に，本実験の基本的な概要を図\ref{fig:実験概要}に示す．
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=16cm]{実験概要.jpg}
+    \caption{基本的な実験概要図}
+    \label{fig:実験概要}
+\end{figure}
+
+本実験では，図\ref{fig:実験概要}に示すように，Arduino Uno R4 WiFiを用いてカラーセンサーを構築し，
+授業内で配布された3$\times$3のカラーチャートをセンサで測定する．
+主な目的は，測定したカラーチャートと基準のカラーチャートの平均二乗誤差（MSE）を小さくすること，
+読み取り時間をできるだけ短くすること，の2点である．
+これらの目的を達成するため，特にMSEの低減にニューラルネットワークによる学習を活用し，
+ニューラルネットワークの隠れ層で用いるデータの圧縮手法を導入することで，ソフトウェアの品質を向上させることを目指す．
+以下では，読み込み品質の測定方法，およびソフトウェア的な改善手法について詳述する．
+\clearpage
+\subsection{平均二乗誤差（MSE）とは}
+MSEは，2枚の画像の対応するピクセル位置における輝度差の2乗の平均値で定義され，以下の式で表される．
+\begin{equation}
+\text{MSE} = \frac{1}{m \times n} \sum_{i=1}^{m} \sum_{j=1}^{n} \left( I(i,j) - K(i,j) \right)^2
+\end{equation}
+
+ここで，$I$と$K$は2枚の画像，$m \times n$は画像サイズを表す．
+本実験ではRGB画像を扱うため，各ピクセルについてR, G, Bチャネルの差の2乗を加算し，3で割った値をMSEとして計算する．
+また，ソフトウェアの実装例は以下の通りである．
+\begin{equation}
+\text{mse} += \frac{ r_{\text{diff}} \times r_{\text{diff}} + g_{\text{diff}} \times g_{\text{diff}} + b_{\text{diff}} \times b_{\text{diff}} }{3}
+\end{equation}
+
+\subsection{読み込み品質の測定方法}
+読み込み品質の評価は，以下の手順で実施する．
+\begin{enumerate}
+    \item \textbf{2つのボタンプログラムによるカラーチャートの読み取り}\\
+    事前に黒と白のサンプルを測定し，最小値・最大値を基準として読み込み精度をキャリブレーションする．これにより，センサの感度を調整し，安定したRGB値を取得する．
+    \item \textbf{PPM画像出力}\\
+    前回授業で配布された3$\times$3のカラーチャートをセンサで読み取り，取得したRGBデータをPPM形式の画像ファイルとして出力する．この画像は，後続の品質評価に用いる．
+    \item \textbf{平均二乗誤差（MSE）の計算}\\
+    出力したPPM画像と基準画像の品質を，専用のMSE測定ソフトウェアで評価する．
+\end{enumerate}
+\clearpage
+\section{実験理論}
+以下に実験理論を示す．
+\subsection{読み込み品質のソフトウェア的改良(ニューラルネットワークを用いた学習)}
+サンプル画像と測定画像のMSEを最小限に抑えるために，ニューラルネットワークを用いた学習方法およびニューラルネットワークの圧縮方法を以下に示す．
+\subsubsection{ニューラルネットワークの基本構造}
+まず，ニューラルネットワークの基本構造について説明する．
+ニューラルネットワークの最小単位は「ユニット」と呼ばれ，複数の入力を受け取り，1つの出力を計算する．
+各ユニットは，入力値にそれぞれ異なる重み（weight: $w_1, w_2, w_3, \dots$）を掛けて加算し，さらにバイアス（$b$）を加えた総入力$u$を計算する．
+具体的には，以下の式で表される．
+\begin{equation}
+u = w_1 x_1 + w_2 x_2 + w_3 x_3 + \dots + b
+\end{equation}
+この総入力$u$は，活性化関数$f$に入力され，出力$z = f(u)$が生成される．
+
+\subsubsection{順伝搬型ネットワーク}
+次に，ニューラルネットワークの層構造について考える．
+層は$l = 1, 2, 3, \dots$で表され，$l = 1$を入力層，$l = 2$を中間層，$l = 3$を出力層と呼ぶ．
+各層の計算は以下のようになる．
+例えば，層$l=2$では，
+
+\begin{equation}
+u^{(2)} = W^{(2)} x^{(2)} + b^{(2)}, \quad z^{(2)} = f(u^{(2)})
+\end{equation}
+また，層$l=3$では，
+\begin{equation}
+u^{(3)} = W^{(3)} x^{(3)} + b^{(3)}, \quad z^{(3)} = f(u^{(3)})
+\end{equation}
+これを任意の層数$L$に一般化すると，層$l+1$のユニットの出力$z^{(l+1)}$は，1つ前の層$l$の出力$z^{(l)}$を用いて以下のように計算される．
+\begin{equation}
+u^{(l+1)} = W^{(l+1)} x^{(l)} + b^{(l+1)}, \quad z^{(l+1)} = f(u^{(l+1)})
+\end{equation}
+
+ここで，入力層の出力は$z^{(1)} = x$とし，$l = 1, 2, 3, \dots, L-1$の順に計算を進めることで，各層の出力$z^{(2)}, z^{(3)}, \dots, z^{(L)}$を順次決定できる．
+
+入力$x$を受け取り，各層の計算を順番に実行して最終的に出力$y = z^{(L)}$を得るネットワークを，順伝搬型ネットワークと呼ぶ．
+この入力$x$から出力$y$を得る計算は，各層間の結合の重みパラメータ$W^{(l)}$（$l = 2, \dots, L$）およびユニットのバイアスパラメータ$b^{(l)}$（$l = 2, \dots, L$）によって決定される．
+これらすべてのパラメータをまとめて表現するため，$W^{(2)}, \dots, W^{(L)}, b^{(2)}, \dots, b^{(L)}$を成分とするベクトル$w$を定義し，出力は$y(x; w)$と表記する．
+
+順伝搬型ネットワークは，1つの関数$y(x; w)$を表現し，この関数の形状はネットワークのパラメータ$w$に依存して変化する．
+
+\clearpage
+\subsubsection{使用するニューラルネットワーク}
+本実験では，全結合型の4層ニューラルネットワークを使用する．
+入力層はRGBの3次元，2つの隠れ層はそれぞれ40次元（40個のニューロンが全結合），
+出力層はRGBの3次元である．
+各ニューロンで行われる推論演算は，以下の通りである
+入力$x_1 \times w_1 + x_2 \times w_2 + \dots + x_{n-1} \times w_{n-1} + b$ を計算し，
+ReLU活性化関数を通した値を次の層へ出力する．
+ここで，$w_i$は重み，$b$はバイアスを表す．
+モデルはPyTorchを用いて定義・訓練し，L1正則化を導入することで重みを疎化させる．
+訓練後，重みとバイアスをC++配列としてエクスポートし，Arduino上で推論を実行する．
+プログラムは以下の通りである．
+
+\begin{lstlisting}[language=Python, caption=PyTorchによるモデル定義・訓練コード]
+X_tensor = torch.tensor(X, dtype=torch.float32)
+Y_tensor = torch.tensor(Y, dtype=torch.float32)
+
+# モデル定義
+class ColorNet(nn.Module):
+    def __init__(self):
+        super(ColorNet, self).__init__()
+        self.model = nn.Sequential(
+            nn.Linear(3, 40),
+            nn.ReLU(),
+            nn.Linear(40, 40),
+            nn.ReLU(),
+            nn.Linear(40, 3),
+        )
+
+    def forward(self, x):
+        return self.model(x)
+
+model = ColorNet()
+
+# 損失関数（MSE）
+criterion = nn.MSELoss()
+
+# 最適化手法
+optimizer = optim.Adam(model.parameters(), lr=0.01)
+
+# L1正則化の係数
+lambda_l1 = 1e-6
+
+# 学習ループ
+epochs = 50000
+for epoch in range(epochs):
+    optimizer.zero_grad()
+
+    outputs = model(X_tensor)
+    mse = criterion(outputs, Y_tensor)
+
+    # --- L1 正則化-----------------------------
+    l1 = torch.tensor(0.0, requires_grad=False)
+    for name, p in model.named_parameters():
+        if 'weight' in name:
+            l1 = l1 + p.abs().sum()
+    loss = mse + lambda_l1 * l1
+    # -----------------------------------------
+
+    loss.backward()
+    optimizer.step()
+
+    if epoch % 500 == 0:
+        print(f'Epoch [{epoch}/{epochs}]  MSE: {mse.item():.6f}  L1: {l1.item():.2f}  Loss: {loss.item():.6f}')
+
+with torch.no_grad():
+    predictions = model(X_tensor)
+    print("\n予測結果：")
+    print(predictions.numpy())
+
+def convert_to_cpp_array(tensor: torch.Tensor, name: str, dtype: str = "float"):
+    flat = tensor.detach().numpy().flatten()
+    array_str = f"{dtype} {name}[] = {{"
+    array_str += ", ".join(map(str, flat))
+    array_str += "};"
+    return array_str
+
+cpp_code = ""
+
+layer_idx = 1
+for layer in model.model:
+    if isinstance(layer, torch.nn.Linear):
+        cpp_code += convert_to_cpp_array(layer.weight, f"weight_{layer_idx}") + "\n"
+        cpp_code += convert_to_cpp_array(layer.bias,   f"bias_{layer_idx}") + "\n"
+        layer_idx += 1
+
+with open("model_parameters.h", "w") as f:
+    f.write(cpp_code)
+
+print("\nC++ 用のパラメータファイル (model_parameters.h) を作成しました．")
+
+\end{lstlisting}
+\clearpage
+\subsection{読み込み品質のソフトウェア的改良(隠れ層の圧縮方法)}
+\subsubsection{なぜ隠れ層の圧縮が必要なのか}
+Arduino Uno R4 WiFiのようなマイクロコントローラーでは，メモリ容量が限定的である
+（SRAM: 約32KB，Flash: 256KB）ため，ニューラルネットワークの隠れ層次元を増大させると，
+重み・バイアスデータの保存および推論演算に必要なメモリが不足する可能性がある．
+
+例えば，隠れ層次元を40から70以上に拡大した場合，パラメータ総数が急増
+（例: 40次元で約1,923パラメータ，70次元で約3,000パラメータ以上）し，
+float32形式で10KBを超えると動作不能となる．
+この制約を克服するため，重みデータの圧縮が不可欠である．
+
+主な手法として，(1) 量子化（float32 → int8でメモリ1/4化），(2) プルーニング（L1正則化により0に近い重みを0化し，非ゼロ率を低減），
+(3) 疎行列表現（CSR形式で非ゼロ要素のみ保存）が有効である．
+これにより，次元を100-200まで拡張しつつ，MSE誤差をできるだけ抑え，画像復元の品質を向上させることができる．
+最終的に，読み取り時間の短縮（演算量低減）とMSEの低減を両立させる．
+
+\subsubsection{圧縮方法1:量子化とは}
+量子化とは，ニューラルネットワークの重みや活性化値を高精度の浮動小数点数（例: 32-bit float）
+から低精度の整数（例: 8-bit uint8）へ変換する手法である．これにより，整数演算のみで推論が可能となり，
+組み込みデバイス（例: Arduino Uno R4 WiFi）のメモリ使用量と計算コストを大幅に削減する．
+論文\cite{jacob2018quantization}では，$r = S(q - Z)$（$S$: scale, $Z$: zero-point）のアフィン変換スキームを提案し，
+畳み込み層の入力/出力/重みを8-bit整数で表現，蓄積器を32-bit整数で扱うことで，
+浮動小数点演算を回避．
+本研究では，このスキームをRGB画像復元NN（入力3$\to$隠れ40$\to$40$\to$出力3）に適用し，
+重み/活性化をuint8へ量子化，バイアスをint32で保持する．
+
+\textbf{メリット:}
+\begin{itemize}
+    \item \textbf{メモリ削減:} 32-bitから8-bitへ変換で約4倍削減（例: 40次元隠れ層の約1,923パラメータで7.7KB →\to\to
+ 1.9KB）．ゼロポイント$Z$により0値表現が効率的．
+    \item \textbf{計算高速化:} 整数演算（uint8 ×\times\times
+ uint8 →\to\to
+ int32蓄積）が浮動小数点より低レイテンシ（論文のFig.~\ref{fig:titlefig}c参照: Snapdragon 835で2-3倍速）．ArduinoのAVRコアで乗算/加算が簡素化．
+    \item \textbf{精度維持:} 量子化感知訓練（QAT）でMSE誤差を1-2％以内に抑え，画像復元品質を保つ．プルーニングと組み合わせで表現力向上．
+\end{itemize}
+
+\textbf{デメリット:}
+\begin{itemize}
+    \item \textbf{精度低下の可能性:} 小規模モデルでチャネル間範囲差が大きく，相対誤差増大（論文のセクション3参照: 活性化範囲のEMA推定が必要）．4-bit以下で5-10％ MSE悪化．
+    \item \textbf{実装複雑さ:} スケーリング/ゼロポイントのオフライン計算と，Arduinoでのint32蓄積+丸め（fixed-point multiplier）が必要．オーバーフロー/アンダーフロー管理．
+    \item \textbf{訓練時対応:} Fake quantizationノード挿入でシミュレーションが必要，初期ステップで量子化無効化（50kステップ）で安定化．
+\end{itemize}
+
+
+\clearpage
+\subsubsection{圧縮方法2:プルーニングとは}
+プルーニング（Pruning）とは，ニューラルネットワークの重みを閾値以下で0にし，不要な接続を削除して疎行列化する手法である．これにより，過剰パラメータを削減し，メモリ・計算コストを低減．
+論文\cite{han2015deep}では，3ステッププロセス（初期訓練で重要接続学習 → 低重み接続削除 → 残存接続再訓練）を提案し，イテラティブに繰り返すことでAlexNetを9倍，VGG-16を13倍圧縮（精度損失なし）．
+本研究では，L1正則化で重みを0寄りにした後，閾値0.01でプルーニングし，RGB復元NN（3$\to$40$\to$40$\to$3）の疎化を促進，CSR形式との組み合わせでArduino適合性を向上させる．
+
+\textbf{メリット:}
+\begin{itemize}
+    \item \textbf{パラメータ削減:} 非ゼロ率を8-11％に低減（論文Table \ref{table:results}参照: AlexNet 61M$\to$6.7M）．40次元モデルで1,923$\to$200パラメータ未満，メモリ1/10．
+    \item \textbf{計算効率化:} FLOPを30-50％低減（疎演算）．DRAMアクセス低減でエネルギー節約（論文Fig.\ref{energy}: 640pJ$\to$SRAM 5pJ）．
+    \item \textbf{精度維持:} 再訓練で損失回復（L2正則化推奨）．イテラティブでオーバーフィッティング低減，視覚注意領域検出（Fig.\ref{fig:region}）．
+\end{itemize}\textbf{デメリット:}
+\begin{itemize}
+    \item \textbf{精度低下リスク:} 再訓練なしで急落（論文Fig.\ref{fig:acc_param}: 1/3で開始）．CONV層がFCより敏感（Fig.\ref{fig:sensitivity}）．
+    \item \疎表現オーバーヘッド: インデックス保存で15.6％追加（相対インデックスで5-8bit最適化）．一般ハードで疎演算非効率．
+    \item \訓練コスト増: イテレーション（5回でVGG-16）とドロップアウト調整（$D_r = D_o \sqrt{C_{ir}/C_{io}}$）が必要．
+\end{itemize}
+
+
+\subsubsection{圧縮方法3: COO（COOrdinate）形式}
+COO（Coordinate List）形式は，疎行列を非ゼロ要素の座標（行番号，列番号）と値のリストとして表現するシンプルな
+圧縮手法である．L1正則化により重みが0に近い成分が多くなる本研究のニューラルネットワークでは，0に近い成分（例: ±0.01未満）を0としてプルーニングした後，
+非ゼロ要素のみを列挙することで，重み行列（例: 40×40）を効率的に保存する．
+SciPyライブラリでsparse.coo_matrixとして実装可能で，各非ゼロ要素を3つの配列（値，行インデックス，列インデックス）で管理する．
+
+\textbf{メリット:}
+\begin{itemize}
+    \item \textbf{シンプルな実装:} 非ゼロ要素の直接列挙のため，構築・変換が容易．PythonからArduinoへのエクスポートが直感的．
+    \item \textbf{メモリ削減:} 非ゼロ率が50％ならデータ量を約1/2に（例: 40×40行列の1,600要素中800非ゼロで，3×800×4バイト≈9.6KB → 密形式の1/2）．
+    \item \textbf{柔軟性:} 行/列のソート不要で，任意の疎パターンに適応．プルーニング後の即時適用可能．
+\end{itemize}
+
+\textbf{デメリット:}
+\begin{itemize}
+    \item \textbf{アクセス効率の低さ:} 行列-ベクトル乗算（推論時）で全非ゼロを走査するため，計算時間がO(NNZ)（NNZ: 非ゼロ数）と遅め．CSRより高速化しにくい．
+    \item \textbf{ストレージオーバーヘッド:} インデックス（int32）が値（float32）と同等サイズのため，非ゼロ率が高い（>70％）と圧縮効果が薄れる．
+    \item \textbf{ソート不足:} インデックスが未ソートの場合，Arduinoでのバイナリサーチ不可で追加ソートコスト．
+\end{itemize}
+
+\clearpage
+\subsubsection{圧縮方法4: CRS/CSR（Compressed Row Storage/Compressed Sparse Row）形式とは}
+CRS/CSR（Compressed Sparse Row）形式は，疎行列を値配列（data），列インデックス配列（indices），行ポインタ配列（indptr）で表現する行指向の圧縮手法である．
+非ゼロ要素を列順にソートし，各行の非ゼロ開始位置をindptrで記録するため，行アクセスが高速．
+授業の参考通り，L1正則化で生じた0成分をプルーニング後，40×40重み行列をCSRで保存し，Arduinoのメモリ（SRAM 32KB）制約をクリアする．
+
+\textbf{メリット:}
+\begin{itemize}
+    \item \textbf{高速行アクセス:} 行列-ベクトル乗算がO(NNZ)で効率的（for j = indptr[i] to indptr[i+1]: y[i] += data[j] * x[indices[j]]）．推論速度がCOOの1.5-2倍．
+    \item \textbf{優れた圧縮率:} インデックス共有でオーバーヘッド低（非ゼロ率30％でデータ量1/10）．40次元モデルで1KB未満可能．
+    \item \textbf{Arduino適合:} 固定サイズ配列（indptr: 41要素）で実装しやすく，Flash保存（PROGMEM）でRAM節約．複数層対応．
+\end{itemize}\textbf{デメリット:}
+\begin{enumerate}
+    \item \textbf{列アクセスの遅さ:} 列方向スキャンが必要で，転置行列使用時非効率．CNNのような畳み込み層には不向き．
+    \item \textbf{変換コスト:} COOからCSRへのソートが必要（SciPyのtocsr()）．動的NNZ変更で再構築．
+    \item \textbf{デッドコードリスク:} 完全0行が発生するとindptrが無駄を生むが，プルーニングで稀．
+\end{itemize}\textbf{具体的な実験方法:}\\
+PyTorchモデルを基に，以下のステップでCSRを適用・評価．
+\begin{enumerate}
+    \item \textbf{疎化処理:} L1訓練後，閾値でプルーニング（非ゼロ率<50％目指す）．
+    \item \textbf{CSR生成:} sparse.csr_matrixで変換（csr.data, csr.indices, csr.indptrをmodel_parameters.h出力）．
+    \item \textbf{Arduino実装:} CSR matvec関数でReLU統合推論．センサーRGB→CSR forward→PPM出力．
+    \item \textbf{誤差測定:} 密/CSRのMSE/PSNR比較（目標: <2％誤差）．60→100次元でイテレーション，読み取り時間短縮も計測．
+\end{enumerate}
+これで，授業の「0成分多数時圧縮」コンセプトを実証し，200次元挑戦の基盤とする．
+
+\clearpage
+\subsubsection{重み圧縮手法の比較}
+以下に，量子化，COO形式，CSR形式の重み圧縮手法を比較した表を示す．本研究の文脈（Arduino Uno R4 WiFi上でのRGB画像復元NN，隠れ層40-200次元，L1正則化による疎化）
+を考慮し，メモリ削減率（40次元モデル例: 約1,923パラメータ，非ゼロ率50％想定），計算効率，精度影響などを基準とする．
+
+\begin{table}[h]
+\centering
+\caption{重み圧縮手法の比較}
+\label{tab:weight_compression_summary} % ← 表を参照するためのラベルを追加
+\begin{tabular}{|l|c|c|c|c|}
+\hline
+\textbf{手法} & \textbf{メモリ削減率} & \textbf{計算効率} & \textbf{実装難易度} & \textbf{Arduino適合性} \\
+\hline
+量子化 & 4倍 (7.7KB → 1.9KB) & 高 (整数演算) & 低 & 高 (ライブラリ対応) \\
+\hline
+COO形式 & 2-5倍 (非ゼロ率依存) & 中 (全走査) & 低 & 中 (ループ実装) \\
+\hline
+CSR形式 & 3-10倍 (非ゼロ率依存) & 高 (行アクセス最適) & 中 & 高 (matvec高速) \\
+\hline
+\end{tabular}
+\end{table}
+
+この表は，授業のL1正則化（重み疎化）を前提とした推定値である．メモリ削減率は非ゼロ率50％でCOO/CSRを計算（例: 40×40層の800非ゼロでCOO: 約9.6KB → CSR: 約6.4KB）．
+精度影響はプルーニング閾値0.01でのシミュレーションに基づく．
+\clearpage
+\section{実験方法}
+本節では，重み圧縮手法としてCSR（Compressed Sparse Row）形式を第一優先とし，次にCSR圧縮モデルに対する量子化を適用してさらなる圧縮を検討する．
+実験は，隠れ層次元40から開始し，「非圧縮」「CSR圧縮」「CSR+量子化」のMSEを比較して品質影響を評価する．
+全体フローは，PyTorchによる訓練・圧縮生成，Arduino Uno R4 WiFiへのデプロイ，センサーデータによる推論・MSE計算である．
+目標は，MSE相対誤差を5%以内に抑えつつ，次元を100-200へ拡張可能とする．これにより，L1正則化による疎化を活かし，メモリ制約下での画像復元品質向上と読み取り時間短縮を実現する．\subsection{全体実験フロー}データ準備: 授業配布の3$\times$3カラーチャートRGB値を訓練データ（9サンプル，ノイズ付加）とし，基準画像を評価用とする．センサー（例: AS7341）で実測データを収集．
+モデル訓練: PyTorchでColorNet（入力3$\to$隠れ$d_1\to d_2\to$出力3，$d_1=d_2=40$初期）を訓練（epochs=50,000, Adam lr=0.01, $\lambda_{L1}=10^{-6}$）．L1正則化で非ゼロ率50％以下を目指す．
+圧縮生成: プルーニング（閾値0.01）後，CSR変換（SciPy）し，model_parameters.hエクスポート．
+Arduinoデプロイ: スケッチで整数-only forward実装（PROGMEM保存）．RGB入力$\to$推論$\to$PPM出力．
+評価基準: MSE/PSNR（PCソフト）とレイテンシ（millis()）を測定．相対誤差<5％，PSNR>25dBで次元拡張（40$\to$60$\to$100$\to$200）．
+
+結果は表\ref{tab:results}にまとめ，圧縮率・誤差・時間のトレードオフを分析する．
+
+\subsection{CSR形式圧縮の実験方法}
+CSRを優先する理由は，L1正則化による疎化を活かした高圧縮率（3-10倍）と推論高速化（行指向matvec）である．以下の手順で実施．\begin{enumerate}
+    \item \textbf{モデル訓練（Python）:}
+    PyTorchでColorNetを訓練．L1正則化で重みを疎化（非ゼロ率<50％）．ReLU活性化使用．
+    \item \textbf{プルーニングとCSR生成:}  
+    閾値0.01で重みを0化（`torch.abs(w) < 0.01`）．SciPyの`sparse.csr_matrix`でCSR変換（data, indices, indptrをNumPy出力）．C配列として`model_parameters.h`生成（例: `const float csr_w1_data[NNZ] = {...};`）．
+    \item \textbf{Arduino実装:}  
+    CSR matvec関数を実装（`for j=indptr[i]; j<indptr[i+1]; y[i] += data[j] * x[indices[j]];`）．センサーRGB入力$\to$CSR forward（ReLU統合）$\to$出力RGB$\to$PPM出力．PROGMEMでFlash保存．
+    \item \textbf{評価:}  
+    PPMと基準画像のMSE/PSNR計算．非圧縮 vs CSRの相対誤差を算出（目標: <3\%）．40次元で確認後，次元増加・再訓練．\end{enumerate}
+\clearpage
+\subsection{CSR+量子化による追加圧縮の実験方法}
+CSR後，8-bit量子化（uint8重み/活性化，int32バイアス）を適用し，メモリをさらに4倍削減．論文\cite{jacob2018quantization}のスキーム（$r = S(q - Z)$）を基に，CSRの疎性を保ち200次元対応を目指す．量子化感知訓練（QAT）で精度を維持．
+\begin{enumerate}
+    \item \textbf{量子化感知訓練（Python）:}
+    訓練グラフにfake quantization挿入（$\hat{r} = \round(\clamp(r; a, b) / S) \cdot S + Z$，$S=(b-a)/255$，範囲$[a,b]$をEMA学習）．初期50kステップで量子化無効化，ReLU6で範囲安定化（epochs=50,000）．
+    \item \textbf{量子化実行（Python）:}  
+    CSRデータ（float32）をuint8へ変換（$q = \round((r - Z)/S)$，scale=$max(|r|)/127$）．バイアスは$S_w S_a$スケールでint32．multiplier $M = S_w S_a / S_o$をfixed-pointオフライン計算．indptr/indicesをint16圧縮，`model_parameters.h`更新．
+    \item \textbf{Arduino実装:}  
+    matvec内でuint8乗算+int32蓄積+スケーリング（gemmlowp風）．ReLUをint8 clamp(0,127)．EloquentTinyMLライブラリでint8対応．
+    \item \textbf{評価:}  
+CSR vs CSR+量子化のMSE比較（目標: 追加誤差<2\%）．レイテンシ短縮率測定．100次元でPSNR>25dB確認後，200次元挑戦．
+\end{enumerate}
+これらの実験により，CSR基盤上で量子化を積層し，MSE低減・時間短縮を両立．プルーニングとの相乗効果で，非ゼロ率低減と整数演算効率を検証する．
+
+
+
+
+\clearpage
+\begin{thebibliography}{9}
+\bibitem{jacob2018quantization} B. Jacob et al., ``Quantization and Training of Neural Networks for Efficient Integer-Arithmetic-Only Inference,'' CVPR, 2018.
+\bibitem{han2015deep} Song Han et al., ``Learning both Weights and Connections for Efficient Neural Networks,'' NeurIPS, 2015.
+\end{thebibliography}
+
+
+\end{document}
