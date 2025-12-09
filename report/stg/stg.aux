@@ -8,22 +8,22 @@
 \providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
 \newlabel{fig:実験概要}{{1}{1}{実験の全体構成}{figure.caption.1}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.1}平均二乗誤差（MSE）}{2}{subsection.2.1}\protected@file@percent }
-\citation{han2015deep}
 \@writefile{toc}{\contentsline {section}{\numberline {3}実験理論}{3}{section.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.1}ニューラルネットワークによる品質改善}{3}{subsection.3.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {3.1.1}ネットワーク構造}{3}{subsubsection.3.1.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.2}隠れ層の圧縮手法}{3}{subsection.3.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.1}圧縮の必要性}{3}{subsubsection.3.2.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.2}圧縮手法の概観}{3}{subsubsection.3.2.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.3}プルーニング（Pruning）}{3}{subsubsection.3.2.3}\protected@file@percent }
+\citation{han2015deep}
 \citation{jacob2018quantization}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.3}プルーニング（Pruning）}{4}{subsubsection.3.2.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{メリット}{4}{section*.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{デメリット}{4}{section*.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.4}CSR（Compressed Sparse Row）形式}{4}{subsubsection.3.2.4}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{メリット}{4}{section*.4}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{デメリット}{4}{section*.5}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.5}量子化（Quantization）}{4}{subsubsection.3.2.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{メリット}{4}{section*.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{メリット}{5}{section*.6}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{デメリット}{5}{section*.7}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.6}本研究における適用方針}{5}{subsubsection.3.2.6}\protected@file@percent }
 \@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces 重み圧縮手法の比較}}{5}{table.caption.8}\protected@file@percent }
@@ -49,13 +49,42 @@
 \newlabel{tab:experiment_conditions}{{4}{9}{実験条件}{table.caption.12}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.4}実験手順}{10}{subsection.5.4}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {5.4.1}モデルの学習とパラメータ生成}{10}{subsubsection.5.4.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.4.2}Arduinoへのデプロイ}{10}{subsubsection.5.4.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.4.3}スキャン実行とデータ取得}{10}{subsubsection.5.4.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{キャリブレーション}{10}{section*.13}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{カラーチャートの読み取り}{10}{section*.14}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{PPM画像の出力}{10}{section*.15}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.5}評価方法}{10}{subsection.5.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.6}比較対象}{11}{subsection.5.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{ステップ1：データ準備}{10}{section*.13}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{ステップ2：ニューラルネットワークの学習}{10}{section*.14}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{ステップ3：CSR形式への変換}{10}{section*.15}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{ステップ4：量子化の適用（オプション）}{10}{section*.16}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.4.2}Arduinoへのデプロイ}{11}{subsubsection.5.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{ステップ1：パラメータファイルの配置}{11}{section*.17}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces パラメータファイルの配置}}{11}{table.caption.18}\protected@file@percent }
+\newlabel{tab:parameter_files}{{5}{11}{パラメータファイルの配置}{table.caption.18}{}}
+\@writefile{toc}{\contentsline {paragraph}{ステップ2：Arduinoコードの設定}{11}{section*.19}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {3}{\ignorespaces 隠れ層次元の設定}}{11}{lstlisting.3}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {4}{\ignorespaces パラメータファイルのインクルード}}{11}{lstlisting.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{ステップ3：コンパイルとアップロード}{11}{section*.20}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.4.3}スキャン実行とデータ取得}{12}{subsubsection.5.4.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{ステップ1：キャリブレーション}{12}{section*.21}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{ステップ2：カラーチャートの読み取り}{12}{section*.22}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{ステップ3：PPM画像の出力}{12}{section*.23}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5}評価方法}{12}{subsection.5.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.6}比較対象}{13}{subsection.5.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6}実験結果}{14}{section.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}MSE測定結果}{14}{subsection.6.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces 圧縮手法別MSE比較}}{14}{table.caption.24}\protected@file@percent }
+\newlabel{tab:results_mse_comparison}{{6}{14}{圧縮手法別MSE比較}{table.caption.24}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces 隠れ層次元別MSE比較（平均値）}}{14}{table.caption.25}\protected@file@percent }
+\newlabel{tab:results_by_dimension}{{7}{14}{隠れ層次元別MSE比較（平均値）}{table.caption.25}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}パラメータ生成時間}{14}{subsection.6.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}詳細データ}{14}{subsection.6.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {6.3.1}非圧縮（密行列形式）}{14}{subsubsection.6.3.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces パラメータファイル生成時間}}{15}{table.caption.26}\protected@file@percent }
+\newlabel{tab:results_generation_time}{{8}{15}{パラメータファイル生成時間}{table.caption.26}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces 密行列形式（40次元）の詳細測定結果}}{15}{table.caption.27}\protected@file@percent }
+\newlabel{tab:results_dense_detail}{{9}{15}{密行列形式（40次元）の詳細測定結果}{table.caption.27}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {6.3.2}CSR圧縮}{15}{subsubsection.6.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {6.3.3}CSR＋量子化}{15}{subsubsection.6.3.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.4}結果のまとめ}{15}{subsection.6.4}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {10}{\ignorespaces CSR圧縮の詳細測定結果}}{16}{table.caption.28}\protected@file@percent }
+\newlabel{tab:results_csr_detail}{{10}{16}{CSR圧縮の詳細測定結果}{table.caption.28}{}}
 \bibcite{jacob2018quantization}{1}
 \bibcite{han2015deep}{2}
-\gdef \@abspage@last{12}
+\gdef \@abspage@last{17}

@@ -1,4 +1,4 @@
-This is e-upTeX, Version 3.141592653-p4.1.2-u2.00-250202-2.6 (utf8.uptex) (TeX Live 2025) (preloaded format=uplatex 2025.3.15)  9 DEC 2025 09:46
+This is e-upTeX, Version 3.141592653-p4.1.2-u2.00-250202-2.6 (utf8.uptex) (TeX Live 2025) (preloaded format=uplatex 2025.3.15)  9 DEC 2025 10:40
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -57,36 +57,13 @@ Package: inputenc 2024/02/08 v1.3d Input encoding file
 (/usr/local/texlive/2025/texmf-dist/tex/latex/base/fontenc.sty
 Package: fontenc 2021/04/29 v2.0v Standard LaTeX package
 )
-
-! LaTeX Error: File `japanese.sty' not found.
-
-Type X to quit or <RETURN> to proceed,
-or enter new name. (Default extension: sty)
-
-Enter file name: 
-(/usr/local/texlive/2025/texmf-dist/tex/platex/pxjahyper/pxjahyper.sty
-Package: pxjahyper 2024/08/25 v1.5
+(/usr/local/texlive/2025/texmf-dist/tex/latex/geometry/geometry.sty
+Package: geometry 2020/01/02 v5.9 Page Geometry
 
 (/usr/local/texlive/2025/texmf-dist/tex/latex/graphics/keyval.sty
 Package: keyval 2022/05/29 v1.15 key=value parser (DPC)
 \KV@toks@=\toks20
 )
-(/usr/local/texlive/2025/texmf-dist/tex/generic/ltxcmds/ltxcmds.sty
-Package: ltxcmds 2023-12-04 v1.26 LaTeX kernel commands for general use (HO)
-)
-
-! Package pxjahyper Error: Package 'hyperref' is not yet loaded.
-
-See the pxjahyper package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.236 }
-       
-? 
-) (/usr/local/texlive/2025/texmf-dist/tex/latex/geometry/geometry.sty
-Package: geometry 2020/01/02 v5.9 Page Geometry
-
 (/usr/local/texlive/2025/texmf-dist/tex/generic/iftex/ifvtex.sty
 Package: ifvtex 2019/10/25 v1.7 ifvtex legacy package. Use iftex instead.
 
@@ -361,6 +338,9 @@ Package: kvdefinekeys 2019-12-19 v1.6 Define keys (HO)
 (/usr/local/texlive/2025/texmf-dist/tex/generic/pdfescape/pdfescape.sty
 Package: pdfescape 2019/12/09 v1.15 Implements pdfTeX's escape features (HO)
 
+(/usr/local/texlive/2025/texmf-dist/tex/generic/ltxcmds/ltxcmds.sty
+Package: ltxcmds 2023-12-04 v1.26 LaTeX kernel commands for general use (HO)
+)
 (/usr/local/texlive/2025/texmf-dist/tex/generic/pdftexcmds/pdftexcmds.sty
 Package: pdftexcmds 2020-06-27 v0.33 Utility functions of pdfTeX for LuaTeX (HO
 )
@@ -488,8 +468,23 @@ Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 2
 )
 \Hy@SectionHShift=\skip66
 ))
-Package hyperref Info: Option `colorlinks' set `true' on input line 43.
- (/usr/local/texlive/2025/texmf-dist/tex/latex/listings/listings.sty
+Package hyperref Info: Option `colorlinks' set `true' on input line 39.
+ (/usr/local/texlive/2025/texmf-dist/tex/platex/pxjahyper/pxjahyper.sty
+Package: pxjahyper 2024/08/25 v1.5
+
+(/usr/local/texlive/2025/texmf-dist/tex/platex/pxjahyper/pxjahyper-enc.sty
+Package: pxjahyper-enc 2024/08/25 v1.5
+)
+(/usr/local/texlive/2025/texmf-dist/tex/latex/bxjatoucs/bxjatoucs.sty
+Package: bxjatoucs 2024/07/22 v0.3a
+)
+(/usr/local/texlive/2025/texmf-dist/tex/platex/pxjahyper/pxjahyper-uni.def
+File: pxjahyper-uni.def 2024/08/25 v1.5
+)
+Package pxjahyper Info: The setup for hyperref 'unicode' is NOT applied!
+(pxjahyper)             The package might not work properly.
+)
+(/usr/local/texlive/2025/texmf-dist/tex/latex/listings/listings.sty
 \lst@mode=\count319
 \lst@gtempboxa=\box82
 \lst@token=\toks36
@@ -532,28 +527,28 @@ File: l3backend-dvips.def 2024-05-08 L3 backend support: dvips
 (./stg.aux)
 \openout1 = `stg.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 60.
-LaTeX Font Info:    ... okay on input line 60.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 60.
-LaTeX Font Info:    ... okay on input line 60.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 60.
-LaTeX Font Info:    ... okay on input line 60.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 60.
-LaTeX Font Info:    ... okay on input line 60.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 60.
-LaTeX Font Info:    ... okay on input line 60.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 60.
-LaTeX Font Info:    ... okay on input line 60.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 60.
-LaTeX Font Info:    ... okay on input line 60.
-LaTeX Font Info:    Checking defaults for JY2/mc/m/n on input line 60.
-LaTeX Font Info:    ... okay on input line 60.
-LaTeX Font Info:    Checking defaults for JT2/mc/m/n on input line 60.
-LaTeX Font Info:    ... okay on input line 60.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 60.
-LaTeX Font Info:    ... okay on input line 60.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 60.
-LaTeX Font Info:    ... okay on input line 60.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 59.
+LaTeX Font Info:    ... okay on input line 59.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 59.
+LaTeX Font Info:    ... okay on input line 59.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 59.
+LaTeX Font Info:    ... okay on input line 59.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 59.
+LaTeX Font Info:    ... okay on input line 59.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 59.
+LaTeX Font Info:    ... okay on input line 59.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 59.
+LaTeX Font Info:    ... okay on input line 59.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 59.
+LaTeX Font Info:    ... okay on input line 59.
+LaTeX Font Info:    Checking defaults for JY2/mc/m/n on input line 59.
+LaTeX Font Info:    ... okay on input line 59.
+LaTeX Font Info:    Checking defaults for JT2/mc/m/n on input line 59.
+LaTeX Font Info:    ... okay on input line 59.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 59.
+LaTeX Font Info:    ... okay on input line 59.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 59.
+LaTeX Font Info:    ... okay on input line 59.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: dvips
@@ -594,46 +589,46 @@ Package caption Info: float package is loaded.
 Package caption Info: hyperref package is loaded.
 Package caption Info: listings package is loaded.
 Package caption Info: End \AtBeginDocument code.
-Package hyperref Info: Link coloring ON on input line 60.
+Package hyperref Info: Link coloring ON on input line 59.
 (./stg.out) (./stg.out)
 \@outlinefile=\write3
 \openout3 = `stg.out'.
 
 \c@lstlisting=\count330
 LaTeX Font Info:    Font shape `JT2/mc/m/n' will be
-(Font)              scaled to size 15.9785pt on input line 65.
+(Font)              scaled to size 15.9785pt on input line 64.
 LaTeX Font Info:    Font shape `JY2/mc/m/n' will be
-(Font)              scaled to size 15.9785pt on input line 65.
+(Font)              scaled to size 15.9785pt on input line 64.
 LaTeX Font Info:    Font shape `JT2/mc/m/n' will be
-(Font)              scaled to size 11.09619pt on input line 65.
+(Font)              scaled to size 11.09619pt on input line 64.
 LaTeX Font Info:    Font shape `JY2/mc/m/n' will be
-(Font)              scaled to size 11.09619pt on input line 65.
+(Font)              scaled to size 11.09619pt on input line 64.
 LaTeX Font Info:    Font shape `JY2/mc/m/n' will be
-(Font)              scaled to size 5.5481pt on input line 65.
-LaTeX Font Info:    Trying to load font information for U+msa on input line 65.
+(Font)              scaled to size 5.5481pt on input line 64.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 64.
 
 
 (/usr/local/texlive/2025/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 65.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 64.
 
 
 (/usr/local/texlive/2025/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
 LaTeX Font Info:    Font shape `JT2/mc/m/n' will be
-(Font)              scaled to size 13.31541pt on input line 66.
+(Font)              scaled to size 13.31541pt on input line 65.
 LaTeX Font Info:    Font shape `JY2/mc/m/n' will be
-(Font)              scaled to size 13.31541pt on input line 66.
+(Font)              scaled to size 13.31541pt on input line 65.
 LaTeX Font Info:    Font shape `JT2/gt/m/n' will be
-(Font)              scaled to size 13.31541pt on input line 66.
+(Font)              scaled to size 13.31541pt on input line 65.
 LaTeX Font Info:    Font shape `JY2/gt/m/n' will be
-(Font)              scaled to size 13.31541pt on input line 66.
+(Font)              scaled to size 13.31541pt on input line 65.
 File: 実験概要.jpg Graphic file (type bmp)
 <実験概要.jpg>
 
-Overfull \hbox (2.27618pt too wide) in paragraph at lines 79--80
+Overfull \hbox (2.27618pt too wide) in paragraph at lines 78--79
  [][] 
  []
 
@@ -643,26 +638,26 @@ Overfull \hbox (2.27618pt too wide) in paragraph at lines 79--80
 
 ]
 LaTeX Font Info:    Font shape `JY2/mc/m/n' will be
-(Font)              scaled to size 6.47278pt on input line 84.
+(Font)              scaled to size 6.47278pt on input line 83.
 LaTeX Font Info:    Font shape `JY2/mc/m/n' will be
-(Font)              scaled to size 4.62341pt on input line 84.
+(Font)              scaled to size 4.62341pt on input line 83.
 LaTeX Font Info:    Font shape `JT2/gt/m/n' will be
-(Font)              scaled to size 11.09619pt on input line 95.
+(Font)              scaled to size 11.09619pt on input line 94.
 LaTeX Font Info:    Font shape `JY2/gt/m/n' will be
-(Font)              scaled to size 11.09619pt on input line 95.
+(Font)              scaled to size 11.09619pt on input line 94.
 LaTeX Font Info:    Font shape `JT2/mc/m/n' will be
-(Font)              scaled to size 6.47278pt on input line 98.
+(Font)              scaled to size 6.47278pt on input line 97.
 LaTeX Font Info:    Font shape `JT2/mc/m/n' will be
-(Font)              scaled to size 4.62341pt on input line 98.
+(Font)              scaled to size 4.62341pt on input line 97.
 
 
 [2
 
 ]
 LaTeX Font Info:    Font shape `JT2/gt/m/n' will be
-(Font)              scaled to size 9.24683pt on input line 118.
+(Font)              scaled to size 9.24683pt on input line 117.
 LaTeX Font Info:    Font shape `JY2/gt/m/n' will be
-(Font)              scaled to size 9.24683pt on input line 118.
+(Font)              scaled to size 9.24683pt on input line 117.
 
 
 [3
@@ -670,7 +665,9 @@ LaTeX Font Info:    Font shape `JY2/gt/m/n' will be
 
 ]
 
-[4]
+[4
+
+]
 LaTeX Font Info:    Font shape `JT2/mc/bx/n' in size <10> not available
 (Font)              Font shape `JT2/gt/m/n' tried instead on input line 230.
 LaTeX Font Info:    Font shape `JT2/gt/m/n' will be
@@ -720,20 +717,61 @@ LaTeX Font Info:    Font shape `JY2/gt/m/n' will be
 
 ]
 
-LaTeX Warning: Reference `fig:experiment_flow' on page 9 undefined on input lin
-e 361.
-
-
-
 [9
 
 ]
 
 [10]
+LaTeX Font Info:    Font shape `JT2/gt/bx/n' in size <9> not available
+(Font)              Font shape `JT2/gt/m/n' tried instead on input line 471.
+LaTeX Font Info:    Font shape `JT2/gt/m/n' will be
+(Font)              scaled to size 8.32214pt on input line 471.
+LaTeX Font Info:    Font shape `JY2/gt/bx/n' in size <9> not available
+(Font)              Font shape `JY2/gt/m/n' tried instead on input line 471.
+LaTeX Font Info:    Font shape `JY2/gt/m/n' will be
+(Font)              scaled to size 8.32214pt on input line 471.
+LaTeX Font Info:    Font shape `T1/cmtt/bx/n' in size <9> not available
+(Font)              Font shape `T1/cmtt/m/n' tried instead on input line 471.
+LaTeX Font Info:    Font shape `JT2/gt/m/it' in size <9> not available
+(Font)              Font shape `JT2/gt/m/n' tried instead on input line 471.
+LaTeX Font Info:    Font shape `JT2/gt/m/n' will be
+(Font)              scaled to size 8.32214pt on input line 471.
+LaTeX Font Info:    Font shape `JY2/gt/m/it' in size <9> not available
+(Font)              Font shape `JY2/gt/m/n' tried instead on input line 471.
+LaTeX Font Info:    Font shape `JY2/gt/m/n' will be
+(Font)              scaled to size 8.32214pt on input line 471.
 
-[11]
+
+[11
+
+]
 
 [12
+
+]
+
+[13]
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+
+[14
+
+]
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+
+[15]
+
+[16]
+
+[17
 
 ] (./stg.aux)
  ***********
@@ -741,26 +779,16 @@ pLaTeX2e <2023-02-14u04>+1, based on
 LaTeX2e <2024-11-01> patch level 2
 L3 programming layer <2025-01-18>
  ***********
-
-
-LaTeX Warning: There were undefined references.
-
-
-Package rerunfilecheck Warning: File `stg.out' has changed.
-(rerunfilecheck)                Rerun to get outlines right
-(rerunfilecheck)                or use package `bookmark'.
-
-Package rerunfilecheck Info: Checksums for `stg.out':
-(rerunfilecheck)             Before: C9B9D4F0DBE29848852C1DFC832FCFB6;2191
-(rerunfilecheck)             After:  E6751BECF9E3179BB11B0A36C20F4967;1712.
+Package rerunfilecheck Info: File `stg.out' has not changed.
+(rerunfilecheck)             Checksum: D70837BF68A7673B37A9EC1E459899AC;2281.
  ) 
 Here is how much of TeX's memory you used:
- 14546 strings out of 473836
- 223730 string characters out of 5731190
- 817307 words of memory out of 5000000
- 37599 multiletter control sequences out of 15000+600000
- 580843 words of font info for 119 fonts, out of 8000000 for 9000
+ 14979 strings out of 473836
+ 231049 string characters out of 5731190
+ 832635 words of memory out of 5000000
+ 38018 multiletter control sequences out of 15000+600000
+ 635609 words of font info for 123 fonts, out of 8000000 for 9000
  934 hyphenation exceptions out of 8191
- 72i,10n,79p,296b,1320s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 72i,11n,79p,277b,1320s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on stg.dvi (12 pages, 57668 bytes).
+Output written on stg.dvi (17 pages, 86204 bytes).

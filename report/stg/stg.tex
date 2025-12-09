@@ -4,10 +4,6 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 
-% 日本語対応（uplatex + dvipdfmx用）
-\usepackage{japanese}
-\usepackage[dvipdfmx]{pxjahyper}
-
 % ページ設定
 \usepackage{geometry}
 \geometry{a4paper, margin=1in}
@@ -33,7 +29,7 @@
 \usepackage{algorithm}
 \usepackage{algorithmic}
 
-% ハイパーリンク
+% ハイパーリンク（pxjahyperより前に読み込む必要がある）
 \usepackage{hyperref}
 \hypersetup{
     colorlinks=true,
@@ -41,6 +37,9 @@
     citecolor=red,
     urlcolor=green
 }
+
+% 日本語対応（uplatex + dvipdfmx用、hyperrefの後に読み込む）
+\usepackage[dvipdfmx]{pxjahyper}
 
 % コードハイライト
 \usepackage{listings}
@@ -150,6 +149,7 @@ float32形式では10\,KBを超える場合，Arduino上での動作が困難と
 これらの手法は独立に適用することも，組み合わせて適用することも可能である．
 以下では，各手法の原理と特徴を述べた上で，本研究における適用方針を示す．
 
+\clearpage
 \subsubsection{プルーニング（Pruning）}
 プルーニングとは，閾値以下の重みを0とみなし接続を削除することで，モデルを疎行列化する手法である．
 Hanら\cite{han2015deep}は，重要接続の学習，閾値による削減，再訓練を繰り返すことで，大規模モデルを10倍以上圧縮できることを示した．
@@ -344,7 +344,7 @@ Arduinoコードは用途に応じて以下の3種類を用意した．
 
 \section{実験方法}
 
-本章では，前章で述べた段階的圧縮アプローチの有効性を検証するために実施した実験の条件，手順，および評価方法について述べる．
+本章では，前章で述べた段階的圧縮アプローチの有効性を検証するために実施した実験について述べる．
 
 \subsection{実験の目的と方針}
 
@@ -358,7 +358,6 @@ L1正則化による重みの疎化を活かすことで，メモリ効率と推
 
 \subsection{実験の全体フロー}
 
-実験の全体フローを図\ref{fig:experiment_flow}に示す．
 本実験は，以下の3つのフェーズから構成される．
 
 \begin{enumerate}
@@ -406,38 +405,135 @@ L1正則化による重みの疎化を活かすことで，メモリ効率と推
 \subsection{実験手順}
 
 \subsubsection{モデルの学習とパラメータ生成}
-まず，L1正則化を適用したニューラルネットワークを学習し，重みの疎化を促進した．
-学習完了後，密行列形式のパラメータファイル（\texttt{model\_parameters.h}）を生成した．
+
+モデルの学習およびパラメータ生成は，Jupyter Notebook（\texttt{train\_L1\_normalization.ipynb}）を用いて実施した．
+以下に各ステップの詳細を示す．
+
+\paragraph{ステップ1：データ準備}\mbox{}\newline
+まず，学習に必要なライブラリ（PyTorch，NumPy，SciPy等）をインポートした．
+次に，参照画像としてPPM形式のカラーチャート画像を読み込み，推論用データを準備した．
+
+\paragraph{ステップ2：ニューラルネットワークの学習}\mbox{}\newline
+L1正則化を適用したニューラルネットワークを学習した．
+学習時には，隠れ層次元を指定するパラメータ\texttt{HIDDEN\_DIM}を設定した．
+本実験では，\texttt{HIDDEN\_DIM}を40, 80, 120と変化させて複数のモデルを学習した．
+学習完了後，密行列形式のパラメータファイル（\texttt{model\_parameters.h}）が自動生成される．
 このファイルは，圧縮なしのベースラインモデルとして使用する．
 
-次に，学習済みモデルに対し，閾値0.01でプルーニングを実施した後，重み行列をCSR形式に変換した．
-変換後のパラメータは\texttt{model\_parameters\_csr.h}として出力した．
-各隠れ層次元（40, 80, 120）に対してこの処理を行い，それぞれ\texttt{model\_parameters\_csr40.h}，\texttt{model\_parameters\_csr80.h}，\texttt{model\_parameters\_csr120.h}として管理した．
+\paragraph{ステップ3：CSR形式への変換}\mbox{}\newline
+学習済みモデルに対し，プルーニング閾値0.01でプルーニングを実施した後，重み行列をCSR形式に変換した．
+変換処理では，閾値以下の重みを0として扱い，非ゼロ要素のみを値配列（data），列インデックス（indices），行ポインタ（indptr）として抽出した．
+変換後のパラメータは\texttt{model\_parameters\_csr.h}として出力される．
 
-CSR圧縮のみではメモリ制約を満たせない場合，またはさらなる圧縮が必要な場合には，CSR形式のパラメータに対してint8量子化を追加適用し，\texttt{model\_parameters\_csr\_quantized.h}として出力した．
+各隠れ層次元に対してこの処理を行い，生成されたファイルは以下のようにリネームして管理した．
+\begin{itemize}
+    \item 40次元：\texttt{model\_parameters\_csr40.h}
+    \item 80次元：\texttt{model\_parameters\_csr80.h}
+    \item 120次元：\texttt{model\_parameters\_csr120.h}
+\end{itemize}
 
+\paragraph{ステップ4：量子化の適用（オプション）}\mbox{}\newline
+CSR圧縮のみではメモリ制約を満たせない場合，またはさらなる圧縮が必要な場合には，CSR形式のパラメータに対してint8量子化を追加適用した．
+量子化処理では，float32形式の重みをint8形式に変換し，スケールおよびゼロポイントを算出した．
+量子化後のパラメータは\texttt{model\_parameters\_csr\_quantized.h}として出力される．
+\clearpage
 \subsubsection{Arduinoへのデプロイ}
-生成したパラメータファイルをArduinoプロジェクトに組み込み，Arduino IDEを用いてコンパイル・アップロードを行った．
-この際，Arduinoコード内の\texttt{HIDDEN\_DIM}マクロを学習時と同一の値に設定し，対応するパラメータファイルをインクルードした．
 
+生成したパラメータファイルをArduinoプロジェクトに組み込み，実機へ書き込みを行った．
+以下に詳細な手順を示す．
+
+\paragraph{ステップ1：パラメータファイルの配置}\mbox{}\newline
+生成されたパラメータファイルを，対応するArduinoプロジェクトフォルダにコピーした．
+表\ref{tab:parameter_files}にファイルの配置先を示す．
+
+\begin{table}[h]
+    \centering
+    \caption{パラメータファイルの配置}
+    \label{tab:parameter_files}
+    \begin{tabular}{|l|l|l|}
+        \hline
+        \textbf{生成ファイル} & \textbf{コピー先} & \textbf{用途} \\
+        \hline
+        \texttt{model\_parameters.h} & \texttt{Arduino/AI\_Model/} & 密行列形式モデル \\
+        \hline
+        \texttt{model\_parameters\_csr*.h} & \texttt{Arduino/AI\_CSR/} & CSR形式モデル \\
+        \hline
+        \texttt{model\_parameters\_csr\_quantized.h} & \texttt{Arduino/AI\_CSR\_Quantized/} & CSR+量子化モデル \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\paragraph{ステップ2：Arduinoコードの設定}\mbox{}\newline
+各Arduinoプロジェクト内の\texttt{.ino}ファイルを開き，以下の設定を行った．
+
+まず，\texttt{HIDDEN\_DIM}マクロを学習時と同一の値に設定した．
+\begin{lstlisting}[language=C, caption=隠れ層次元の設定]
+#define HIDDEN_DIM 80  // 学習時と同じ値に設定
+\end{lstlisting}
+
+次に，使用するパラメータファイルをインクルードした．
+\begin{lstlisting}[language=C, caption=パラメータファイルのインクルード]
+#include "model_parameters_csr80.h"  // 対応するファイルを指定
+\end{lstlisting}
+
+なお，\texttt{HIDDEN\_DIM}の値と読み込むパラメータファイルの次元が一致していない場合，正常に動作しないため注意が必要である．
+
+\paragraph{ステップ3：コンパイルとアップロード}\mbox{}\newline
+Arduino IDEを用いて，以下の手順でコンパイルおよびアップロードを行った．
+\begin{enumerate}
+    \item Arduino IDEで対象の\texttt{.ino}ファイルを開く
+    \item ボード設定を「Arduino UNO R4 WiFi」に設定する
+    \item 接続されているシリアルポートを選択する
+    \item 「検証」ボタンでコンパイルエラーがないことを確認する
+    \item 「アップロード」ボタンでArduinoに書き込む
+\end{enumerate}
+
+コンパイル時には，メモリ使用量が表示される．
+SRAM使用量が32\,KBを超える場合はアップロードに失敗するため，その場合はより高い圧縮率の手法を適用する必要がある．
+
+\clearpage
 \subsubsection{スキャン実行とデータ取得}
+
 Arduinoに接続したRGBカラーセンサを用いて参照画像をスキャンし，推論結果をPPM形式の画像ファイルとして出力した．
 スキャンは以下の手順で実施した．
 
-\paragraph{キャリブレーション}
+\paragraph{ステップ1：キャリブレーション}\mbox{}\newline
 センサの感度は環境光や個体差により変動するため，測定前にキャリブレーションを行った．
 具体的には，2つのタクトスイッチを用いたプログラムにより，黒と白のサンプルを事前に測定し，センサ出力の最小値および最大値を取得した．
+
+キャリブレーション手順は以下のとおりである．
+\begin{enumerate}
+    \item 赤色タクトスイッチ（D2ピン）を押し，キャリブレーションモードに入る
+    \item 黒色サンプルをセンサにかざし，青色タクトスイッチ（D3ピン）を押して最小値を記録する
+    \item 白色サンプルをセンサにかざし，青色タクトスイッチを押して最大値を記録する
+    \item 赤色タクトスイッチを押し，キャリブレーションモードを終了する
+\end{enumerate}
+
 これらの値を基準として読み取り範囲を正規化することで，安定したRGB値の取得を可能とした．
 
-\paragraph{カラーチャートの読み取り}
+\paragraph{ステップ2：カラーチャートの読み取り}\mbox{}\newline
 キャリブレーション完了後，3$\times$3のカラーチャートをセンサで読み取った．
-各セルについてRGB値を取得し，ニューラルネットワークによる推論を経て補正されたRGB値を得た．
+読み取り手順は以下のとおりである．
+\begin{enumerate}
+    \item カラーチャートの各セルにセンサを順番にかざす
+    \item 青色タクトスイッチ（D3ピン）を押してRGB値を取得する
+    \item 取得したRGB値はニューラルネットワークによる推論を経て補正される
+    \item 全9セルの読み取りが完了するまで繰り返す
+\end{enumerate}
 
-\paragraph{PPM画像の出力}
-取得したRGBデータは，PPM（Portable Pixel Map）形式の画像ファイルとして出力した．
+\paragraph{ステップ3：PPM画像の出力}\mbox{}\newline
+取得したRGBデータは，シリアル通信を介してPC上のスキャナプログラム（\texttt{scanner.c}）に送信され，PPM（Portable Pixel Map）形式の画像ファイルとして出力された．
 PPM形式は非圧縮のラスタ画像フォーマットであり，画素値を直接比較できるため，後続のMSE評価に適している．
-各実験条件につき複数回のスキャンを実施し，結果のばらつきを考慮した．
 
+出力されたPPMファイルは，実験条件ごとに以下のフォルダに整理して保存した．
+\begin{itemize}
+    \item 密行列形式（40次元）：\texttt{ppm/AI\_Model.data/}
+    \item CSR形式（40次元）：\texttt{ppm/csr\_40\_0.01/}
+    \item CSR形式（80次元）：\texttt{ppm/csr\_80\_0.01/}
+    \item CSR形式（120次元）：\texttt{ppm/csr\_120\_0.01/}
+\end{itemize}
+
+各実験条件につき複数回（10回程度）のスキャンを実施し，結果のばらつきを考慮した．
 
 \subsection{評価方法}
 
@@ -448,15 +544,20 @@ MSEは以下の式で定義される．
 \end{equation}
 ここで，$N$は画素数，$y_i$は参照画像の画素値，$\hat{y}_i$はスキャン結果の画素値である．
 
+評価には自作のMSE計算ツール（\texttt{mse\_calculator.html}）を使用した．
+このツールはブラウザ上で動作し，2つのPPM画像をドラッグ＆ドロップするだけでMSEを算出できる．
+
 評価手順は以下のとおりである．
 \begin{enumerate}
-    \item 自作のMSE計算ツール（\texttt{mse\_calculator.html}）をブラウザで開く
-    \item 参照画像（\texttt{reference\_image1.ppm}）を読み込む
-    \item スキャン結果のPPMファイルを読み込む
+    \item ブラウザで\texttt{mse\_calculator.html}を開く
+    \item 参照画像（\texttt{ppm/reference\_image1.ppm}）をドラッグ＆ドロップする
+    \item スキャン結果のPPMファイルをドラッグ＆ドロップする
     \item 算出されたMSE値を記録する
+    \item 各実験条件のすべてのスキャン結果についてMSEを算出し，平均値・最小値・最大値を求める
 \end{enumerate}
 
 \subsection{比較対象}
+
 本実験では，以下の3種類のモデルを比較対象とした．
 
 \begin{enumerate}
@@ -466,7 +567,206 @@ MSEは以下の式で定義される．
 \end{enumerate}
 
 これらのモデルについて，各隠れ層次元におけるMSEとメモリ使用量を比較し，段階的圧縮アプローチの有効性を検証した．
-最終的な目標は，MSEを許容範囲内に抑えつつ，隠れ層次元を100〜200へ拡張可能とすることである。
+最終的な目標は，MSEを許容範囲内に抑えつつ，隠れ層次元を100〜200へ拡張可能とすることである．
+\clearpage
+\section{実験結果}
+
+本章では，前章で述べた実験方法に基づいて実施した実験の結果を示す．
+
+\subsection{MSE測定結果}
+
+各圧縮手法および隠れ層次元におけるMSE測定結果を表\ref{tab:results_mse_comparison}に示す．
+
+\begin{table}[h]
+    \centering
+    \caption{圧縮手法別MSE比較}
+    \label{tab:results_mse_comparison}
+    \begin{tabular}{|l|c|c|c|c|}
+        \hline
+        \textbf{圧縮手法} & \textbf{隠れ層次元} & \textbf{MSE最小値} & \textbf{MSE最大値} & \textbf{MSE平均値} \\
+        \hline
+        \hline
+        \multicolumn{5}{|c|}{\textbf{非圧縮（密行列形式）}} \\
+        \hline
+        密行列形式 & 40 & 484.04 & 1559.96 & 730.13 \\
+        \hline
+        密行列形式 & 80 & -- & -- & -- \\
+        \hline
+        密行列形式 & 120 & -- & -- & -- \\
+        \hline
+        \hline
+        \multicolumn{5}{|c|}{\textbf{CSR圧縮}} \\
+        \hline
+        CSR圧縮 & 40 & -- & -- & -- \\
+        \hline
+        CSR圧縮 & 80 & 225.19 & 729.26 & 464.86 \\
+        \hline
+        CSR圧縮 & 120 & -- & -- & -- \\
+        \hline
+        \hline
+        \multicolumn{5}{|c|}{\textbf{CSR＋量子化}} \\
+        \hline
+        CSR＋量子化 & 40 & -- & -- & -- \\
+        \hline
+        CSR＋量子化 & 80 & -- & -- & -- \\
+        \hline
+        CSR＋量子化 & 120 & -- & -- & -- \\
+        \hline
+    \end{tabular}
+\end{table}
+
+また，同一次元における圧縮手法間の比較を容易にするため，表\ref{tab:results_by_dimension}に隠れ層次元別の結果を示す．
+
+\begin{table}[h]
+    \centering
+    \caption{隠れ層次元別MSE比較（平均値）}
+    \label{tab:results_by_dimension}
+    \begin{tabular}{|c|c|c|c|}
+        \hline
+        \textbf{隠れ層次元} & \textbf{非圧縮} & \textbf{CSR圧縮} & \textbf{CSR＋量子化} \\
+        \hline
+        40 & 730.13 & -- & -- \\
+        \hline
+        80 & -- & 464.86 & -- \\
+        \hline
+        120 & -- & -- & -- \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\subsection{パラメータ生成時間}
+
+各条件におけるパラメータファイル（\texttt{.h}ファイル）の生成時間を表\ref{tab:results_generation_time}に示す．
+
+\begin{table}[h]
+    \centering
+    \caption{パラメータファイル生成時間}
+    \label{tab:results_generation_time}
+    \begin{tabular}{|l|c|c|}
+        \hline
+        \textbf{圧縮手法} & \textbf{隠れ層次元} & \textbf{生成時間} \\
+        \hline
+        \hline
+        \multicolumn{3}{|c|}{\textbf{非圧縮（密行列形式）}} \\
+        \hline
+        密行列形式 & 40 & -- \\
+        \hline
+        \hline
+        \multicolumn{3}{|c|}{\textbf{CSR圧縮}} \\
+        \hline
+        CSR圧縮 & 40 & -- \\
+        \hline
+        CSR圧縮 & 80 & 14.3秒 \\
+        \hline
+        CSR圧縮 & 120 & 15.1秒 \\
+        \hline
+        \hline
+        \multicolumn{3}{|c|}{\textbf{CSR＋量子化}} \\
+        \hline
+        CSR＋量子化 & 40 & -- \\
+        \hline
+        CSR＋量子化 & 80 & -- \\
+        \hline
+        CSR＋量子化 & 120 & -- \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\subsection{詳細データ}
+
+以下に，各実験条件における個別のスキャン結果を示す．
+
+\subsubsection{非圧縮（密行列形式）}
+
+表\ref{tab:results_dense_detail}に，密行列形式（40次元）の詳細な測定結果を示す．
+
+\begin{table}[h]
+    \centering
+    \caption{密行列形式（40次元）の詳細測定結果}
+    \label{tab:results_dense_detail}
+    \begin{tabular}{|c|c||c|c|}
+        \hline
+        \textbf{ファイル} & \textbf{MSE} & \textbf{ファイル} & \textbf{MSE} \\
+        \hline
+        nn1.ppm & 484.04 & nn6.ppm & 715.63 \\
+        \hline
+        nn2.ppm & 713.74 & nn7.ppm & 523.63 \\
+        \hline
+        nn3.ppm & 733.93 & nn8.ppm & 792.85 \\
+        \hline
+        nn4.ppm & 1559.96 & nn9.ppm & 905.85 \\
+        \hline
+        nn5.ppm & 782.33 & nn10.ppm & 882.15 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\subsubsection{CSR圧縮}
+
+表\ref{tab:results_csr_detail}に，CSR圧縮モデルの詳細な測定結果を示す．
+
+\begin{table}[h]
+    \centering
+    \caption{CSR圧縮の詳細測定結果}
+    \label{tab:results_csr_detail}
+    \begin{tabular}{|c|c|c|c|}
+        \hline
+        \textbf{次元} & \textbf{ファイル} & \textbf{MSE} & \textbf{備考} \\
+        \hline
+        \hline
+        \multirow{4}{*}{40} & csr1.ppm & 600.00 & \multirow{4}{*}{追加測定予定} \\
+        \cline{2-3}
+        & csr2.ppm & 517.48 & \\
+        \cline{2-3}
+        & csr3.ppm & 1070.74 & \\
+        \cline{2-3}
+        & csr4.ppm & 659.04 & \\
+        \hline
+        \hline
+        \multirow{10}{*}{80} & 1.ppm & 644.59 & \multirow{10}{*}{測定完了} \\
+        \cline{2-3}
+        & 2.ppm & 459.37 & \\
+        \cline{2-3}
+        & 3.ppm & 361.33 & \\
+        \cline{2-3}
+        & 4.ppm & 225.19 & \\
+        \cline{2-3}
+        & 5.ppm & 729.26 & \\
+        \cline{2-3}
+        & 6.ppm & 408.15 & \\
+        \cline{2-3}
+        & 7.ppm & 380.59 & \\
+        \cline{2-3}
+        & 8.ppm & 499.85 & \\
+        \cline{2-3}
+        & 9.ppm & 437.44 & \\
+        \cline{2-3}
+        & 10.ppm & 472.85 & \\
+        \hline
+        \hline
+        120 & -- & -- & 測定予定 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\subsubsection{CSR＋量子化}
+
+CSR＋量子化モデルについては，現時点で実験未実施である．
+CSR圧縮のみでメモリ制約を満たせない場合，または隠れ層次元をさらに拡張する場合に実施予定である．
+
+\subsection{結果のまとめ}
+
+現時点で得られた実験結果をまとめると，以下のとおりである．
+
+\begin{enumerate}
+    \item 非圧縮（密行列形式，40次元）のMSE平均値は730.13であった．
+    \item CSR圧縮（80次元）のMSE平均値は464.86であり，非圧縮（40次元）と比較して約36\%改善した．
+    \item 隠れ層次元を40から80に拡張しても，CSR圧縮によりArduino Uno R4 WiFiのメモリ制約内で動作可能であった．
+    \item CSR圧縮（40次元，120次元）およびCSR＋量子化モデルについては，追加測定を実施予定である．
+\end{enumerate}
+
+これらの結果から，CSR形式による圧縮は推論精度を維持しつつ隠れ層次元の拡張を可能にする有効な手法であることが示唆される．
+詳細な考察は次章で述べる．
 
 \clearpage
 \begin{thebibliography}{9}
