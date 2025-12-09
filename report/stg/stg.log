@@ -1,4 +1,4 @@
-This is e-upTeX, Version 3.141592653-p4.1.2-u2.00-250202-2.6 (utf8.uptex) (TeX Live 2025) (preloaded format=uplatex 2025.3.15)  8 DEC 2025 12:40
+This is e-upTeX, Version 3.141592653-p4.1.2-u2.00-250202-2.6 (utf8.uptex) (TeX Live 2025) (preloaded format=uplatex 2025.3.15)  9 DEC 2025 09:46
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -672,30 +672,20 @@ LaTeX Font Info:    Font shape `JY2/gt/m/n' will be
 
 [4]
 LaTeX Font Info:    Font shape `JT2/mc/bx/n' in size <10> not available
-(Font)              Font shape `JT2/gt/m/n' tried instead on input line 228.
+(Font)              Font shape `JT2/gt/m/n' tried instead on input line 230.
 LaTeX Font Info:    Font shape `JT2/gt/m/n' will be
-(Font)              scaled to size 9.24683pt on input line 228.
+(Font)              scaled to size 9.24683pt on input line 230.
 LaTeX Font Info:    Font shape `JY2/mc/bx/n' in size <10> not available
-(Font)              Font shape `JY2/gt/m/n' tried instead on input line 228.
+(Font)              Font shape `JY2/gt/m/n' tried instead on input line 230.
 LaTeX Font Info:    Font shape `JY2/gt/m/n' will be
-(Font)              scaled to size 9.24683pt on input line 228.
+(Font)              scaled to size 9.24683pt on input line 230.
 
 
 [5]
-Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on i
-nput line 250.
-LaTeX Font Info:    Font shape `JT2/mc/m/n' will be
-(Font)              scaled to size 8.32214pt on input line 250.
-LaTeX Font Info:    Font shape `JY2/mc/m/n' will be
-(Font)              scaled to size 8.32214pt on input line 250.
-LaTeX Font Info:    Font shape `JT2/gt/m/n' will be
-(Font)              scaled to size 8.32214pt on input line 250.
-LaTeX Font Info:    Font shape `JY2/gt/m/n' will be
-(Font)              scaled to size 8.32214pt on input line 250.
 File: 回路図.pdf Graphic file (type pdf)
 <回路図.pdf>
 
-Overfull \hbox (2.27618pt too wide) in paragraph at lines 297--298
+Overfull \hbox (2.27618pt too wide) in paragraph at lines 305--306
  [][] 
  []
 
@@ -708,129 +698,42 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 
 ]
 
-[7]
+[7] (/usr/local/texlive/2025/texmf-dist/tex/latex/listings/lstlang1.sty
+File: lstlang1.sty 2024/09/23 1.10c listings language file
+)
+(/usr/local/texlive/2025/texmf-dist/tex/latex/listings/lstmisc.sty
+File: lstmisc.sty 2024/09/23 1.10c (Carsten Heinz)
+)
+Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on i
+nput line 335.
+LaTeX Font Info:    Font shape `JT2/mc/m/n' will be
+(Font)              scaled to size 8.32214pt on input line 335.
+LaTeX Font Info:    Font shape `JY2/mc/m/n' will be
+(Font)              scaled to size 8.32214pt on input line 335.
+LaTeX Font Info:    Font shape `JT2/gt/m/n' will be
+(Font)              scaled to size 8.32214pt on input line 335.
+LaTeX Font Info:    Font shape `JY2/gt/m/n' will be
+(Font)              scaled to size 8.32214pt on input line 335.
+
 
 [8
 
 ]
-! Missing $ inserted.
-<inserted text> 
-                $
-l.339 ...）後，CSR変換（SciPy）し，model_
-                                                  parameters.hエクスポ...
-? 
-! Missing $ inserted.
-<inserted text> 
-                $
-l.340 ...実装（PROGMEM保存）．RGB入力$\to
-                                                  $推論$\to$PPM出力．
-? 
 
-LaTeX Warning: Reference `tab:results' on page 9 undefined on input line 343.
-
-! Missing $ inserted.
-<inserted text> 
-                $
-l.350 ....abs(w) < 0.01`）．SciPyの`sparse.csr_
-                                                  matrix`でCSR変換（data...
-
-? 
-
-! LaTeX Error: Command \item invalid in math mode.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.351     \item
-                \textbf{Arduino実装:}
-? 
-! Missing $ inserted.
-<inserted text> 
-                $
-l.351     \item \textbf
-                       {Arduino実装:}
-? 
-
-Underfull \hbox (badness 1642) in paragraph at lines 349--351
-[]\JY2/gt/m/n/10 プル ーニングと \T1/cmr/bx/n/10 CSR \JY2/gt/m/n/10 生
-成\T1/cmr/bx/n/10 : \JY2/mc/m/n/10 閾値 \T1/cmr/m/n/10 0.01 \JY2/mc/m/n/10 
-で重みを \T1/cmr/m/n/10 0 \JY2/mc/m/n/10 化 （\T1/cmr/m/n/10 `torch.abs(w
-) < 0.01`\JY2/mc/m/n/10 ） ． \T1/cmr/m/n/10 SciPy
- []
-
-
-Underfull \hbox (badness 2253) in paragraph at lines 349--351
-\JY2/mc/m/n/10 の \T1/cmr/m/n/10 `sparse.csr$[]\OML/cmm/m/it/10 atrix\OT1/cmr/
-m/n/10 `\JY2/mc/m/n/10 で \OML/cmm/m/it/10 CSR \JY2/mc/m/n/10 変換 （\OML/c
-mm/m/it/10 data; indices; indptr \JY2/mc/m/n/10 を \OML/cmm/m/it/10 NumPy \JY2
-/mc/m/n/10 出力）． \OML/cmm/m/it/10 C \JY2/mc/m/n/10 配列とし
- []
+LaTeX Warning: Reference `fig:experiment_flow' on page 9 undefined on input lin
+e 361.
 
 
 
 [9
 
 ]
-! Undefined control sequence.
-l.360 ...ke quantization挿入（$\hat{r} = \round
-                                                  (\clamp(r; a, b) / S) \cdo...
 
-? 
-! Undefined control sequence.
-l.360 ...tization挿入（$\hat{r} = \round(\clamp
-                                                  (r; a, b) / S) \cdot S + Z...
+[10]
 
-? 
-! Undefined control sequence.
-l.362 ...float32）をuint8へ変換（$q = \round
-                                                  ((r - Z)/S)$，scale=$max(...
+[11]
 
-? 
-! Missing $ inserted.
-<inserted text> 
-                $
-l.362 ...．indptr/indicesをint16圧縮，`model_
-                                                  parameters.h`更新．
-? 
-
-! LaTeX Error: Command \item invalid in math mode.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.363     \item
-                \textbf{Arduino実装:}
-? 
-! Missing $ inserted.
-<inserted text> 
-                $
-l.363     \item \textbf
-                       {Arduino実装:}
-? 
-! Missing $ inserted.
-<inserted text> 
-                $
-l.381 ...）後，CSR変換（SciPy）し，model_
-                                                  parameters.hエクスポ...
-? 
-! Missing $ inserted.
-<inserted text> 
-                $
-l.382 ...実装（PROGMEM保存）．RGB入力$\to
-                                                  $推論$\to$PPM出力．
-? 
-
-LaTeX Warning: Reference `tab:results' on page 10 undefined on input line 385.
-
-
-
-[10
-
-]
-
-[11
+[12
 
 ] (./stg.aux)
  ***********
@@ -843,24 +746,21 @@ L3 programming layer <2025-01-18>
 LaTeX Warning: There were undefined references.
 
 
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
-
-
 Package rerunfilecheck Warning: File `stg.out' has changed.
 (rerunfilecheck)                Rerun to get outlines right
 (rerunfilecheck)                or use package `bookmark'.
 
 Package rerunfilecheck Info: Checksums for `stg.out':
-(rerunfilecheck)             Before: F6E02996E57E032C97BC4700DFDB76E9;2055
-(rerunfilecheck)             After:  82BD4FD1D4C094867787FF046FCEBCD9;1717.
+(rerunfilecheck)             Before: C9B9D4F0DBE29848852C1DFC832FCFB6;2191
+(rerunfilecheck)             After:  E6751BECF9E3179BB11B0A36C20F4967;1712.
  ) 
 Here is how much of TeX's memory you used:
- 14580 strings out of 473836
- 223657 string characters out of 5731190
- 821307 words of memory out of 5000000
- 37637 multiletter control sequences out of 15000+600000
+ 14546 strings out of 473836
+ 223730 string characters out of 5731190
+ 817307 words of memory out of 5000000
+ 37599 multiletter control sequences out of 15000+600000
  580843 words of font info for 119 fonts, out of 8000000 for 9000
  934 hyphenation exceptions out of 8191
- 72i,10n,79p,523b,1372s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 72i,10n,79p,296b,1320s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on stg.dvi (11 pages, 51796 bytes).
+Output written on stg.dvi (12 pages, 57668 bytes).

@@ -143,8 +143,12 @@ Arduino Uno R4 WiFiのようなマイクロコントローラでは，利用可�
 float32形式では10\,KBを超える場合，Arduino上での動作が困難となる．
 したがって，隠れ層の次元を拡張しながら高い推論性能を維持するには，重みデータの圧縮が不可欠である．
 
-本研究では，この制約を克服するため，まずCSR形式による疎行列圧縮を適用し，さらなる圧縮が必要な場合には量子化を追加適用する方針とする．
-以下では，各手法の原理と特徴について述べる．
+\subsubsection{圧縮手法の概観}
+ニューラルネットワークの圧縮手法は多岐にわたるが，本研究のようなマイクロコントローラ環境では，実装の複雑さと圧縮効果のバランスが重要となる．
+代表的な手法として，プルーニング（枝刈り），疎行列表現（CSR形式など），量子化が挙げられる．
+
+これらの手法は独立に適用することも，組み合わせて適用することも可能である．
+以下では，各手法の原理と特徴を述べた上で，本研究における適用方針を示す．
 
 \subsubsection{プルーニング（Pruning）}
 プルーニングとは，閾値以下の重みを0とみなし接続を削除することで，モデルを疎行列化する手法である．
@@ -168,11 +172,9 @@ Hanら\cite{han2015deep}は，重要接続の学習，閾値による削減，�
 \end{itemize}
 
 \subsubsection{CSR（Compressed Sparse Row）形式}
-CSR形式は，非ゼロ要素を行単位でまとめて保存する疎行列表現であり，値配列（data），列インデックス（indices），行ポインタ（indptr）で構成される．
-プルーニングにより疎化された重み行列を効率的に格納でき，行方向のアクセスが高速なためArduino上での推論に適している．
-
-本研究では，CSR形式を第一の圧縮手法として採用する．
-L1正則化およびプルーニング後の重み行列をCSR形式に変換することで，SRAM 32\,KBの制約下でも動作可能なモデルへ圧縮する．
+プルーニングにより疎化された重み行列は，そのまま密行列として保持すると0要素にもメモリを消費するため非効率である．
+CSR形式は，非ゼロ要素のみを行単位でまとめて保存する疎行列表現であり，値配列（data），列インデックス（indices），行ポインタ（indptr）で構成される．
+行方向のアクセスが高速であり，行列ベクトル積を多用するニューラルネットワークの推論に適している．
 
 \paragraph{メリット}
 \begin{itemize}
@@ -199,8 +201,8 @@ r = S(q - Z)
 を用いることで，推論時の整数演算が可能となる．
 ここで，$S$はスケール，$Z$はゼロポイントを表す．
 
-本研究では，CSR圧縮のみでは十分なメモリ削減が得られない場合の追加手法として量子化を位置づける．
-CSR形式で格納された重みに対してfloat32からint8への変換を適用することで，さらに約4倍のメモリ削減が期待できる．
+量子化は，プルーニングやCSR形式とは独立に適用可能であり，CSR形式で格納された重みに対しても追加適用できる．
+float32からint8への変換により，さらに約4倍のメモリ削減が期待できる．
 
 \paragraph{メリット}
 \begin{itemize}
@@ -216,7 +218,7 @@ CSR形式で格納された重みに対してfloat32からint8への変換を適
     \item 訓練時にfake quantizationノードの挿入が必要
 \end{itemize}
 
-\subsubsection{圧縮手法の比較と本研究での適用方針}
+\subsubsection{本研究における適用方針}
 表\ref{tab:weight_compression_summary}に，各圧縮手法の特徴を示す．
 
 \begin{table}[h]
@@ -236,26 +238,32 @@ CSR形式で格納された重みに対してfloat32からint8への変換を適
     \end{tabular}
 \end{table}
 
-本研究では，CSR形式による疎行列圧縮を第一の手法として適用し，推論品質への影響を評価する．
-CSR圧縮によりMSEが許容範囲内に収まる場合はそのまま採用し，さらなるメモリ削減が必要な場合や隠れ層次元の拡張を行う場合には，CSR圧縮モデルに対して量子化を追加適用する．
+本研究では，段階的な圧縮アプローチを採用する．
+その理由は以下のとおりである．
+
+第一に，圧縮処理は推論精度に影響を与える可能性があるため，必要最小限の圧縮にとどめることが望ましい．
+過度な圧縮は精度劣化を招くリスクがあり，圧縮手法を一度に複数適用するよりも，段階的に適用して各段階で精度を確認する方が安全である．
+
+第二に，プルーニングとCSR形式は本質的に連続した処理である．
+L1正則化によって重みを疎化し，その結果生じた0要素を効率的に格納するのがCSR形式の役割である．
+したがって，この二つを組み合わせた「CSR圧縮」を第一段階として適用するのが自然な流れとなる．
+
+第三に，量子化はCSR形式とは独立に適用可能であり，追加的な圧縮手段として位置づけられる．
+CSR圧縮のみでメモリ制約を満たせる場合は量子化を省略でき，さらなる圧縮が必要な場合にのみ追加適用すればよい．
+
+以上の考察に基づき，本研究では次の方針を採る．
+まず，L1正則化およびプルーニング後の重み行列をCSR形式に変換し，推論品質への影響を評価する．
+CSR圧縮によりMSEが許容範囲内に収まり，かつメモリ制約を満たす場合はそのまま採用する．
+一方，さらなるメモリ削減が必要な場合や隠れ層次元の拡張を行う場合には，CSR圧縮モデルに対して量子化を追加適用する．
 この段階的なアプローチにより，推論精度とメモリ効率のバランスを最適化することを目指す．
 
 \clearpage
-
 \section{システムの構成}
-本章では，実験に用いたシステムのプログラム構成および配線について述べる．
 
-\subsection{プログラムの構成}
-本システムのプログラムを以下に示す．
-\begin{lstlisting}[language=Python, caption=メインプログラム]
-% TODO: コードを記載
-\end{lstlisting}
-
-\begin{lstlisting}[language=Python, caption=補助関数]
-% TODO: コードを記載
-\end{lstlisting}
+本章では，実験に用いたシステムのハードウェア構成およびソフトウェア構成について述べる．
 
 \subsection{ハードウェア構成}
+
 本節では，実験で使用した配線および回路構成について述べる．
 表\ref{tab:pin_assignment}にArduinoのピン割り当て，表\ref{tab:機材表}に使用機材一覧，図\ref{fig:回路図}に回路図を示す．
 
@@ -266,8 +274,8 @@ CSR圧縮によりMSEが許容範囲内に収まる場合はそのまま採用�
     \begin{tabular}{|c|c|l|}
         \hline
         \textbf{ピン} & \textbf{機能}              & \textbf{説明}                     \\ \hline \hline
-        D2           & タクトスイッチ（赤）       & 最大値・最小値の切り替え          \\ \hline
-        D3           & タクトスイッチ（青）       & RGBデータの読み取りトリガー       \\ \hline
+        D2           & タクトスイッチ(赤)       & 最大値・最小値の切り替え          \\ \hline
+        D3           & タクトスイッチ(青)       & RGBデータの読み取りトリガー       \\ \hline
         A0           & 照度センサー               & フォトトランジスタからのアナログ入力 \\ \hline
     \end{tabular}
 \end{table}
@@ -284,7 +292,7 @@ CSR圧縮によりMSEが許容範囲内に収まる場合はそのまま採用�
         炭素皮膜抵抗$3.3k\Omega$ & - & 1  \\ \hline
         炭素皮膜抵抗$10k\Omega$ & - & 2  \\ \hline
         RGBフルカラーLED & OSTA5131A & 1  \\ \hline
-        照度センサー（フォトトランジスタ） & NJL7302L-F3 & 1  \\ \hline
+        照度センサー(フォトトランジスタ) & NJL7302L-F3 & 1  \\ \hline
         タクトスイッチ(赤・青) & 1273HIM-160G-G & 2  \\ \hline
         ジャンパーワイヤ & BBJ-65 & 13 \\ \hline
         マイコンボード & Arduino UNO R4 WiFi & 1\\ \hline
@@ -301,99 +309,164 @@ CSR圧縮によりMSEが許容範囲内に収まる場合はそのまま採用�
 
 \clearpage
 
+\subsection{ソフトウェア構成}
 
-\section{実験方法}
-以下に，実験方法を示す．
+本システムのソフトウェアは，学習フェーズとデプロイフェーズの2段階で構成される．
 
-シリアルモニタ経由で画像サイズを入力（配布したカラーチャートだと「３」
-
-ボタンを押すごとに、RGBデータを読み取る
-
-紙をスライドさせて、すべての画素を読み取る（配布したカラーチャートだと、計9回）
-
-シリアルモニタにPPM形式で画像データをテキスト出力
-
-
-
-
-
-
-読み込み品質の評価は，以下の手順で実施する．
+\subsubsection{学習フェーズ}
+学習フェーズでは，PC上でPythonおよびPyTorchを用いてニューラルネットワークの学習を行う．
+学習にはJupyter Notebook（\texttt{train\_L1\_normalization.ipynb}）を使用し，以下の処理を実行する．
 \begin{enumerate}
-    \item \textbf{2つのボタンプログラムによるカラーチャートの読み取り}\\
-    事前に黒と白のサンプルを測定し，最小値・最大値を基準として読み込み精度をキャリブレーションする．これにより，センサの感度を調整し，安定したRGB値を取得する．
-    \item \textbf{PPM画像出力}\\
-    前回授業で配布された3$\times$3のカラーチャートをセンサで読み取り，取得したRGBデータをPPM形式の画像ファイルとして出力する．この画像は，後続の品質評価に用いる．
-    \item \textbf{平均二乗誤差（MSE）の計算}\\
-    出力したPPM画像と基準画像の品質を，専用のMSE測定ソフトウェアで評価する．
+    \item データの読み込みと前処理
+    \item L1正則化を適用したニューラルネットワークの学習
+    \item プルーニングおよびCSR形式への変換
+    \item Arduinoで読み込み可能なヘッダファイル（\texttt{.h}）の生成
 \end{enumerate}
+
+\subsubsection{デプロイフェーズ}
+デプロイフェーズでは，生成したパラメータファイルをArduinoに組み込み，実機上で推論を実行する．
+Arduinoコードは用途に応じて以下の3種類を用意した．
+\begin{itemize}
+    \item \texttt{AI\_Model}：密行列形式（非圧縮）のニューラルネットワーク
+    \item \texttt{AI\_CSR}：CSR形式で圧縮したニューラルネットワーク
+    \item \texttt{AI\_CSR\_Quantized}：CSR形式に量子化を追加適用したニューラルネットワーク
+\end{itemize}
+
+\begin{lstlisting}[language=C, caption=Arduinoメインプログラム（抜粋）]
+% TODO: コードを記載
+\end{lstlisting}
+
+\begin{lstlisting}[language=C, caption=CSR形式での行列ベクトル積演算]
+% TODO: コードを記載
+\end{lstlisting}
 
 \clearpage
 
 \section{実験方法}
-本節では，重み圧縮手法としてCSR（Compressed Sparse Row）形式を第一優先とし，次にCSR圧縮モデルに対する量子化を適用してさらなる圧縮を検討する．
-実験は，隠れ層次元40から開始し，「非圧縮」「CSR圧縮」「CSR+量子化」のMSEを比較して品質影響を評価する．
-全体フローは，PyTorchによる訓練・圧縮生成，Arduino Uno R4 WiFiへのデプロイ，センサーデータによる推論・MSE計算である．
-目標は，MSE相対誤差を5%以内に抑えつつ，次元を100-200へ拡張可能とする．これにより，L1正則化による疎化を活かし，メモリ制約下での画像復元品質向上と読み取り時間短縮を実現する．\subsection{全体実験フロー}データ準備: 授業配布の3$\times$3カラーチャートRGB値を訓練データ（9サンプル，ノイズ付加）とし，基準画像を評価用とする．センサー（例: AS7341）で実測データを収集．
-モデル訓練: PyTorchでColorNet（入力3$\to$隠れ$d_1\to d_2\to$出力3，$d_1=d_2=40$初期）を訓練（epochs=50,000, Adam lr=0.01, $\lambda_{L1}=10^{-6}$）．L1正則化で非ゼロ率50％以下を目指す．
-圧縮生成: プルーニング（閾値0.01）後，CSR変換（SciPy）し，model_parameters.hエクスポート．
-Arduinoデプロイ: スケッチで整数-only forward実装（PROGMEM保存）．RGB入力$\to$推論$\to$PPM出力．
-評価基準: MSE/PSNR（PCソフト）とレイテンシ（millis()）を測定．相対誤差<5％，PSNR>25dBで次元拡張（40$\to$60$\to$100$\to$200）．
 
-結果は表\ref{tab:results}にまとめ，圧縮率・誤差・時間のトレードオフを分析する．
+本章では，前章で述べた段階的圧縮アプローチの有効性を検証するために実施した実験の条件，手順，および評価方法について述べる．
 
-\subsection{CSR形式圧縮の実験方法}
-CSRを優先する理由は，L1正則化による疎化を活かした高圧縮率（3-10倍）と推論高速化（行指向matvec）である．以下の手順で実施．\begin{enumerate}
-    \item \textbf{モデル訓練（Python）:}
-    PyTorchでColorNetを訓練．L1正則化で重みを疎化（非ゼロ率<50％）．ReLU活性化使用．
-    \item \textbf{プルーニングとCSR生成:}  
-    閾値0.01で重みを0化（`torch.abs(w) < 0.01`）．SciPyの`sparse.csr_matrix`でCSR変換（data, indices, indptrをNumPy出力）．C配列として`model_parameters.h`生成（例: `const float csr_w1_data[NNZ] = {...};`）．
-    \item \textbf{Arduino実装:}  
-    CSR matvec関数を実装（`for j=indptr[i]; j<indptr[i+1]; y[i] += data[j] * x[indices[j]];`）．センサーRGB入力$\to$CSR forward（ReLU統合）$\to$出力RGB$\to$PPM出力．PROGMEMでFlash保存．
-    \item \textbf{評価:}  
-    PPMと基準画像のMSE/PSNR計算．非圧縮 vs CSRの相対誤差を算出（目標: <3\%）．40次元で確認後，次元増加・再訓練．\end{enumerate}
-\clearpage
-\subsection{CSR+量子化による追加圧縮の実験方法}
-CSR後，8-bit量子化（uint8重み/活性化，int32バイアス）を適用し，メモリをさらに4倍削減．論文\cite{jacob2018quantization}のスキーム（$r = S(q - Z)$）を基に，CSRの疎性を保ち200次元対応を目指す．量子化感知訓練（QAT）で精度を維持．
+\subsection{実験の目的と方針}
+
+本実験の目的は，Arduino Uno R4 WiFiのメモリ制約下において，ニューラルネットワークの隠れ層次元を拡張しつつ，推論精度を維持することである．
+具体的には，隠れ層次元を現行の40から100〜200へ拡張可能とし，画像復元品質の向上と読み取り時間の短縮を実現することを目指す．
+
+この目的を達成するため，重み圧縮手法としてCSR（Compressed Sparse Row）形式を第一優先とし，CSR圧縮のみでは不十分な場合にはCSR圧縮モデルに対して量子化を追加適用する方針とした．
+L1正則化による重みの疎化を活かすことで，メモリ効率と推論精度のバランスを最適化する．
+
+実験では，隠れ層次元40から開始し，「非圧縮（密行列形式）」「CSR圧縮」「CSR＋量子化」の3種類のモデルについてMSEを比較し，各圧縮手法が推論品質に与える影響を評価する．
+
+\subsection{実験の全体フロー}
+
+実験の全体フローを図\ref{fig:experiment_flow}に示す．
+本実験は，以下の3つのフェーズから構成される．
+
 \begin{enumerate}
-    \item \textbf{量子化感知訓練（Python）:}
-    訓練グラフにfake quantization挿入（$\hat{r} = \round(\clamp(r; a, b) / S) \cdot S + Z$，$S=(b-a)/255$，範囲$[a,b]$をEMA学習）．初期50kステップで量子化無効化，ReLU6で範囲安定化（epochs=50,000）．
-    \item \textbf{量子化実行（Python）:}  
-    CSRデータ（float32）をuint8へ変換（$q = \round((r - Z)/S)$，scale=$max(|r|)/127$）．バイアスは$S_w S_a$スケールでint32．multiplier $M = S_w S_a / S_o$をfixed-pointオフライン計算．indptr/indicesをint16圧縮，`model_parameters.h`更新．
-    \item \textbf{Arduino実装:}  
-    matvec内でuint8乗算+int32蓄積+スケーリング（gemmlowp風）．ReLUをint8 clamp(0,127)．EloquentTinyMLライブラリでint8対応．
-    \item \textbf{評価:}  
-CSR vs CSR+量子化のMSE比較（目標: 追加誤差<2\%）．レイテンシ短縮率測定．100次元でPSNR>25dB確認後，200次元挑戦．
+    \item \textbf{訓練・圧縮フェーズ}：PC上でPyTorchを用いてニューラルネットワークを訓練し，CSR形式への変換および量子化を適用してパラメータファイルを生成する
+    \item \textbf{デプロイフェーズ}：生成したパラメータファイルをArduino Uno R4 WiFiに組み込み，実機へ書き込む
+    \item \textbf{評価フェーズ}：センサーデータを用いて推論を実行し，出力画像と参照画像のMSEを計算して品質を評価する
 \end{enumerate}
-これらの実験により，CSR基盤上で量子化を積層し，MSE低減・時間短縮を両立．プルーニングとの相乗効果で，非ゼロ率低減と整数演算効率を検証する．
+
+% 必要に応じて図を追加
+% \begin{figure}[h]
+%     \centering
+%     \includegraphics[width=14cm]{experiment_flow.pdf}
+%     \caption{実験の全体フロー}
+%     \label{fig:experiment_flow}
+% \end{figure}
+
+\subsection{実験条件}
+
+本実験では，隠れ層次元を変化させながら，各圧縮手法の効果を評価した．
+表\ref{tab:experiment_conditions}に実験条件を示す．
+
+\begin{table}[h]
+    \centering
+    \caption{実験条件}
+    \label{tab:experiment_conditions}
+    \begin{tabular}{|l|l|}
+        \hline
+        \textbf{項目} & \textbf{設定値} \\
+        \hline
+        隠れ層次元 & 40, 80, 120 \\
+        \hline
+        プルーニング閾値 & 0.01（固定） \\
+        \hline
+        正則化 & L1正則化 \\
+        \hline
+        疎行列形式 & CSR形式 \\
+        \hline
+        量子化 & int8（必要に応じて適用） \\
+        \hline
+    \end{tabular}
+\end{table}
+
+プルーニング閾値を0.01に固定した理由は，予備実験において精度と圧縮率のバランスが良好であったためである．
+
+\subsection{実験手順}
+
+\subsubsection{モデルの学習とパラメータ生成}
+まず，L1正則化を適用したニューラルネットワークを学習し，重みの疎化を促進した．
+学習完了後，密行列形式のパラメータファイル（\texttt{model\_parameters.h}）を生成した．
+このファイルは，圧縮なしのベースラインモデルとして使用する．
+
+次に，学習済みモデルに対し，閾値0.01でプルーニングを実施した後，重み行列をCSR形式に変換した．
+変換後のパラメータは\texttt{model\_parameters\_csr.h}として出力した．
+各隠れ層次元（40, 80, 120）に対してこの処理を行い，それぞれ\texttt{model\_parameters\_csr40.h}，\texttt{model\_parameters\_csr80.h}，\texttt{model\_parameters\_csr120.h}として管理した．
+
+CSR圧縮のみではメモリ制約を満たせない場合，またはさらなる圧縮が必要な場合には，CSR形式のパラメータに対してint8量子化を追加適用し，\texttt{model\_parameters\_csr\_quantized.h}として出力した．
+
+\subsubsection{Arduinoへのデプロイ}
+生成したパラメータファイルをArduinoプロジェクトに組み込み，Arduino IDEを用いてコンパイル・アップロードを行った．
+この際，Arduinoコード内の\texttt{HIDDEN\_DIM}マクロを学習時と同一の値に設定し，対応するパラメータファイルをインクルードした．
+
+\subsubsection{スキャン実行とデータ取得}
+Arduinoに接続したRGBカラーセンサを用いて参照画像をスキャンし，推論結果をPPM形式の画像ファイルとして出力した．
+スキャンは以下の手順で実施した．
+
+\paragraph{キャリブレーション}
+センサの感度は環境光や個体差により変動するため，測定前にキャリブレーションを行った．
+具体的には，2つのタクトスイッチを用いたプログラムにより，黒と白のサンプルを事前に測定し，センサ出力の最小値および最大値を取得した．
+これらの値を基準として読み取り範囲を正規化することで，安定したRGB値の取得を可能とした．
+
+\paragraph{カラーチャートの読み取り}
+キャリブレーション完了後，3$\times$3のカラーチャートをセンサで読み取った．
+各セルについてRGB値を取得し，ニューラルネットワークによる推論を経て補正されたRGB値を得た．
+
+\paragraph{PPM画像の出力}
+取得したRGBデータは，PPM（Portable Pixel Map）形式の画像ファイルとして出力した．
+PPM形式は非圧縮のラスタ画像フォーマットであり，画素値を直接比較できるため，後続のMSE評価に適している．
+各実験条件につき複数回のスキャンを実施し，結果のばらつきを考慮した．
 
 
-\section{実験方法}
-本節では，重み圧縮手法としてCSR（Compressed Sparse Row）形式を第一優先とし，次にCSR圧縮モデルに対する量子化を適用してさらなる圧縮を検討する．
-実験は，隠れ層次元40から開始し，「非圧縮」「CSR圧縮」「CSR+量子化」のMSEを比較して品質影響を評価する．
-全体フローは，PyTorchによる訓練・圧縮生成，Arduino Uno R4 WiFiへのデプロイ，センサーデータによる推論・MSE計算である．
+\subsection{評価方法}
 
+推論精度の評価指標として，平均二乗誤差（MSE: Mean Squared Error）を用いた．
+MSEは以下の式で定義される．
+\begin{equation}
+    \text{MSE} = \frac{1}{N} \sum_{i=1}^{N} (y_i - \hat{y}_i)^2
+\end{equation}
+ここで，$N$は画素数，$y_i$は参照画像の画素値，$\hat{y}_i$はスキャン結果の画素値である．
 
+評価手順は以下のとおりである．
+\begin{enumerate}
+    \item 自作のMSE計算ツール（\texttt{mse\_calculator.html}）をブラウザで開く
+    \item 参照画像（\texttt{reference\_image1.ppm}）を読み込む
+    \item スキャン結果のPPMファイルを読み込む
+    \item 算出されたMSE値を記録する
+\end{enumerate}
 
-目標は，MSE相対誤差を5％以内に抑えつつ，次元を100-200へ拡張可能とする．これにより，L1正則化による疎化を活かし，メモリ制約下での画像復元品質向上と読み取り時間短縮を実現する．
-\subsection{全体実験フロー}データ準備: 授業配布の3$\times$3カラーチャートRGB値を訓練データ（9サンプル，ノイズ付加）とし，基準画像を評価用とする．センサー（例: AS7341）で実測データを収集．
-モデル訓練: PyTorchでColorNet（入力3$\to$隠れ$d_1\to d_2\to$出力3，$d_1=d_2=40$初期）を訓練（epochs=50,000, Adam lr=0.01, $\lambda_{L1}=10^{-6}$）．L1正則化で非ゼロ率50％以下を目指す．
-圧縮生成: プルーニング（閾値0.01）後，CSR変換（SciPy）し，model_parameters.hエクスポート．
-Arduinoデプロイ: スケッチで整数-only forward実装（PROGMEM保存）．RGB入力$\to$推論$\to$PPM出力．
-評価基準: MSE/PSNR（PCソフト）とレイテンシ（millis()）を測定．相対誤差<5％，PSNR>25dBで次元拡張（40$\to$60$\to$100$\to$200）．
+\subsection{比較対象}
+本実験では，以下の3種類のモデルを比較対象とした．
 
-結果は表\ref{tab:results}にまとめ，圧縮率・誤差・時間のトレードオフを分析する．
+\begin{enumerate}
+    \item \textbf{密行列形式（非圧縮）}：L1正則化のみを適用し，圧縮処理を行わないベースラインモデル
+    \item \textbf{CSR圧縮}：プルーニング後にCSR形式へ変換したモデル
+    \item \textbf{CSR＋量子化}：CSR圧縮に加えてint8量子化を適用したモデル
+\end{enumerate}
 
-
-本節では、
-
-
-
-
-
-
-
-
+これらのモデルについて，各隠れ層次元におけるMSEとメモリ使用量を比較し，段階的圧縮アプローチの有効性を検証した．
+最終的な目標は，MSEを許容範囲内に抑えつつ，隠れ層次元を100〜200へ拡張可能とすることである。
 
 \clearpage
 \begin{thebibliography}{9}

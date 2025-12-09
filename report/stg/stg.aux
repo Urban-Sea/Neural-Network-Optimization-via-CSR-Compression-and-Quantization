@@ -14,37 +14,48 @@
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {3.1.1}ネットワーク構造}{3}{subsubsection.3.1.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.2}隠れ層の圧縮手法}{3}{subsection.3.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.1}圧縮の必要性}{3}{subsubsection.3.2.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.2}プルーニング（Pruning）}{3}{subsubsection.3.2.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{メリット}{3}{section*.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.2}圧縮手法の概観}{3}{subsubsection.3.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.3}プルーニング（Pruning）}{3}{subsubsection.3.2.3}\protected@file@percent }
 \citation{jacob2018quantization}
+\@writefile{toc}{\contentsline {paragraph}{メリット}{4}{section*.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{デメリット}{4}{section*.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.3}CSR（Compressed Sparse Row）形式}{4}{subsubsection.3.2.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.4}CSR（Compressed Sparse Row）形式}{4}{subsubsection.3.2.4}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{メリット}{4}{section*.4}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{デメリット}{4}{section*.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.4}量子化（Quantization）}{4}{subsubsection.3.2.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.5}量子化（Quantization）}{4}{subsubsection.3.2.5}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{メリット}{4}{section*.6}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{デメリット}{5}{section*.7}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.5}圧縮手法の比較と本研究での適用方針}{5}{subsubsection.3.2.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.6}本研究における適用方針}{5}{subsubsection.3.2.6}\protected@file@percent }
 \@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces 重み圧縮手法の比較}}{5}{table.caption.8}\protected@file@percent }
 \newlabel{tab:weight_compression_summary}{{1}{5}{重み圧縮手法の比較}{table.caption.8}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {4}システムの構成}{6}{section.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}プログラムの構成}{6}{subsection.4.1}\protected@file@percent }
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {1}{\ignorespaces メインプログラム}}{6}{lstlisting.1}\protected@file@percent }
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {2}{\ignorespaces 補助関数}}{6}{lstlisting.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}ハードウェア構成}{6}{subsection.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}ハードウェア構成}{6}{subsection.4.1}\protected@file@percent }
 \@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Arduinoのピン割り当て}}{6}{table.caption.9}\protected@file@percent }
 \newlabel{tab:pin_assignment}{{2}{6}{Arduinoのピン割り当て}{table.caption.9}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces 使用機材一覧}}{6}{table.caption.10}\protected@file@percent }
 \newlabel{tab:機材表}{{3}{6}{使用機材一覧}{table.caption.10}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces 回路図}}{7}{figure.caption.11}\protected@file@percent }
 \newlabel{fig:回路図}{{2}{7}{回路図}{figure.caption.11}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {5}実験方法}{8}{section.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {6}実験方法}{9}{section.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}CSR形式圧縮の実験方法}{9}{subsection.6.1}\protected@file@percent }
-\citation{jacob2018quantization}
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}CSR+量子化による追加圧縮の実験方法}{10}{subsection.6.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {7}実験方法}{10}{section.7}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}全体実験フロー}{10}{subsection.7.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}ソフトウェア構成}{8}{subsection.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.1}学習フェーズ}{8}{subsubsection.4.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.2}デプロイフェーズ}{8}{subsubsection.4.2.2}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {1}{\ignorespaces Arduinoメインプログラム（抜粋）}}{8}{lstlisting.1}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {2}{\ignorespaces CSR形式での行列ベクトル積演算}}{8}{lstlisting.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5}実験方法}{9}{section.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}実験の目的と方針}{9}{subsection.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}実験の全体フロー}{9}{subsection.5.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}実験条件}{9}{subsection.5.3}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces 実験条件}}{9}{table.caption.12}\protected@file@percent }
+\newlabel{tab:experiment_conditions}{{4}{9}{実験条件}{table.caption.12}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}実験手順}{10}{subsection.5.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.4.1}モデルの学習とパラメータ生成}{10}{subsubsection.5.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.4.2}Arduinoへのデプロイ}{10}{subsubsection.5.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.4.3}スキャン実行とデータ取得}{10}{subsubsection.5.4.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{キャリブレーション}{10}{section*.13}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{カラーチャートの読み取り}{10}{section*.14}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{PPM画像の出力}{10}{section*.15}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5}評価方法}{10}{subsection.5.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.6}比較対象}{11}{subsection.5.6}\protected@file@percent }
 \bibcite{jacob2018quantization}{1}
 \bibcite{han2015deep}{2}
-\gdef \@abspage@last{11}
+\gdef \@abspage@last{12}
