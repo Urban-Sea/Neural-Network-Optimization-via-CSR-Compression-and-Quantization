@@ -1,11 +1,11 @@
 #include <Arduino.h>
-#include "model_parameters.h"
-#include "model_parameters_csr_quantized.h"
+#include "model_parameters450.h"
+#include "model_parameters_csr_quantized450.h"
 
 // ========== モデル設定 ==========
 // 注意: この値は学習時に使用したHIDDEN_DIMと一致させること
 #ifndef HIDDEN_DIM
-#define HIDDEN_DIM 40  // 隠れ層の次元（学習時の値と一致させる）
+#define HIDDEN_DIM 450  // 隠れ層の次元（学習時の値と一致させる）
 #endif
 // =================================
 
@@ -99,15 +99,24 @@ void read(){
 
 static inline float relu(float x){ return x > 0 ? x : 0; }
 
-void layer1_dense_relu(const float x[3], float h1[HIDDEN_DIM]){
-	for(int j=0;j<HIDDEN_DIM;++j){
-		float s = bias_1[j];
-		for(int i=0;i<3;++i) s += weight_1[j*3 + i] * x[i];
-		h1[j] = relu(s);
+// 量子化対応のCSR層（1層目、int8_tデータをfloatに逆量子化しながら計算）
+void layer1_csr_quantized_relu(const float x[3], float h1[HIDDEN_DIM]){
+	for(int r=0;r<HIDDEN_DIM;++r){
+		float s = 0.0f;
+		uint16_t start = indptr_1[r];
+		uint16_t end   = indptr_1[r+1];
+		for(uint16_t p=start;p<end;++p){
+			uint16_t c = indices_1[p];
+			// int8_tをfloatに逆量子化
+			float weight_val = (float)data_1_quantized[p] / scale_factor_1;
+			s += weight_val * x[c];
+		}
+		s += bias_1[r];
+		h1[r] = relu(s);
 	}
 }
 
-// 量子化対応のCSR層（int8_tデータをfloatに逆量子化しながら計算）
+// 量子化対応のCSR層（2層目、int8_tデータをfloatに逆量子化しながら計算）
 void layer2_csr_quantized_relu(const float h1[HIDDEN_DIM], float h2[HIDDEN_DIM]){
 	for(int r=0;r<HIDDEN_DIM;++r){
 		float s = 0.0f;
@@ -135,7 +144,7 @@ void layer3_dense(const float h2[HIDDEN_DIM], float y[3]){
 // 使いやすい forward
 static void forward_rgb(const float in_rgb[3], float out_rgb[3]){
 	float h1[HIDDEN_DIM], h2[HIDDEN_DIM];
-	layer1_dense_relu(in_rgb, h1);
+	layer1_csr_quantized_relu(in_rgb, h1);
 	layer2_csr_quantized_relu(h1, h2);
 	layer3_dense(h2, out_rgb);
 }

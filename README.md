@@ -4,12 +4,14 @@
 
 Arduino Uno R4 WiFi上で動作するRGBスキャナーのためのニューラルネットワークを、CSR（Compressed Sparse Row）形式と量子化により圧縮・最適化するプロジェクトです。
 
+**圧縮の適用範囲**: 1層目（3 → HIDDEN_DIM）と2層目（HIDDEN_DIM → HIDDEN_DIM）の両方にCSR圧縮と量子化を適用し、メモリ使用量を大幅に削減します。
+
 ## 目標
 
-1. **CSR形式の実装**: L1正則化による疎化を活かし、メモリ使用量を削減
-2. **量子化の適用**: CSR圧縮モデルに対して量子化を適用し、さらなる圧縮を実現
-3. **次元拡張**: 隠れ層次元を40から100-200へ拡張可能にする
-4. **MSE評価**: 「非圧縮」「CSR圧縮」「CSR+量子化」のMSEを比較
+1. **CSR形式の実装**: L1正則化による疎化を活かし、1層目と2層目の両方でCSR圧縮を適用してメモリ使用量を削減
+2. **量子化の適用**: CSR圧縮モデルの1層目と2層目に対して量子化を適用し、さらなる圧縮を実現
+3. **次元拡張**: 隠れ層次元を40から100-200へ拡張可能にする（圧縮により高次元化が可能）
+4. **MSE評価**: 「非圧縮」「CSR圧縮（1層目・2層目）」「CSR+量子化（1層目・2層目）」のMSEを比較
 
 ## ファイル構成
 
@@ -66,9 +68,6 @@ Lec.1/
 │       ├── stg.tex, stg.pdf
 │       └── ...
 │
-├── scanner.c                         # スキャナー実装（C言語）
-├── scanner_before.c                  # スキャナー実装（旧版）
-├── scanner_AI_before.c               # AIなしスキャナー実装
 ├── requirements.txt                  # Python依存関係
 └── README.md                         # このファイル
 ```
@@ -78,11 +77,11 @@ Lec.1/
 #### Arduinoコード
 - **`Arduino/AI_Before/`**: ニューラルネットワークなしのベースライン実装
 - **`Arduino/AI_Model/`**: 通常の密行列形式のニューラルネットワーク実装
-- **`Arduino/AI_CSR/`**: CSR形式で圧縮したニューラルネットワーク実装（40/80/120次元のパラメータファイルを含む）
-- **`Arduino/AI_CSR_Quantized/`**: CSR+量子化形式のニューラルネットワーク実装
+- **`Arduino/AI_CSR/`**: CSR形式で圧縮したニューラルネットワーク実装（1層目・2層目の両方でCSR圧縮、40/80/120次元のパラメータファイルを含む）
+- **`Arduino/AI_CSR_Quantized/`**: CSR+量子化形式のニューラルネットワーク実装（1層目・2層目の両方でCSR圧縮+量子化）
 
 #### 学習・評価
-- **`train_L1_normalization.ipynb`**: モデルの学習、CSR形式への変換、量子化パラメータの生成を行うJupyter Notebook
+- **`train_L1_normalization.ipynb`**: モデルの学習、1層目・2層目のCSR形式への変換、量子化パラメータの生成を行うJupyter Notebook
 - **`mse_calculator.html`**: MSE評価ツール（ブラウザで実行、参照画像とスキャン結果を比較）
 
 #### データファイル
@@ -127,13 +126,19 @@ Lec.1/
 #### 2.3 CSR形式への変換
 - **Cell 7**: CSR形式パラメータの生成
   - `PRUNING_THRESHOLD = 0.01`（固定）で設定
+  - **1層目と2層目の両方**をCSR形式に変換
   - 実行すると、`model_parameters_csr.h`が生成されます
+    - 1層目: `data_1`, `indices_1`, `indptr_1`
+    - 2層目: `data_2`, `indices_2`, `indptr_2`
   - このファイルは`Arduino/AI_CSR/`にコピーして使用します
 
 #### 2.4 量子化（オプション）
 - **Cell 8**: 量子化パラメータの生成
   - `USE_QUANTIZATION = True`に設定
+  - **1層目と2層目の両方**を量子化（CSR圧縮後）
   - 実行すると、`model_parameters_csr_quantized.h`が生成されます
+    - 1層目: `data_1_quantized`, `scale_factor_1`, `indices_1`, `indptr_1`
+    - 2層目: `data_2_quantized`, `scale_factor_2`, `indices_2`, `indptr_2`
   - このファイルは`Arduino/AI_CSR_Quantized/`にコピーして使用します
 
 ### ステップ3: Arduinoへのデプロイ
@@ -205,24 +210,46 @@ Arduinoにアップロード後、スキャナーを実行してPPMファイル�
 
 1. **Cell 6で`HIDDEN_DIM`を変更**（例: 40 → 80）
 2. **Cell 6を実行**して学習（`model_parameters.h`を生成）
-3. **Cell 7を実行**してCSRパラメータを生成（`model_parameters_csr.h`を生成）
-4. **生成ファイルをリネーム**（例: `model_parameters_csr80.h`）
-5. **Arduinoコードの`HIDDEN_DIM`を同じ値に設定**
-6. **対応するパラメータファイルをインクルード**
-7. **コンパイル・アップロードして実験**
+3. **Cell 7を実行**してCSRパラメータを生成（1層目・2層目の両方、`model_parameters_csr.h`を生成）
+4. **Cell 8を実行**して量子化パラメータを生成（オプション、1層目・2層目の両方、`model_parameters_csr_quantized.h`を生成）
+5. **生成ファイルをリネーム**（例: `model_parameters_csr80.h`）
+6. **Arduinoコードの`HIDDEN_DIM`を同じ値に設定**
+7. **対応するパラメータファイルをインクルード**
+8. **コンパイル・アップロードして実験**
 
+
+## 圧縮方法
+
+### CSR圧縮
+- **適用層**: 1層目（3 → HIDDEN_DIM）と2層目（HIDDEN_DIM → HIDDEN_DIM）の両方
+- **手法**: L1正則化による疎化後、プルーニング閾値（0.01）でゼロ要素を削除し、CSR（Compressed Sparse Row）形式に変換
+- **圧縮効果**: 非ゼロ要素のみを保存することで、メモリ使用量を大幅に削減（圧縮率はスパース性に依存、通常3-30倍）
+
+### 量子化
+- **適用層**: 1層目と2層目の両方（CSR圧縮後）
+- **手法**: float32の重みをint8に量子化（8-bit量子化）
+- **圧縮効果**: データ型を4バイトから1バイトに削減することで、さらに4倍のメモリ削減を実現
+
+### 圧縮の組み合わせ
+- **AI_CSR**: CSR圧縮のみ（1層目・2層目ともにCSR形式）
+- **AI_CSR_Quantized**: CSR圧縮 + 量子化（1層目・2層目ともにCSR+量子化形式）
 
 ## パラメータファイル
 
 - `model_parameters.h`: 通常の密行列形式（全層）
-- `model_parameters_csr.h`: CSR形式（2層目のみ）
-- `model_parameters_csr_quantized.h`: 量子化CSR形式（2層目のみ）
+- `model_parameters_csr.h`: CSR形式（1層目・2層目の両方）
+  - `data_1`, `indices_1`, `indptr_1`: 1層目のCSRパラメータ
+  - `data_2`, `indices_2`, `indptr_2`: 2層目のCSRパラメータ
+- `model_parameters_csr_quantized.h`: 量子化CSR形式（1層目・2層目の両方）
+  - `data_1_quantized`, `scale_factor_1`, `indices_1`, `indptr_1`: 1層目の量子化CSRパラメータ
+  - `data_2_quantized`, `scale_factor_2`, `indices_2`, `indptr_2`: 2層目の量子化CSRパラメータ
 
 ## 注意事項
 
 - `HIDDEN_DIM`は学習時とArduinoコードで一致させること
 - 次元を大きくするとメモリ使用量が増加するため、Arduinoの制約を確認
-- 量子化はCSR形式のパラメータに対して適用
+- **CSR圧縮は1層目と2層目の両方に適用**（3層目は密行列のまま）
+- **量子化はCSR形式のパラメータに対して適用**（1層目・2層目の両方）
 - **プルーニング閾値は0.01で固定**（Cell 7で`PRUNING_THRESHOLD = 0.01`を設定）
 
 ## 実験の進め方
@@ -233,10 +260,13 @@ Arduinoにアップロード後、スキャナーを実行してPPMファイル�
 
 1. **Cell 6で`HIDDEN_DIM`を設定**してモデルを学習
    - 例: `HIDDEN_DIM = 40` → `model_parameters.h`を生成
-2. **Cell 7でCSR形式パラメータを生成**
+2. **Cell 7でCSR形式パラメータを生成**（1層目・2層目の両方）
    - `PRUNING_THRESHOLD = 0.01`（固定）
-   - 例: `model_parameters_csr.h`を生成
-3. **生成ファイルをリネーム**して管理
+   - 例: `model_parameters_csr.h`を生成（`data_1`, `indices_1`, `indptr_1`, `data_2`, `indices_2`, `indptr_2`を含む）
+3. **Cell 8で量子化パラメータを生成**（オプション、1層目・2層目の両方）
+   - `USE_QUANTIZATION = True`に設定
+   - 例: `model_parameters_csr_quantized.h`を生成（`data_1_quantized`, `scale_factor_1`, `data_2_quantized`, `scale_factor_2`を含む）
+4. **生成ファイルをリネーム**して管理
    - 例: `model_parameters_csr40.h`, `model_parameters_csr80.h`, `model_parameters_csr120.h`
 
 ### 2. Arduinoへのデプロイと実験
@@ -288,18 +318,67 @@ Arduinoにアップロード後、スキャナーを実行してPPMファイル�
 - **平均値**: 730.13
 
 
+### AI_Model（密行列形式、50次元）
+
+| ファイル | MSE |
+|---------|-----|
+| nn50_1.ppm | 369.30 |
+| nn50_2.ppm | 486.26 |
+| nn50_3.ppm | 444.11 |
+| nn50_4.ppm | 472.78 |
+| nn50_5.ppm | 416.04 |
+| nn50_6.ppm | 231.11 |
+| nn50_7.ppm | 463.85 |
+| nn50_8.ppm | 307.26 |
+| nn50_9.ppm | 342.67 |
+| nn50_10.ppm | 535.59 |
+
+- **最小値**: 231.11
+- **最大値**: 535.59
+- **平均値**: 406.93
+
+### AI_Model（密行列形式、60次元）
+
+| ファイル | MSE |
+|---------|-----|
+| nn60_1.ppm | 193.07 |
+| nn60_2.ppm | 138.00 |
+| nn60_3.ppm | 376.22 |
+| nn60_4.ppm | 227.26 |
+| nn60_5.ppm | 423.22 |
+| nn60_6.ppm | 332.41 |
+| nn60_7.ppm | 297.22 |
+| nn60_8.ppm | 417.44 |
+| nn60_9.ppm | 240.33 |
+| nn60.ppm | 409.30 |
+
+- **最小値**: 138.00
+- **最大値**: 423.22
+- **平均値**: 305.48
+
+### AI_Model（密行列形式、70次元）
+
+コンパイルエラー
+
+
 ### CSR_model（40次元、プルーニング閾値0.01）
 
 | ファイル | MSE |
 |---------|-----|
 | csr1.ppm | 600.00 |
 | csr2.ppm | 517.48 |
-| csr3.ppm | 1070.74 |
+| csr3.ppm | 569.78 |
 | csr4.ppm | 659.04 |
+| csr5.ppm | 324.00 |
+| csr6.ppm | 365.07|
+| csr7.ppm | 522.59|
+| csr8.ppm | 495.04 |
+| csr9.ppm | 692.37 |
+| csr10.ppm | 440.41 |
 
-- **最小値**: -
-- **最大値**: -
-- **平均値**: -
+- **最小値**: 324.00
+- **最大値**: 692.37
+- **平均値**: 518.58
 
 **補足**: .hファイル作成時間 -
 
@@ -333,6 +412,68 @@ Arduinoにアップロード後、スキャナーを実行してPPMファイル�
 - **平均値**: -
 
 **補足**: .hファイル作成時間 15.1秒
+
+### CSR_model（160次元、プルーニング閾値0.01）
+
+- **最小値**: -
+- **最大値**: -
+- **平均値**: -
+
+**補足**: .hファイル作成時間 15.1秒
+
+
+### CSR_model（200次元、プルーニング閾値0.01）
+
+- **最小値**: -
+- **最大値**: -
+- **平均値**: -
+
+**補足**: .hファイル作成時間 15.1秒
+
+
+### CSR_model（300次元、プルーニング閾値0.01）
+コンパイルOK
+
+### CSR_model（400次元、プルーニング閾値0.01）
+コンパイルOK
+
+### CSR_model（450次元、プルーニング閾値0.01）
+コンパイルOK
+
+### CSR_model（500次元、プルーニング閾値0.01）
+コンパイルエラー
+
+
+### AI_CSR_Quantized（40次元、プルーニング閾値0.01）
+
+| ファイル | MSE |
+|---------|-----|
+| csr1.ppm | 600.00 |
+| csr2.ppm | 517.48 |
+| csr3.ppm | 569.78 |
+| csr4.ppm | 659.04 |
+| csr5.ppm | 324.00 |
+| csr6.ppm | 365.07|
+| csr7.ppm | 522.59|
+| csr8.ppm | 495.04 |
+| csr9.ppm | 692.37 |
+| csr10.ppm | 440.41 |
+
+- **最小値**: 
+- **最大値**: 
+- **平均値**: 
+
+**補足**: .hファイル作成時間 -
+
+### CSR_model（300次元、プルーニング閾値0.01）
+コンパイルOK
+
+### CSR_model（400次元、プルーニング閾値0.01）
+コンパイルOK
+
+### CSR_model（500次元、プルーニング閾値0.01）
+コンパイルエラー
+
 
 実験結果を記録中...
 

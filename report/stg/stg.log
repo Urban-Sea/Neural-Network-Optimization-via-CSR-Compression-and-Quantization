@@ -1,4 +1,4 @@
-This is e-upTeX, Version 3.141592653-p4.1.2-u2.00-250202-2.6 (utf8.uptex) (TeX Live 2025) (preloaded format=uplatex 2025.3.15)  9 DEC 2025 10:40
+This is e-upTeX, Version 3.141592653-p4.1.2-u2.00-250202-2.6 (utf8.uptex) (TeX Live 2025) (preloaded format=uplatex 2025.3.15)  10 DEC 2025 16:05
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -755,13 +755,13 @@ LaTeX Font Info:    Font shape `JY2/gt/m/n' will be
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
 
 [14
 
 ]
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
@@ -771,7 +771,9 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 
 [16]
 
-[17
+[17]
+
+[18
 
 ] (./stg.aux)
  ***********
@@ -783,12 +785,12 @@ Package rerunfilecheck Info: File `stg.out' has not changed.
 (rerunfilecheck)             Checksum: D70837BF68A7673B37A9EC1E459899AC;2281.
  ) 
 Here is how much of TeX's memory you used:
- 14979 strings out of 473836
- 231049 string characters out of 5731190
+ 14981 strings out of 473836
+ 231110 string characters out of 5731190
  832635 words of memory out of 5000000
- 38018 multiletter control sequences out of 15000+600000
+ 38020 multiletter control sequences out of 15000+600000
  635609 words of font info for 123 fonts, out of 8000000 for 9000
  934 hyphenation exceptions out of 8191
  72i,11n,79p,277b,1320s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on stg.dvi (17 pages, 86204 bytes).
+Output written on stg.dvi (18 pages, 91524 bytes).

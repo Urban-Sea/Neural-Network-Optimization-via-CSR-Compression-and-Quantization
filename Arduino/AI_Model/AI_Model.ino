@@ -1,5 +1,8 @@
 #include <Arduino.h>
-#include "model_parameters.h"
+#include "model_parameters70.h"
+
+// 隠れ層次元（パラメータファイルと一致させる）
+#define HIDDEN_DIM 70
 
 // RGB点灯遅延
 #define RgbFlashDelay 50 
@@ -93,33 +96,33 @@ void read(){
 
 static inline float relu(float x){ return x > 0 ? x : 0; }
 
-void layer1_dense_relu(const float x[3], float h1[40]){
-	for(int j=0;j<40;++j){
+void layer1_dense_relu(const float x[3], float h1[HIDDEN_DIM]){
+	for(int j=0;j<HIDDEN_DIM;++j){
 		float s = bias_1[j];
 		for(int i=0;i<3;++i) s += weight_1[j*3 + i] * x[i];
 		h1[j] = relu(s);
 	}
 }
 
-void layer2_dense_relu(const float h1[40], float h2[40]){
-	for(int r=0;r<40;++r){
+void layer2_dense_relu(const float h1[HIDDEN_DIM], float h2[HIDDEN_DIM]){
+	for(int r=0;r<HIDDEN_DIM;++r){
 		float s = bias_2[r];
-		for(int c=0;c<40;++c) s += weight_2[r*40 + c] * h1[c];
+		for(int c=0;c<HIDDEN_DIM;++c) s += weight_2[r*HIDDEN_DIM + c] * h1[c];
 		h2[r] = relu(s);
 	}
 }
 
-void layer3_dense(const float h2[40], float y[3]){
+void layer3_dense(const float h2[HIDDEN_DIM], float y[3]){
 	for(int m=0;m<3;++m){
 		float s = bias_3[m];
-		for(int k=0;k<40;++k) s += weight_3[m*40 + k] * h2[k];
+		for(int k=0;k<HIDDEN_DIM;++k) s += weight_3[m*HIDDEN_DIM + k] * h2[k];
 		y[m] = s;
 	}
 }
 
 // 使いやすい forward
 static void forward_rgb(const float in_rgb[3], float out_rgb[3]){
-	float h1[40], h2[40];
+	float h1[HIDDEN_DIM], h2[HIDDEN_DIM];
 	layer1_dense_relu(in_rgb, h1);
 	layer2_dense_relu(h1, h2);
 	layer3_dense(h2, out_rgb);

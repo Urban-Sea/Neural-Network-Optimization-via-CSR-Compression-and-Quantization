@@ -590,14 +590,15 @@ MSEは以下の式で定義される．
         \hline
         密行列形式 & 40 & 484.04 & 1559.96 & 730.13 \\
         \hline
-        密行列形式 & 80 & -- & -- & -- \\
+        密行列形式 & 50 & 231.11 & 535.59 & 406.93 \\
         \hline
-        密行列形式 & 120 & -- & -- & -- \\
+        密行列形式 & 60 & 138.00 & 423.22 & 305.48 \\
         \hline
+        密行列形式 & 70 & コンパイルエラー & コンパイルエラー & コンパイルエラー \\
         \hline
         \multicolumn{5}{|c|}{\textbf{CSR圧縮}} \\
         \hline
-        CSR圧縮 & 40 & -- & -- & -- \\
+        CSR圧縮 & 40 & 324.00 & 692.37 & 518.58 \\
         \hline
         CSR圧縮 & 80 & 225.19 & 729.26 & 464.86 \\
         \hline
@@ -625,11 +626,15 @@ MSEは以下の式で定義される．
         \hline
         \textbf{隠れ層次元} & \textbf{非圧縮} & \textbf{CSR圧縮} & \textbf{CSR＋量子化} \\
         \hline
-        40 & 730.13 & -- & -- \\
+        40 & 730.13 & 518.58 & -- \\
         \hline
-        80 & -- & 464.86 & -- \\
+        50 & 406.93 & -- & -- \\
         \hline
-        120 & -- & -- & -- \\
+        60 & 305.48 & -- & -- \\
+        \hline
+        80 & コンパイルエラー & 464.86 & -- \\
+        \hline
+        120 & コンパイルエラー & -- & -- \\
         \hline
     \end{tabular}
 \end{table}
@@ -672,18 +677,20 @@ MSEは以下の式で定義される．
     \end{tabular}
 \end{table}
 
+
+
 \subsection{詳細データ}
 
 以下に，各実験条件における個別のスキャン結果を示す．
 
 \subsubsection{非圧縮（密行列形式）}
 
-表\ref{tab:results_dense_detail}に，密行列形式（40次元）の詳細な測定結果を示す．
+表\ref{tab:results_dense_detail_40}に，密行列形式（40次元）の詳細な測定結果を示す．
 
 \begin{table}[h]
     \centering
     \caption{密行列形式（40次元）の詳細測定結果}
-    \label{tab:results_dense_detail}
+    \label{tab:results_dense_detail_40}
     \begin{tabular}{|c|c||c|c|}
         \hline
         \textbf{ファイル} & \textbf{MSE} & \textbf{ファイル} & \textbf{MSE} \\
@@ -701,6 +708,52 @@ MSEは以下の式で定義される．
     \end{tabular}
 \end{table}
 
+表\ref{tab:results_dense_detail_50}に，密行列形式（50次元）の詳細な測定結果を示す．
+
+\begin{table}[h]
+    \centering
+    \caption{密行列形式（50次元）の詳細測定結果}
+    \label{tab:results_dense_detail_50}
+    \begin{tabular}{|c|c||c|c|}
+        \hline
+        \textbf{ファイル} & \textbf{MSE} & \textbf{ファイル} & \textbf{MSE} \\
+        \hline
+        nn50\_1.ppm & 369.30 & nn50\_6.ppm & 231.11 \\
+        \hline
+        nn50\_2.ppm & 486.26 & nn50\_7.ppm & 463.85 \\
+        \hline
+        nn50\_3.ppm & 444.11 & nn50\_8.ppm & 307.26 \\
+        \hline
+        nn50\_4.ppm & 472.78 & nn50\_9.ppm & 342.67 \\
+        \hline
+        nn50\_5.ppm & 416.04 & nn50\_10.ppm & 535.59 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+表\ref{tab:results_dense_detail_60}に，密行列形式（60次元）の詳細な測定結果を示す．
+
+\begin{table}[h]
+    \centering
+    \caption{密行列形式（60次元）の詳細測定結果}
+    \label{tab:results_dense_detail_60}
+    \begin{tabular}{|c|c||c|c|}
+        \hline
+        \textbf{ファイル} & \textbf{MSE} & \textbf{ファイル} & \textbf{MSE} \\
+        \hline
+        nn60\_1.ppm & 193.07 & nn60\_6.ppm & 332.41 \\
+        \hline
+        nn60\_2.ppm & 138.00 & nn60\_7.ppm & 297.22 \\
+        \hline
+        nn60\_3.ppm & 376.22 & nn60\_8.ppm & 417.44 \\
+        \hline
+        nn60\_4.ppm & 227.26 & nn60\_9.ppm & 240.33 \\
+        \hline
+        nn60\_5.ppm & 423.22 & nn60.ppm & 409.30 \\
+        \hline
+    \end{tabular}
+\end{table}
+
 \subsubsection{CSR圧縮}
 
 表\ref{tab:results_csr_detail}に，CSR圧縮モデルの詳細な測定結果を示す．
@@ -714,13 +767,25 @@ MSEは以下の式で定義される．
         \textbf{次元} & \textbf{ファイル} & \textbf{MSE} & \textbf{備考} \\
         \hline
         \hline
-        \multirow{4}{*}{40} & csr1.ppm & 600.00 & \multirow{4}{*}{追加測定予定} \\
+        \multirow{10}{*}{40} & csr1.ppm & 600.00 & \multirow{10}{*}{測定完了} \\
         \cline{2-3}
         & csr2.ppm & 517.48 & \\
         \cline{2-3}
-        & csr3.ppm & 1070.74 & \\
+        & csr3.ppm & 569.78 & \\
         \cline{2-3}
         & csr4.ppm & 659.04 & \\
+        \cline{2-3}
+        & csr5.ppm & 324.00 & \\
+        \cline{2-3}
+        & csr6.ppm & 365.07 & \\
+        \cline{2-3}
+        & csr7.ppm & 522.59 & \\
+        \cline{2-3}
+        & csr8.ppm & 495.04 & \\
+        \cline{2-3}
+        & csr9.ppm & 692.37 & \\
+        \cline{2-3}
+        & csr10.ppm & 440.41 & \\
         \hline
         \hline
         \multirow{10}{*}{80} & 1.ppm & 644.59 & \multirow{10}{*}{測定完了} \\
