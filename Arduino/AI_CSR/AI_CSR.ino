@@ -1,11 +1,11 @@
 #include <Arduino.h>
-#include "model_parameters40.h"
-#include "model_parameters_csr40.h"
+#include "model_parameters600.h"
+#include "model_parameters_csr600.h"
 
 // ========== モデル設定 ==========
 // 注意: この値は学習時に使用したHIDDEN_DIMと一致させること
 #ifndef HIDDEN_DIM
-#define HIDDEN_DIM 40  // 隠れ層の次元（学習時の値と一致させる）
+#define HIDDEN_DIM 600  // 隠れ層の次元（学習時の値と一致させる）
 #endif
 // =================================
 
@@ -159,7 +159,9 @@ void readAndProcess(){
     // Serial.println(String(RGBInput[2])+","+String(RGBInput[0])+","+String(RGBInput[1]));    
 
     // ニューラルネットで読み込み値を修正
+    micros();
     forward_rgb(RGBInput, RGBOutput);
+    micros();
     
     // 0-255でクリッピング
     RGBOutput[0] = min(max(RGBOutput[0]*255, 0), 255);

@@ -1,11 +1,11 @@
 #include <Arduino.h>
-#include "model_parameters450.h"
-#include "model_parameters_csr_quantized450.h"
+#include "model_parameters800.h"
+#include "model_parameters_csr_quantized00.h"
 
 // ========== モデル設定 ==========
 // 注意: この値は学習時に使用したHIDDEN_DIMと一致させること
 #ifndef HIDDEN_DIM
-#define HIDDEN_DIM 450  // 隠れ層の次元（学習時の値と一致させる）
+#define HIDDEN_DIM 800  // 隠れ層の次元（学習時の値と一致させる）
 #endif
 // =================================
 
@@ -158,7 +158,9 @@ void readAndProcess(){
     RGBInput[2] = (float(rgb[2])-b_min)/b_max;
     
     // ニューラルネットで読み込み値を修正
+    micros();
     forward_rgb(RGBInput, RGBOutput);
+    micros();
     
     // 0-255でクリッピング
     RGBOutput[0] = min(max(RGBOutput[0]*255, 0), 255);

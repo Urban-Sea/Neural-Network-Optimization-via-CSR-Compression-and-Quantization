@@ -1,8 +1,8 @@
 #include <Arduino.h>
-#include "model_parameters70.h"
+#include "model_parameters60.h"
 
 // 隠れ層次元（パラメータファイルと一致させる）
-#define HIDDEN_DIM 70
+#define HIDDEN_DIM 60
 
 // RGB点灯遅延
 #define RgbFlashDelay 50 
@@ -142,7 +142,9 @@ void readAndProcess(){
     // Serial.println(String(RGBInput[2])+","+String(RGBInput[0])+","+String(RGBInput[1]));    
 
     // ニューラルネットで読み込み値を修正
+    micros();
     forward_rgb(RGBInput, RGBOutput);
+    micros();
     
     // 0-255でクリッピング
     RGBOutput[0] = min(max(RGBOutput[0]*255, 0), 255);
