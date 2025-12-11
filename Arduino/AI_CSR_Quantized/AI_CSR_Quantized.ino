@@ -1,16 +1,16 @@
 #include <Arduino.h>
-#include "model_parameters800.h"
-#include "model_parameters_csr_quantized00.h"
+#include "model_parameters40.h"
+#include "model_parameters_csr_quantized40.h"
 
 // ========== モデル設定 ==========
 // 注意: この値は学習時に使用したHIDDEN_DIMと一致させること
 #ifndef HIDDEN_DIM
-#define HIDDEN_DIM 800  // 隠れ層の次元（学習時の値と一致させる）
+#define HIDDEN_DIM 40  // 隠れ層の次元（学習時の値と一致させる）
 #endif
 // =================================
 
 // RGB点灯遅延
-#define RgbFlashDelay 10 
+#define RgbFlashDelay 50 
 
 // ピン割り当て
 #define PIN_IN A0

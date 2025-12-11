@@ -1,8 +1,8 @@
 #include <Arduino.h>
-#include "model_parameters60.h"
+#include "model_parameters40.h"
 
 // 隠れ層次元（パラメータファイルと一致させる）
-#define HIDDEN_DIM 60
+#define HIDDEN_DIM 40
 
 // RGB点灯遅延
 #define RgbFlashDelay 50 

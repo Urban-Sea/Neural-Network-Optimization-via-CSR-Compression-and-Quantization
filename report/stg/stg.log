@@ -1,4 +1,4 @@
-This is e-upTeX, Version 3.141592653-p4.1.2-u2.00-250202-2.6 (utf8.uptex) (TeX Live 2025) (preloaded format=uplatex 2025.3.15)  11 DEC 2025 23:34
+This is e-upTeX, Version 3.141592653-p4.1.2-u2.00-250202-2.6 (utf8.uptex) (TeX Live 2025) (preloaded format=uplatex 2025.3.15)  12 DEC 2025 02:21
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -755,10 +755,6 @@ LaTeX Font Info:    Font shape `JY2/gt/m/n' will be
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 
-LaTeX Warning: Reference `tab:results_compile_memory' on page 14 undefined on i
-nput line 679.
-
-
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 
@@ -776,11 +772,13 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 
+LaTeX Warning: Float too large for page by 500.69302pt on input line 975.
+
+
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 
-LaTeX Warning: Reference `tab:results_compile_memory' on page 15 undefined on i
-nput line 893.
+LaTeX Warning: `h' float specifier changed to `ht'.
 
 
 
@@ -792,7 +790,9 @@ nput line 893.
 
 [18]
 
-[19
+[19]
+
+[20
 
 ] (./stg.aux)
  ***********
@@ -800,29 +800,16 @@ pLaTeX2e <2023-02-14u04>+1, based on
 LaTeX2e <2024-11-01> patch level 2
 L3 programming layer <2025-01-18>
  ***********
-
-
-LaTeX Warning: There were undefined references.
-
-
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
-
-
-Package rerunfilecheck Warning: File `stg.out' has changed.
-(rerunfilecheck)                Rerun to get outlines right
-(rerunfilecheck)                or use package `bookmark'.
-
-Package rerunfilecheck Info: Checksums for `stg.out':
-(rerunfilecheck)             Before: D70837BF68A7673B37A9EC1E459899AC;2281
-(rerunfilecheck)             After:  D75C4F319F8243096089A5016B8B31E3;2321.
+Package rerunfilecheck Info: File `stg.out' has not changed.
+(rerunfilecheck)             Checksum: D75C4F319F8243096089A5016B8B31E3;2321.
  ) 
 Here is how much of TeX's memory you used:
  14982 strings out of 473836
- 231138 string characters out of 5731190
- 844635 words of memory out of 5000000
+ 231139 string characters out of 5731190
+ 873635 words of memory out of 5000000
  38021 multiletter control sequences out of 15000+600000
  635609 words of font info for 123 fonts, out of 8000000 for 9000
  934 hyphenation exceptions out of 8191
  72i,11n,79p,312b,1320s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on stg.dvi (19 pages, 99720 bytes).
+Output written on stg.dvi (20 pages, 111316 bytes).
