@@ -15,9 +15,10 @@
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {3.1.1}ネットワーク構造}{3}{subsubsection.3.1.1}\protected@file@percent }
 \@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces ニューラルネットワークの構造}}{3}{table.caption.2}\protected@file@percent }
 \newlabel{tab:nn_structure}{{1}{3}{ニューラルネットワークの構造}{table.caption.2}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}隠れ層の圧縮手法}{3}{subsection.3.2}\protected@file@percent }
-\newlabel{sec:compression_methods}{{3.2}{3}{隠れ層の圧縮手法}{subsection.3.2}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.1}圧縮の必要性}{3}{subsubsection.3.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}隠れ層の圧縮手法}{4}{subsection.3.2}\protected@file@percent }
+\newlabel{sec:compression_methods}{{3.2}{4}{隠れ層の圧縮手法}{subsection.3.2}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.1}圧縮の必要性}{4}{subsubsection.3.2.1}\protected@file@percent }
+\newlabel{sec:memory_constraint}{{3.2.1}{4}{圧縮の必要性}{subsubsection.3.2.1}{}}
 \citation{han2015deep}
 \citation{jacob2018quantization}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.2}プルーニング（Pruning）}{5}{subsubsection.3.2.2}\protected@file@percent }
@@ -48,81 +49,133 @@
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.3}圧縮手法の実装}{9}{subsubsection.4.2.3}\protected@file@percent }
 \newlabel{sec:compression_implementation}{{4.2.3}{9}{圧縮手法の実装}{subsubsection.4.2.3}{}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.4}デプロイフェーズ}{9}{subsubsection.4.2.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}RGB画像読み取りシステムの処理フロー}{11}{subsection.4.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.3.1}共通部分（センサー読み取りと画像バッファ管理）}{11}{subsubsection.4.3.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{\texttt  {allocateArray}関数}{11}{section*.13}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{\texttt  {setup}関数}{11}{section*.14}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{\texttt  {read}関数}{11}{section*.15}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{\texttt  {readAndProcess}関数}{11}{section*.16}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{\texttt  {loop}関数}{11}{section*.17}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces RGB画像バッファを動的確保する\texttt  {allocateArray}関数のフローチャート}}{12}{figure.caption.18}\protected@file@percent }
-\newlabel{fig:scanner_allocateArray}{{3}{12}{RGB画像バッファを動的確保する\texttt {allocateArray}関数のフローチャート}{figure.caption.18}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces RGB画像読み取りシステムの\texttt  {setup}関数のフローチャート}}{13}{figure.caption.19}\protected@file@percent }
-\newlabel{fig:scanner_setup}{{4}{13}{RGB画像読み取りシステムの\texttt {setup}関数のフローチャート}{figure.caption.19}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces \texttt  {read}関数（R/G/B順にLED点灯と読み取りを行う）のフローチャート}}{14}{figure.caption.20}\protected@file@percent }
-\newlabel{fig:scanner_read}{{5}{14}{\texttt {read}関数（R/G/B順にLED点灯と読み取りを行う）のフローチャート}{figure.caption.20}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces \texttt  {readAndProcess}関数（正規化およびNN推論処理）のフローチャート}}{15}{figure.caption.21}\protected@file@percent }
-\newlabel{fig:scanner_readAndProcess}{{6}{15}{\texttt {readAndProcess}関数（正規化およびNN推論処理）のフローチャート}{figure.caption.21}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces \texttt  {loop}関数における画素読み取り・保存処理のフローチャート}}{16}{figure.caption.22}\protected@file@percent }
-\newlabel{fig:scanner_loop_pixel}{{7}{16}{\texttt {loop}関数における画素読み取り・保存処理のフローチャート}{figure.caption.22}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces \texttt  {loop}関数におけるMin/Maxキャリブレーション処理のフローチャート}}{17}{figure.caption.23}\protected@file@percent }
-\newlabel{fig:scanner_loop_minmax}{{8}{17}{\texttt {loop}関数におけるMin/Maxキャリブレーション処理のフローチャート}{figure.caption.23}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.3.2}NN部分（ニューラルネットワーク推論）}{18}{subsubsection.4.3.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{密行列形式（\texttt  {AI\_Model}）}{18}{section*.24}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{CSR形式（\texttt  {AI\_CSR}）}{18}{section*.25}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{量子化CSR形式（\texttt  {AI\_CSR\_Quantized}）}{18}{section*.26}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {5}実験方法}{19}{section.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}実験の目的と方針}{19}{subsection.5.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}実験の全体フロー}{19}{subsection.5.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}実験条件}{19}{subsection.5.3}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces 実験条件}}{19}{table.caption.27}\protected@file@percent }
-\newlabel{tab:experiment_conditions}{{5}{19}{実験条件}{table.caption.27}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}実験手順}{20}{subsection.5.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.4.1}モデルの学習とパラメータ生成}{20}{subsubsection.5.4.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{ステップ1：環境セットアップとデータ準備}{20}{section*.28}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{ステップ2：ニューラルネットワークの学習}{20}{section*.29}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces 学習パラメータ}}{20}{table.caption.30}\protected@file@percent }
-\newlabel{tab:training_params}{{6}{20}{学習パラメータ}{table.caption.30}{}}
-\@writefile{toc}{\contentsline {paragraph}{ステップ3：CSR形式への変換}{20}{section*.31}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{ステップ4：量子化の適用（オプション）}{21}{section*.32}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{次元変更時の手順}{21}{section*.33}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.4.2}Arduinoへのデプロイ}{22}{subsubsection.5.4.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{ステップ1：パラメータファイルの配置}{22}{section*.34}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces パラメータファイルの配置}}{22}{table.caption.35}\protected@file@percent }
-\newlabel{tab:parameter_files}{{7}{22}{パラメータファイルの配置}{table.caption.35}{}}
-\@writefile{toc}{\contentsline {paragraph}{ステップ2：Arduinoコードの設定}{22}{section*.36}\protected@file@percent }
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {1}{\ignorespaces Arduinoコードの設定例（80次元の場合）}}{22}{lstlisting.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{ステップ3：コンパイルとアップロード}{22}{section*.37}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.4.3}スキャン実行とデータ取得}{23}{subsubsection.5.4.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{ステップ1：キャリブレーション}{23}{section*.38}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{ステップ2：カラーチャートの読み取り}{23}{section*.39}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{ステップ3：PPM画像の出力}{23}{section*.40}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.5}評価方法}{23}{subsection.5.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.6}比較対象}{23}{subsection.5.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {6}実験結果}{24}{section.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}MSE測定結果}{24}{subsection.6.1}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces 圧縮手法別MSE比較}}{24}{table.caption.41}\protected@file@percent }
-\newlabel{tab:results_mse_comparison}{{8}{24}{圧縮手法別MSE比較}{table.caption.41}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}コンパイル時間とメモリ使用量}{24}{subsection.6.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}詳細データ}{24}{subsection.6.3}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces 隠れ層次元別MSE比較（平均値）}}{25}{table.caption.42}\protected@file@percent }
-\newlabel{tab:results_by_dimension}{{9}{25}{隠れ層次元別MSE比較（平均値）}{table.caption.42}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {6.3.1}非圧縮（密行列形式）}{25}{subsubsection.6.3.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {6.3.2}CSR圧縮}{25}{subsubsection.6.3.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {6.3.3}CSR＋量子化}{25}{subsubsection.6.3.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.4}結果のまとめ}{25}{subsection.6.4}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {10}{\ignorespaces コンパイル時間とメモリ使用量}}{26}{table.caption.43}\protected@file@percent }
-\newlabel{tab:results_compile_memory}{{10}{26}{コンパイル時間とメモリ使用量}{table.caption.43}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {11}{\ignorespaces 密行列形式（40次元）の詳細測定結果}}{26}{table.caption.44}\protected@file@percent }
-\newlabel{tab:results_dense_detail_40}{{11}{26}{密行列形式（40次元）の詳細測定結果}{table.caption.44}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {12}{\ignorespaces 密行列形式（50次元）の詳細測定結果}}{26}{table.caption.45}\protected@file@percent }
-\newlabel{tab:results_dense_detail_50}{{12}{26}{密行列形式（50次元）の詳細測定結果}{table.caption.45}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {13}{\ignorespaces 密行列形式（60次元）の詳細測定結果}}{27}{table.caption.46}\protected@file@percent }
-\newlabel{tab:results_dense_detail_60}{{13}{27}{密行列形式（60次元）の詳細測定結果}{table.caption.46}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {14}{\ignorespaces CSR圧縮の詳細測定結果}}{28}{table.caption.47}\protected@file@percent }
-\newlabel{tab:results_csr_detail}{{14}{28}{CSR圧縮の詳細測定結果}{table.caption.47}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {15}{\ignorespaces CSR＋量子化の詳細測定結果}}{29}{table.caption.48}\protected@file@percent }
-\newlabel{tab:results_quantized_detail}{{15}{29}{CSR＋量子化の詳細測定結果}{table.caption.48}{}}
-\bibcite{jacob2018quantization}{1}
-\bibcite{han2015deep}{2}
-\gdef \@abspage@last{30}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}RGB画像読み取りシステムの処理フロー}{10}{subsection.4.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.3.1}共通部分（センサー読み取りと画像バッファ管理）}{10}{subsubsection.4.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\texttt  {allocateArray}関数}{10}{section*.13}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\texttt  {setup}関数}{10}{section*.14}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\texttt  {read}関数}{10}{section*.15}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\texttt  {readAndProcess}関数}{10}{section*.16}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\texttt  {loop}関数}{10}{section*.17}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces RGB画像バッファを動的確保する\texttt  {allocateArray}関数のフローチャート}}{11}{figure.caption.18}\protected@file@percent }
+\newlabel{fig:scanner_allocateArray}{{3}{11}{RGB画像バッファを動的確保する\texttt {allocateArray}関数のフローチャート}{figure.caption.18}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces RGB画像読み取りシステムの\texttt  {setup}関数のフローチャート}}{12}{figure.caption.19}\protected@file@percent }
+\newlabel{fig:scanner_setup}{{4}{12}{RGB画像読み取りシステムの\texttt {setup}関数のフローチャート}{figure.caption.19}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces \texttt  {read}関数（R/G/B順にLED点灯と読み取りを行う）のフローチャート}}{13}{figure.caption.20}\protected@file@percent }
+\newlabel{fig:scanner_read}{{5}{13}{\texttt {read}関数（R/G/B順にLED点灯と読み取りを行う）のフローチャート}{figure.caption.20}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces \texttt  {readAndProcess}関数（正規化およびNN推論処理）のフローチャート}}{14}{figure.caption.21}\protected@file@percent }
+\newlabel{fig:scanner_readAndProcess}{{6}{14}{\texttt {readAndProcess}関数（正規化およびNN推論処理）のフローチャート}{figure.caption.21}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces \texttt  {loop}関数における画素読み取り・保存処理のフローチャート}}{15}{figure.caption.22}\protected@file@percent }
+\newlabel{fig:scanner_loop_pixel}{{7}{15}{\texttt {loop}関数における画素読み取り・保存処理のフローチャート}{figure.caption.22}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces \texttt  {loop}関数におけるMin/Maxキャリブレーション処理のフローチャート}}{16}{figure.caption.23}\protected@file@percent }
+\newlabel{fig:scanner_loop_minmax}{{8}{16}{\texttt {loop}関数におけるMin/Maxキャリブレーション処理のフローチャート}{figure.caption.23}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}RGB画像読み取りシステムの処理フロー}{17}{subsection.4.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.4.1}共通部分（センサー読み取りと画像バッファ管理）}{17}{subsubsection.4.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\texttt  {allocateArray}関数}{17}{section*.24}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\texttt  {setup}関数}{17}{section*.25}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\texttt  {read}関数}{17}{section*.26}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\texttt  {readAndProcess}関数}{17}{section*.27}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\texttt  {loop}関数}{17}{section*.28}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces \texttt  {allocateArray}関数のフローチャート}}{18}{figure.caption.29}\protected@file@percent }
+\newlabel{fig:scanner_allocateArray}{{9}{18}{\texttt {allocateArray}関数のフローチャート}{figure.caption.29}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces \texttt  {setup}関数のフローチャート}}{19}{figure.caption.30}\protected@file@percent }
+\newlabel{fig:scanner_setup}{{10}{19}{\texttt {setup}関数のフローチャート}{figure.caption.30}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces \texttt  {read}関数のフローチャート}}{20}{figure.caption.31}\protected@file@percent }
+\newlabel{fig:scanner_read}{{11}{20}{\texttt {read}関数のフローチャート}{figure.caption.31}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces \texttt  {readAndProcess}関数のフローチャート}}{21}{figure.caption.32}\protected@file@percent }
+\newlabel{fig:scanner_readAndProcess}{{12}{21}{\texttt {readAndProcess}関数のフローチャート}{figure.caption.32}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces \texttt  {loop}関数における画素読み取り・保存処理のフローチャート}}{22}{figure.caption.33}\protected@file@percent }
+\newlabel{fig:scanner_loop_pixel}{{13}{22}{\texttt {loop}関数における画素読み取り・保存処理のフローチャート}{figure.caption.33}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces \texttt  {loop}関数におけるMin/Maxキャリブレーション処理のフローチャート}}{23}{figure.caption.34}\protected@file@percent }
+\newlabel{fig:scanner_loop_minmax}{{14}{23}{\texttt {loop}関数におけるMin/Maxキャリブレーション処理のフローチャート}{figure.caption.34}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.4.2}NN部分（RGB補正ニューラルネットワーク）}{24}{subsubsection.4.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{① 密行列形式 (非圧縮版)}{24}{section*.35}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{② CSR版（CSR形式）}{24}{section*.38}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{③ CSR＋量子化版（量子化CSR形式）}{24}{section*.41}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {15}{\ignorespaces 非圧縮版\texttt  {predict}関数のフローチャート}}{25}{figure.caption.36}\protected@file@percent }
+\newlabel{fig:scanner_forward_dense}{{15}{25}{非圧縮版\texttt {predict}関数のフローチャート}{figure.caption.36}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {16}{\ignorespaces 非圧縮版の隠れ層計算詳細フローチャート}}{26}{figure.caption.37}\protected@file@percent }
+\newlabel{fig:scanner_dense_layer_detail}{{16}{26}{非圧縮版の隠れ層計算詳細フローチャート}{figure.caption.37}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {17}{\ignorespaces CSR版\texttt  {predict}関数のフローチャート}}{27}{figure.caption.39}\protected@file@percent }
+\newlabel{fig:scanner_forward_csr}{{17}{27}{CSR版\texttt {predict}関数のフローチャート}{figure.caption.39}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {18}{\ignorespaces CSR版の隠れ層計算詳細フローチャート}}{28}{figure.caption.40}\protected@file@percent }
+\newlabel{fig:scanner_csr_layer_detail}{{18}{28}{CSR版の隠れ層計算詳細フローチャート}{figure.caption.40}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {19}{\ignorespaces CSR＋量子化版\texttt  {predict}関数のフローチャート}}{29}{figure.caption.42}\protected@file@percent }
+\newlabel{fig:scanner_forward_csr_quant}{{19}{29}{CSR＋量子化版\texttt {predict}関数のフローチャート}{figure.caption.42}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {20}{\ignorespaces CSR＋量子化版の隠れ層計算詳細フローチャート}}{30}{figure.caption.43}\protected@file@percent }
+\newlabel{fig:scanner_csr_quant_layer_detail}{{20}{30}{CSR＋量子化版の隠れ層計算詳細フローチャート}{figure.caption.43}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}実験方法}{31}{section.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}実験の目的と方針}{31}{subsection.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}実験の全体フロー}{31}{subsection.5.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}実験条件}{31}{subsection.5.3}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces 実験条件}}{31}{table.caption.44}\protected@file@percent }
+\newlabel{tab:experiment_conditions}{{5}{31}{実験条件}{table.caption.44}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}実験手順}{32}{subsection.5.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.4.1}モデルの学習とパラメータ生成}{32}{subsubsection.5.4.1}\protected@file@percent }
+\newlabel{sec:training_procedure}{{5.4.1}{32}{モデルの学習とパラメータ生成}{subsubsection.5.4.1}{}}
+\@writefile{toc}{\contentsline {paragraph}{ステップ1：環境セットアップとデータ準備}{32}{section*.45}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{ステップ2：ニューラルネットワークの学習}{32}{section*.46}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces 学習パラメータ}}{32}{table.caption.47}\protected@file@percent }
+\newlabel{tab:training_params}{{6}{32}{学習パラメータ}{table.caption.47}{}}
+\@writefile{toc}{\contentsline {paragraph}{ステップ3：CSR形式への変換}{32}{section*.48}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{ステップ4：量子化の適用（オプション）}{33}{section*.49}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{次元変更時の手順}{33}{section*.50}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.4.2}Arduinoへのデプロイ}{34}{subsubsection.5.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{ステップ1：パラメータファイルの配置}{34}{section*.51}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces パラメータファイルの配置}}{34}{table.caption.52}\protected@file@percent }
+\newlabel{tab:parameter_files}{{7}{34}{パラメータファイルの配置}{table.caption.52}{}}
+\@writefile{toc}{\contentsline {paragraph}{ステップ2：Arduinoコードの設定}{34}{section*.53}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {1}{\ignorespaces Arduinoコードの設定例（80次元の場合）}}{34}{lstlisting.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{ステップ3：コンパイルとアップロード}{34}{section*.54}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.4.3}スキャン実行とデータ取得}{35}{subsubsection.5.4.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{ステップ1：キャリブレーション}{35}{section*.55}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{ステップ2：カラーチャートの読み取り}{35}{section*.56}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{ステップ3：PPM画像の出力}{35}{section*.57}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5}評価方法}{35}{subsection.5.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.6}比較対象}{35}{subsection.5.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6}実験結果}{36}{section.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}MSE測定結果}{36}{subsection.6.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces 圧縮手法別MSE比較}}{36}{table.caption.58}\protected@file@percent }
+\newlabel{tab:results_mse_comparison}{{8}{36}{圧縮手法別MSE比較}{table.caption.58}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces 隠れ層次元別MSE比較（平均値）}}{36}{table.caption.59}\protected@file@percent }
+\newlabel{tab:results_by_dimension}{{9}{36}{隠れ層次元別MSE比較（平均値）}{table.caption.59}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}メモリ使用量}{37}{subsection.6.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {10}{\ignorespaces 圧縮手法別メモリ使用量}}{37}{table.caption.60}\protected@file@percent }
+\newlabel{tab:results_memory}{{10}{37}{圧縮手法別メモリ使用量}{table.caption.60}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}結果のまとめ}{38}{subsection.6.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {6.3.1}隠れ層次元の拡張可能範囲}{38}{subsubsection.6.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {6.3.2}推論精度（MSE）}{38}{subsubsection.6.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {6.3.3}メモリ効率}{38}{subsubsection.6.3.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7}考察}{39}{section.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {8}}{39}{section.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {付録A}詳細測定データ}{40}{appendix.A}\protected@file@percent }
+\newlabel{sec:appendix_detail}{{付録A}{40}{詳細測定データ}{appendix.A}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {A.1}非圧縮（密行列形式）の詳細測定結果}{40}{subsection.A.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {11}{\ignorespaces 密行列形式の詳細測定結果（MSE）}}{40}{table.caption.61}\protected@file@percent }
+\newlabel{tab:appendix_dense}{{11}{40}{密行列形式の詳細測定結果（MSE）}{table.caption.61}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {A.2}CSR圧縮の詳細測定結果}{41}{subsection.A.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {12}{\ignorespaces CSR圧縮の詳細測定結果（MSE）}}{41}{table.caption.62}\protected@file@percent }
+\newlabel{tab:appendix_csr}{{12}{41}{CSR圧縮の詳細測定結果（MSE）}{table.caption.62}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {A.3}CSR＋量子化の詳細測定結果}{41}{subsection.A.3}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {13}{\ignorespaces CSR＋量子化の詳細測定結果（MSE）}}{41}{table.caption.63}\protected@file@percent }
+\newlabel{tab:appendix_quantized}{{13}{41}{CSR＋量子化の詳細測定結果（MSE）}{table.caption.63}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {付録B}ソースコード}{42}{appendix.B}\protected@file@percent }
+\newlabel{sec:appendix_code}{{付録B}{42}{ソースコード}{appendix.B}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {B.1}AI\_Model.ino}{42}{subsection.B.1}\protected@file@percent }
+\newlabel{sec:code_ai_model}{{B.1}{42}{AI\_Model.ino}{subsection.B.1}{}}
+\newlabel{code:ai_model}{{2}{42}{AI\_Model.ino}{lstlisting.2}{}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {2}{\ignorespaces AI\_Model.ino}}{42}{lstlisting.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {B.2}AI\_CSR.ino}{48}{subsection.B.2}\protected@file@percent }
+\newlabel{sec:code_ai_csr}{{B.2}{48}{AI\_CSR.ino}{subsection.B.2}{}}
+\newlabel{code:ai_csr}{{3}{48}{AI\_CSR.ino}{lstlisting.3}{}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {3}{\ignorespaces AI\_CSR.ino}}{48}{lstlisting.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {B.3}AI\_CSR\_Quantized.ino}{54}{subsection.B.3}\protected@file@percent }
+\newlabel{sec:code_ai_csr_quantized}{{B.3}{54}{AI\_CSR\_Quantized.ino}{subsection.B.3}{}}
+\newlabel{code:ai_csr_quantized}{{4}{54}{AI\_CSR\_Quantized.ino}{lstlisting.4}{}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {4}{\ignorespaces AI\_CSR\_Quantized.ino}}{54}{lstlisting.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {B.4}train\_L1\_normalization.ipynb}{60}{subsection.B.4}\protected@file@percent }
+\newlabel{sec:code_train}{{B.4}{60}{train\_L1\_normalization.ipynb}{subsection.B.4}{}}
+\newlabel{code:train}{{5}{60}{train\_L1\_normalization.ipynb}{lstlisting.5}{}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {5}{\ignorespaces train\_L1\_normalization.ipynb}}{60}{lstlisting.5}\protected@file@percent }
+\bibcite{han2015deep}{1}
+\bibcite{jacob2018quantization}{2}
+\gdef \@abspage@last{62}

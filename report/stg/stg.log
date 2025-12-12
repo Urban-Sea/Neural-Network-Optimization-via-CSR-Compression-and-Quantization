@@ -1,4 +1,4 @@
-This is e-upTeX, Version 3.141592653-p4.1.2-u2.00-250202-2.6 (utf8.uptex) (TeX Live 2025) (preloaded format=uplatex 2025.3.15)  12 DEC 2025 11:46
+This is e-upTeX, Version 3.141592653-p4.1.2-u2.00-250202-2.6 (utf8.uptex) (TeX Live 2025) (preloaded format=uplatex 2025.3.15)  12 DEC 2025 15:32
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -524,7 +524,26 @@ File: l3backend-dvips.def 2024-05-08 L3 backend support: dvips
 \g__pdf_backend_link_int=\count328
 \g__pdf_backend_link_sf_int=\count329
 )
-(./stg.aux)
+(./stg.aux
+
+LaTeX Warning: Label `fig:scanner_allocateArray' multiply defined.
+
+
+LaTeX Warning: Label `fig:scanner_setup' multiply defined.
+
+
+LaTeX Warning: Label `fig:scanner_read' multiply defined.
+
+
+LaTeX Warning: Label `fig:scanner_readAndProcess' multiply defined.
+
+
+LaTeX Warning: Label `fig:scanner_loop_pixel' multiply defined.
+
+
+LaTeX Warning: Label `fig:scanner_loop_minmax' multiply defined.
+
+)
 \openout1 = `stg.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 59.
@@ -659,25 +678,22 @@ LaTeX Font Info:    Font shape `JT2/gt/m/n' will be
 LaTeX Font Info:    Font shape `JY2/gt/m/n' will be
 (Font)              scaled to size 9.24683pt on input line 121.
 LaTeX Font Info:    Font shape `JT2/mc/bx/n' in size <10> not available
-(Font)              Font shape `JT2/gt/m/n' tried instead on input line 124.
+(Font)              Font shape `JT2/gt/m/n' tried instead on input line 132.
 LaTeX Font Info:    Font shape `JT2/gt/m/n' will be
-(Font)              scaled to size 9.24683pt on input line 124.
+(Font)              scaled to size 9.24683pt on input line 132.
 LaTeX Font Info:    Font shape `JY2/mc/bx/n' in size <10> not available
-(Font)              Font shape `JY2/gt/m/n' tried instead on input line 124.
+(Font)              Font shape `JY2/gt/m/n' tried instead on input line 132.
 LaTeX Font Info:    Font shape `JY2/gt/m/n' will be
-(Font)              scaled to size 9.24683pt on input line 124.
-
-
-LaTeX Warning: Reference `tab:nn_structure' on page 3 undefined on input line 1
-24.
-
+(Font)              scaled to size 9.24683pt on input line 132.
 
 
 [3
 
 ]
 
-[4]
+[4
+
+]
 
 [5
 
@@ -687,7 +703,7 @@ LaTeX Warning: Reference `tab:nn_structure' on page 3 undefined on input line 1
 File: 回路図.pdf Graphic file (type pdf)
 <回路図.pdf>
 
-Overfull \hbox (2.27618pt too wide) in paragraph at lines 330--331
+Overfull \hbox (2.27618pt too wide) in paragraph at lines 332--333
  [][] 
  []
 
@@ -702,20 +718,9 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 
 [8]
 
-LaTeX Warning: Reference `tab:nn_structure' on page 9 undefined on input line 3
-44.
-
-
-LaTeX Warning: Reference `sec:compression_methods' on page 9 undefined on input
- line 365.
-
-
-
 [9
 
 ]
-
-[10]
 File: フローチャート/Scanner共通/scanner_allocateArray.png Graphic fil
 e (type bmp)
 <フローチャート/Scanner共通/scanner_allocateArray.png>
@@ -726,9 +731,6 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 File: フローチャート/Scanner共通/scanner_setup.png Graphic file (type 
 bmp)
 <フローチャート/Scanner共通/scanner_setup.png>
-
-LaTeX Warning: Float too large for page by 175.72124pt on input line 446.
-
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
@@ -748,8 +750,59 @@ File: フローチャート/Scanner共通/scanner_loop_pixel.png Graphic file (
 type bmp)
 <フローチャート/Scanner共通/scanner_loop_pixel.png>
 
-LaTeX Warning: Float too large for page by 659.37709pt on input line 467.
+LaTeX Warning: `h' float specifier changed to `ht'.
 
+File: フローチャート/Scanner共通/scanner_loop_minmax.png Graphic file 
+(type bmp)
+<フローチャート/Scanner共通/scanner_loop_minmax.png>
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+
+[10
+
+]
+
+[11]
+
+[12]
+
+[13]
+
+[14]
+
+[15]
+
+[16]
+File: フローチャート/Scanner共通/scanner_allocateArray.png Graphic fil
+e (type bmp)
+<フローチャート/Scanner共通/scanner_allocateArray.png>
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+File: フローチャート/Scanner共通/scanner_setup.png Graphic file (type 
+bmp)
+<フローチャート/Scanner共通/scanner_setup.png>
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+File: フローチャート/Scanner共通/scanner_read.png Graphic file (type b
+mp)
+<フローチャート/Scanner共通/scanner_read.png>
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+File: フローチャート/Scanner共通/scanner_readAndProcess.png Graphic fi
+le (type bmp)
+<フローチャート/Scanner共通/scanner_readAndProcess.png>
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+File: フローチャート/Scanner共通/scanner_loop_pixel.png Graphic file (
+type bmp)
+<フローチャート/Scanner共通/scanner_loop_pixel.png>
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
@@ -761,106 +814,55 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 
 
 
-[11
+[17
 
 ]
 
-[12]
+[18]
 
-[13]
-
-[14]
-
-[15]
-
-[16]
-
-[17]
-
-LaTeX Warning: Reference `fig:nn_dense_forward' on page 18 undefined on input l
-ine 494.
-
-
-LaTeX Warning: Reference `fig:nn_csr_forward' on page 18 undefined on input lin
-e 498.
-
-
-LaTeX Warning: Reference `fig:nn_quantized_forward' on page 18 undefined on inp
-ut line 503.
-
-
-
-[18
-
-]
-
-[19
-
-]
-Overfull \hbox (2.54459pt too wide) in paragraph at lines 639--640
-[]\JY2/mc/m/n/10 変換後のパラメ ータは ， 各隠れ層次元に応
-じて \T1/cmtt/m/n/10 model_parameters_csr40.h\JY2/mc/m/n/10 ， \T1/cmtt/m/n/
-10 model_parameters_csr80.h
- []
-
-
+[19]
 
 [20]
 
-[21] (/usr/local/texlive/2025/texmf-dist/tex/latex/listings/lstlang1.sty
-File: lstlang1.sty 2024/09/23 1.10c listings language file
-)
-(/usr/local/texlive/2025/texmf-dist/tex/latex/listings/lstmisc.sty
-File: lstmisc.sty 2024/09/23 1.10c (Carsten Heinz)
-)
-Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on i
-nput line 700.
-LaTeX Font Info:    Font shape `JT2/mc/m/n' will be
-(Font)              scaled to size 8.32214pt on input line 700.
-LaTeX Font Info:    Font shape `JY2/mc/m/n' will be
-(Font)              scaled to size 8.32214pt on input line 700.
-LaTeX Font Info:    Font shape `JT2/gt/m/n' will be
-(Font)              scaled to size 8.32214pt on input line 700.
-LaTeX Font Info:    Font shape `JY2/gt/m/n' will be
-(Font)              scaled to size 8.32214pt on input line 700.
-LaTeX Font Info:    Font shape `JT2/gt/bx/n' in size <9> not available
-(Font)              Font shape `JT2/gt/m/n' tried instead on input line 701.
-LaTeX Font Info:    Font shape `JT2/gt/m/n' will be
-(Font)              scaled to size 8.32214pt on input line 701.
-LaTeX Font Info:    Font shape `JY2/gt/bx/n' in size <9> not available
-(Font)              Font shape `JY2/gt/m/n' tried instead on input line 701.
-LaTeX Font Info:    Font shape `JY2/gt/m/n' will be
-(Font)              scaled to size 8.32214pt on input line 701.
-LaTeX Font Info:    Font shape `T1/cmtt/bx/n' in size <9> not available
-(Font)              Font shape `T1/cmtt/m/n' tried instead on input line 701.
-LaTeX Font Info:    Font shape `JT2/gt/m/it' in size <9> not available
-(Font)              Font shape `JT2/gt/m/n' tried instead on input line 701.
-LaTeX Font Info:    Font shape `JT2/gt/m/n' will be
-(Font)              scaled to size 8.32214pt on input line 701.
-LaTeX Font Info:    Font shape `JY2/gt/m/it' in size <9> not available
-(Font)              Font shape `JY2/gt/m/n' tried instead on input line 701.
-LaTeX Font Info:    Font shape `JY2/gt/m/n' will be
-(Font)              scaled to size 8.32214pt on input line 701.
+[21]
 
+[22]
 
-[22
+[23]
+File: フローチャート/ScannerNN/scanner_forward_dense.png Graphic file (t
+ype bmp)
+<フローチャート/ScannerNN/scanner_forward_dense.png>
 
-]
-
-LaTeX Warning: Reference `eq:mse_definition' on page 23 undefined on input line
- 731.
-
-
-LaTeX Warning: Reference `eq:mse_rgb' on page 23 undefined on input line 731.
-
-
-
-[23
-
-]
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
+File: フローチャート/ScannerNN/scanner_dense_layer_detail.png Graphic fi
+le (type bmp)
+<フローチャート/ScannerNN/scanner_dense_layer_detail.png>
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+File: フローチャート/ScannerCSR/scanner_forward_csr.png Graphic file (ty
+pe bmp)
+<フローチャート/ScannerCSR/scanner_forward_csr.png>
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+File: フローチャート/ScannerCSR/scanner_csr_layer_detail.png Graphic fil
+e (type bmp)
+<フローチャート/ScannerCSR/scanner_csr_layer_detail.png>
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+File: フローチャート/ScannerQuant/scanner_forward_csr_quant.png Graphic 
+file (type bmp)
+<フローチャート/ScannerQuant/scanner_forward_csr_quant.png>
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+File: フローチャート/ScannerQuant/scanner_csr_quant_layer_detail.png Gra
+phic file (type bmp)
+<フローチャート/ScannerQuant/scanner_csr_quant_layer_detail.png>
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
@@ -869,25 +871,6 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 [24
 
 ]
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-LaTeX Warning: Float too large for page by 500.69302pt on input line 1156.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
 
 [25]
 
@@ -899,7 +882,140 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 
 [29]
 
-[30
+[30]
+
+[31
+
+]
+Overfull \hbox (2.54459pt too wide) in paragraph at lines 749--750
+[]\JY2/mc/m/n/10 変換後のパラメ ータは ， 各隠れ層次元に応
+じて \T1/cmtt/m/n/10 model_parameters_csr40.h\JY2/mc/m/n/10 ， \T1/cmtt/m/n/
+10 model_parameters_csr80.h
+ []
+
+
+
+[32]
+
+[33
+
+] (/usr/local/texlive/2025/texmf-dist/tex/latex/listings/lstlang1.sty
+File: lstlang1.sty 2024/09/23 1.10c listings language file
+)
+(/usr/local/texlive/2025/texmf-dist/tex/latex/listings/lstmisc.sty
+File: lstmisc.sty 2024/09/23 1.10c (Carsten Heinz)
+)
+Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on i
+nput line 810.
+LaTeX Font Info:    Font shape `JT2/mc/m/n' will be
+(Font)              scaled to size 8.32214pt on input line 810.
+LaTeX Font Info:    Font shape `JY2/mc/m/n' will be
+(Font)              scaled to size 8.32214pt on input line 810.
+LaTeX Font Info:    Font shape `JT2/gt/m/n' will be
+(Font)              scaled to size 8.32214pt on input line 810.
+LaTeX Font Info:    Font shape `JY2/gt/m/n' will be
+(Font)              scaled to size 8.32214pt on input line 810.
+LaTeX Font Info:    Font shape `JT2/gt/bx/n' in size <9> not available
+(Font)              Font shape `JT2/gt/m/n' tried instead on input line 811.
+LaTeX Font Info:    Font shape `JT2/gt/m/n' will be
+(Font)              scaled to size 8.32214pt on input line 811.
+LaTeX Font Info:    Font shape `JY2/gt/bx/n' in size <9> not available
+(Font)              Font shape `JY2/gt/m/n' tried instead on input line 811.
+LaTeX Font Info:    Font shape `JY2/gt/m/n' will be
+(Font)              scaled to size 8.32214pt on input line 811.
+LaTeX Font Info:    Font shape `T1/cmtt/bx/n' in size <9> not available
+(Font)              Font shape `T1/cmtt/m/n' tried instead on input line 811.
+LaTeX Font Info:    Font shape `JT2/gt/m/it' in size <9> not available
+(Font)              Font shape `JT2/gt/m/n' tried instead on input line 811.
+LaTeX Font Info:    Font shape `JT2/gt/m/n' will be
+(Font)              scaled to size 8.32214pt on input line 811.
+LaTeX Font Info:    Font shape `JY2/gt/m/it' in size <9> not available
+(Font)              Font shape `JY2/gt/m/n' tried instead on input line 811.
+LaTeX Font Info:    Font shape `JY2/gt/m/n' will be
+(Font)              scaled to size 8.32214pt on input line 811.
+
+
+[34
+
+]
+
+[35
+
+]
+
+[36
+
+]
+
+[37]
+
+[38
+
+]
+
+[39
+
+]
+
+[40
+
+]
+
+[41
+
+] (/usr/local/texlive/2025/texmf-dist/tex/latex/listings/lstlang1.sty
+File: lstlang1.sty 2024/09/23 1.10c listings language file
+)
+
+[42
+
+]
+
+[43]
+
+[44]
+
+[45]
+
+[46]
+
+[47]
+
+[48
+
+]
+
+[49]
+
+[50]
+
+[51]
+
+[52]
+
+[53]
+
+[54
+
+]
+
+[55]
+
+[56]
+
+[57]
+
+[58]
+
+[59]
+
+[60
+
+]
+
+[61]
+
+[62
 
 ] (./stg.aux)
  ***********
@@ -909,21 +1025,18 @@ L3 programming layer <2025-01-18>
  ***********
 
 
-LaTeX Warning: There were undefined references.
-
-
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+LaTeX Warning: There were multiply-defined labels.
 
 Package rerunfilecheck Info: File `stg.out' has not changed.
-(rerunfilecheck)             Checksum: 9275955A09ADC1263CF5BBF15BE1D72B;2522.
+(rerunfilecheck)             Checksum: 6416C71EC32A18D9A5E9B01CE1C0725A;3958.
  ) 
 Here is how much of TeX's memory you used:
- 15041 strings out of 473836
- 233753 string characters out of 5731190
- 873635 words of memory out of 5000000
- 38070 multiletter control sequences out of 15000+600000
+ 15608 strings out of 473836
+ 242562 string characters out of 5731190
+ 1448635 words of memory out of 5000000
+ 38623 multiletter control sequences out of 15000+600000
  636809 words of font info for 129 fonts, out of 8000000 for 9000
  934 hyphenation exceptions out of 8191
- 72i,11n,79p,459b,1354s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 72i,11n,79p,336b,2239s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on stg.dvi (30 pages, 136280 bytes).
+Output written on stg.dvi (62 pages, 415892 bytes).

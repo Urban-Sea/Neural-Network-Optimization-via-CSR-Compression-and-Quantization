@@ -38,7 +38,7 @@
     urlcolor=green
 }
 
-% 日本語対応（uplatex + dvipdfmx用、hyperrefの後に読み込む）
+% 日本語対応（uplatex + dvipdfmx用，hyperrefの後に読み込む）
 \usepackage[dvipdfmx]{pxjahyper}
 
 % コードハイライト
@@ -63,12 +63,12 @@
 \maketitle
 
 \section{はじめに}
-近年、ディープラーニングをはじめとするAI技術は急速に発展しており、その学習や推論には大規模な計算資源や電力を必要とすることが一般的となっている。
-しかし、組込み機器やIoTデバイスのような小型環境では、CPU性能やメモリ容量、電力供給といったリソースが大幅に制限されるため、
-従来の手法をそのまま適用することは困難である。
-そこで本研究では、既存のArduino Uno R4 WiFi環境において可能な限り高性能なニューラルネットワーク推論を実現することを目的とし、
-学習データの軽量化やモデルの圧縮を含む最適化手法を検討し、特に、学習データを圧縮した上で推論に必要な情報を保持できるか、
-また限られた計算能力の中で最大限の推論精度を引き出せるかを検証し、その実験手法および得られた知見について報告する。
+近年，ディープラーニングをはじめとするAI技術は急速に発展しており，その学習や推論には大規模な計算資源や電力を必要とすることが一般的となっている．
+しかし，組込み機器やIoTデバイスのような小型環境では，CPU性能やメモリ容量，電力供給といったリソースが大幅に制限されるため，
+従来の手法をそのまま適用することは困難である．
+そこで，既存のArduino Uno R4 WiFi環境において可能な限り高性能なニューラルネットワーク推論を実現することを目的とし，
+学習データの軽量化やモデルの圧縮を含む最適化手法を検討し，特に，学習データを圧縮した上で推論に必要な情報を保持できるか，
+また限られた計算能力の中で最大限の推論精度を引き出せるかを検証し，その実験手法および得られた知見について報告する．
 
 \section{実験の概要}
 図\ref{fig:実験概要}に，本実験の全体構成を示す．
@@ -80,9 +80,9 @@
     \label{fig:実験概要}
 \end{figure}
 \clearpage
-本実験では，Arduino Uno R4 WiFiを用いてカラーセンサーを構築し，授業内で配布された$3 \times 3$のカラーチャートを測定する．
+Arduino Uno R4 WiFiを用いてカラーセンサーを構築し，授業内で配布された$3 \times 3$のカラーチャートを測定する．
 測定後，ニューラルネットワークを用いた補正処理により，平均二乗誤差（MSE）の低減を目指す．
-前章で述べた2つの検証項目に対応し，本実験では以下の観点から評価を行う．
+前章で述べた2つの検証項目に対応し，次の観点から評価を行う．
 
 第一の検証として，ニューラルネットワークのパラメータ圧縮によるメモリ効率の改善を検討する．
 具体的には，隠れ層のデータ圧縮手法を導入し，推論に必要な情報を保持しながらメモリ使用量をどの程度削減できるかを評価する．
@@ -107,7 +107,7 @@
 \end{equation}
 
 MSEの値が小さいほど，2枚の画像間の差異が少なく，色再現性が高いことを示す．
-本研究では，このMSEを推論精度の評価指標として用いる．
+このMSEを推論精度の評価指標として用いる．
 
 
 \clearpage
@@ -115,7 +115,7 @@ MSEの値が小さいほど，2枚の画像間の差異が少なく，色再現�
 本章では，ニューラルネットワークを用いた読み込み品質の改善手法について述べる．
 
 \subsection{ニューラルネットワークによる品質改善}
-サンプル画像と測定画像との誤差を最小化するため，本研究ではニューラルネットワークを用いた学習手法を導入する．
+サンプル画像と測定画像との誤差を最小化するため，ニューラルネットワークを用いた学習手法を導入する．
 特に，低リソース環境であるArduino上での推論実行を前提とし，モデルの圧縮および疎化手法を併用しながら性能の最適化を図る．
 
 \subsubsection{ネットワーク構造}
@@ -137,7 +137,7 @@ MSEの値が小さいほど，2枚の画像間の差異が少なく，色再現�
         \hline
         隠れ層2 & 40〜600（可変） & ReLU \\
         \hline
-        出力層 & 3 & Sigmoid \\
+        出力層 & 3 & -- \\
         \hline
     \end{tabular}
 \end{table}
@@ -152,14 +152,15 @@ y = x_1 w_1 + x_2 w_2 + \cdots + x_{n-1} w_{n-1} + b
 モデルはPyTorchにより定義・訓練し，L1正則化を導入して重みの疎化を促進した．
 訓練後の重みおよびバイアスはC++配列としてエクスポートし，Arduino上で実行可能な形式に変換した．
 
-本研究で適用する圧縮手法（CSR形式，量子化）は，主にパラメータ数の多い隠れ層1および隠れ層2の重み行列に対して適用する．
+適用する圧縮手法（CSR形式，量子化）は，主にパラメータ数の多い隠れ層1および隠れ層2の重み行列に対して適用する．
+これら2つの隠れ層は同一の次元数・活性化関数を持つため，以下では特に区別が必要な場合を除き，単に「隠れ層」と総称する．
 隠れ層の次元数を拡張するとパラメータ数が増加し，メモリ使用量が増大するため，圧縮手法の適用が不可欠となる．
-
+\clearpage
 \subsection{隠れ層の圧縮手法}
 \label{sec:compression_methods}
 本研究では，ニューラルネットワークの隠れ層パラメータに対して以下の圧縮手法を適用する．
-
 \subsubsection{圧縮の必要性}
+\label{sec:memory_constraint}
 Arduino Uno R4 WiFiのようなマイクロコントローラでは，利用可能なメモリ（SRAM約32\,KB，Flash 256\,KB）が極めて限定的である．
 隠れ層の次元を増加させると，重みおよびバイアスの格納や推論演算に必要なメモリが不足する可能性が高い．
 
@@ -176,7 +177,7 @@ float32形式では10\,KBを超える場合，Arduino上での動作が困難と
 プルーニングとは，閾値以下の重みを0とみなし接続を削除することで，モデルを疎行列化する手法である．
 Hanら\cite{han2015deep}は，重要接続の学習，閾値による削減，再訓練を繰り返すことで，大規模モデルを10倍以上圧縮できることを示した．
 
-本研究では，L1正則化により重みを0に近づけた後，閾値0.01でプルーニングを実施する．
+L1正則化により重みを0に近づけた後，閾値0.01でプルーニングを実施する．
 この処理により多くの重みが0となり，後述する疎行列表現による効率的な格納が可能となる．
 
 \paragraph{メリット}
@@ -212,7 +213,7 @@ CSR形式は，非ゼロ要素のみを行単位でまとめて保存する疎�
     \item 列方向アクセスは非効率
 \end{itemize}
 
-なお，疎行列表現としてはCOO（Coordinate）形式も存在し，実装が容易という利点があるが，行列ベクトル積の計算効率がCSR形式より劣るため，本研究ではCSR形式を採用した．
+なお，疎行列表現としてはCOO（Coordinate）形式も存在し，実装が容易という利点があるが，行列ベクトル積の計算効率がCSR形式より劣るため，CSR形式を採用した．
 
 \subsubsection{量子化（Quantization）}
 量子化とは，ニューラルネットワークの重みや活性化値を32ビット浮動小数点から8ビット整数へ変換し，メモリ削減と計算高速化を図る手法である．
@@ -263,7 +264,8 @@ float32からint8への変換により，さらに約4倍のメモリ削減が�
 \subsubsection{段階的圧縮アプローチ}
 \label{sec:staged_compression}
 
-本研究では，段階的な圧縮アプローチを採用する．
+
+段階的な圧縮アプローチを採用する．
 その理由は以下のとおりである．
 
 第一に，圧縮処理は推論精度に影響を与える可能性があるため，必要最小限の圧縮にとどめることが望ましい．
@@ -271,12 +273,12 @@ float32からint8への変換により，さらに約4倍のメモリ削減が�
 
 第二に，プルーニングとCSR形式は本質的に連続した処理である．
 L1正則化によって重みを疎化し，その結果生じた0要素を効率的に格納するのがCSR形式の役割である．
-したがって，この二つを組み合わせた「CSR圧縮」を第一段階として適用するのが自然な流れとなる．
+したがって，この二つを組み合わせた「CSR圧縮」を第一段階として適用する．
 
 第三に，量子化はCSR形式とは独立に適用可能であり，追加的な圧縮手段として位置づけられる．
 CSR圧縮のみでメモリ制約を満たせる場合は量子化を省略でき，さらなる圧縮が必要な場合にのみ追加適用すればよい．
 
-以上の考察に基づき，本研究では次の方針を採る．
+以上の考察に基づき，次の方針を採る．
 まず，L1正則化およびプルーニング後の重み行列をCSR形式に変換し，推論品質への影響を評価する．
 CSR圧縮によりMSEが許容範囲内に収まり，かつメモリ制約を満たす場合はそのまま採用する．
 一方，さらなるメモリ削減が必要な場合や隠れ層次元の拡張を行う場合には，CSR圧縮モデルに対して量子化を追加適用する．
@@ -289,7 +291,7 @@ CSR圧縮によりMSEが許容範囲内に収まり，かつメモリ制約を�
 
 \subsection{ハードウェア構成}
 
-本節では，実験で使用した配線および回路構成について述べる．
+実験で使用した配線および回路構成について述べる．
 表\ref{tab:pin_assignment}にArduinoのピン割り当て，表\ref{tab:機材表}に使用機材一覧，図\ref{fig:回路図}に回路図を示す．
 
 \begin{table}[h]
@@ -336,12 +338,12 @@ CSR圧縮によりMSEが許容範囲内に収まり，かつメモリ制約を�
 
 \subsection{ソフトウェア構成}
 
-本システムのソフトウェアは，PC上で実行する学習フェーズと，Arduino上で実行するデプロイフェーズの2段階で構成される．
-本節では，まずニューラルネットワークの構造を述べた後，各フェーズの処理内容について説明する．
+ソフトウェアは，PC上で実行する学習フェーズと，Arduino上で実行するデプロイフェーズの2段階で構成される．
+まずニューラルネットワークの構造を述べた後，各フェーズの処理内容について説明する．
 
 \subsubsection{ニューラルネットワークの構造}
-本システムで使用するニューラルネットワークは，RGB色補正を目的とした4層の全結合ネットワークである．
-ネットワーク構造の詳細（各層の次元数，活性化関数，推論の数式）については，第3章の表\ref{tab:nn_structure}を参照されたい．
+使用するニューラルネットワークは，RGB色補正を目的とした4層の全結合ネットワークである．
+ネットワーク構造の詳細（各層の次元数，活性化関数，推論の数式）については，第3章の表\ref{tab:nn_structure}を参照する．
 
 学習フェーズでは，隠れ層1および隠れ層2の次元数を40〜600の範囲で変化させて複数のモデルを訓練した．
 デプロイフェーズでは，訓練済みモデルのパラメータをArduinoに組み込み，実機上で推論を実行する．
@@ -349,15 +351,9 @@ CSR圧縮によりMSEが許容範囲内に収まり，かつメモリ制約を�
 \subsubsection{学習フェーズ}
 
 学習フェーズでは，PC上でPythonおよびPyTorchを用いてニューラルネットワークの学習を行う．
-学習にはJupyter Notebook（\texttt{train\_L1\_normalization.ipynb}）を使用し，以下の処理を実行する．
-\begin{enumerate}
-    \item データの読み込みと前処理
-    \item L1正則化を適用したニューラルネットワークの学習
-    \item プルーニングおよびCSR形式への変換（隠れ層1，隠れ層2の重み行列に適用）
-    \item Arduinoで読み込み可能なヘッダファイル（\texttt{.h}）の生成
-\end{enumerate}
-
-L1正則化により隠れ層1および隠れ層2の重みが疎化され，プルーニング後にCSR形式へ変換することで，メモリ使用量を大幅に削減できる．
+学習にはJupyter Notebook（\texttt{train\_L1\_normalization.ipynb}）を使用し，
+L1正則化を適用したモデルの訓練，プルーニング，CSR形式への変換，およびArduino用パラメータファイルの生成を実行する．
+学習フェーズの詳細な手順については，第\ref{sec:training_procedure}節で述べる．
 
 \subsubsection{圧縮手法の実装}
 \label{sec:compression_implementation}
@@ -367,37 +363,28 @@ L1正則化により隠れ層1および隠れ層2の重みが疎化され，プ�
 \begin{enumerate}
     \item \textbf{密行列形式（AI\_Model）}：圧縮なし．2次元配列で重み行列を格納し，標準的な行列ベクトル積で順伝播を行う．
     \item \textbf{CSR形式（AI\_CSR）}：プルーニング後にCSR形式へ変換．\texttt{data}，\texttt{indices}，\texttt{indptr}配列を用いて非ゼロ要素のみを計算する．
-    \item \textbf{量子化CSR形式（AI\_CSR\_Quantized）}：CSR形式に加えてint8量子化を適用．推論時にスケールファクタで逆量子化を行う．
+    \item \textbf{量子化CSR形式（AI\_CSR\_Quantized）}：CSR形式に加えてint8量子化を適用する．
 \end{enumerate}
 
 各実装はArduinoスケッチとして独立したディレクトリ（\texttt{AI\_Model/}，\texttt{AI\_CSR/}，\texttt{AI\_CSR\_Quantized/}）に配置される．
+なお，圧縮処理は隠れ層の重み行列に対してのみ適用し，入力層・出力層の重みは密行列形式のまま保持する．
 
 \subsubsection{デプロイフェーズ}
-
 デプロイフェーズでは，学習フェーズで生成したパラメータファイルをArduinoに組み込み，実機上で推論を実行する．
-Arduinoコードは，重み行列の格納形式に応じて以下の3種類を用意した．
-
-\begin{itemize}
-    \item \texttt{AI\_Model}：密行列形式（非圧縮）のニューラルネットワーク．隠れ層1および隠れ層2の重み行列を通常の2次元配列として格納する．
-    \item \texttt{AI\_CSR}：CSR形式で圧縮したニューラルネットワーク．隠れ層1および隠れ層2の重み行列をCSR形式で格納し，メモリ使用量を削減する．
-    \item \texttt{AI\_CSR\_Quantized}：CSR形式に量子化を追加適用したニューラルネットワーク．隠れ層1および隠れ層2の重みをint8形式に量子化し，さらなるメモリ削減を実現する．
-\end{itemize}
+Arduinoコードは，第\ref{sec:compression_implementation}節で述べた3種類の圧縮形式に対応しており，
+それぞれ独立したディレクトリに配置される．
 
 次節では，これらのニューラルネットワークを組み込んだRGB画像読み取りシステムの処理フローについて述べる．
 
 
 \clearpage
-
 \subsection{RGB画像読み取りシステムの処理フロー}
-
-本節では，Arduinoで動作するRGB画像読み取りシステムの処理フローについて述べる．
 本システムでは，RGBセンサーから画素値を逐次読み取り，前節で述べたニューラルネットワークによってRGB値を補正した上で，PPM形式の画像として出力する．
 
 処理は大きく，センサー入出力や画像バッファ管理を行う「共通部分」と，RGB補正を行う「NN部分」の2つに分けられる．
 共通部分はニューラルネットワークの格納形式（密行列形式，CSR形式，量子化CSR形式）に依存しない処理であり，NN部分は格納形式に応じた推論処理を実装する．
 
 \subsubsection{共通部分（センサー読み取りと画像バッファ管理）}
-
 共通部分では，RGBセンサーの読み取り，画素値の正規化，NN出力の保存，PPM形式での画像出力などを実装する．
 主に以下の5つの関数から構成される．
 
@@ -416,9 +403,10 @@ Arduinoコードは，重み行列の格納形式に応じて以下の3種類を
 3色の読み取り後にはすべてのLEDを消灯する．
 
 \paragraph{\texttt{readAndProcess}関数}
-まず\texttt{read}関数を呼び出し\texttt{rgb[]}に格納された生のセンサー値を取得し，事前にキャリブレーションされた最小値（\texttt{r\_min}，\texttt{g\_min}，\texttt{b\_min}）と最大値（\texttt{r\_max}，\texttt{g\_max}，\texttt{b\_max}）を用いて0〜1に正規化した入力ベクトル\texttt{RGBInput[3]}を生成する（図\ref{fig:scanner_readAndProcess}）．
-続いて\texttt{forward\_rgb}関数を呼び出してニューラルネットワーク推論を行い，補正後のRGB値である\texttt{RGBOutput[3]}を得る．
-ここで呼び出される\texttt{forward\_rgb}関数が，入力層から隠れ層1，隠れ層2を経て出力層に至る順伝播計算を実行する．
+まず\texttt{read}関数を呼び出し\texttt{rgb[]}に格納された生のセンサー値を取得し，事前にキャリブレーションされた最小値
+（\texttt{r\_min}，\texttt{g\_min}，\texttt{b\_min}）と最大値（\texttt{r\_max}，\texttt{g\_max}，\texttt{b\_max}）を用いて0〜1に正規化した入力ベクトル\texttt{RGBInput[3]}を生成する（図\ref{fig:scanner_readAndProcess}）．
+続いて\texttt{predict}関数を呼び出してニューラルネットワーク推論を行い，補正後のRGB値である\texttt{RGBOutput[3]}を得る．
+ここで呼び出される\texttt{predict}関数が，入力層から隠れ層1，隠れ層2を経て出力層に至る順伝播計算を実行する．
 最後に，出力値を0〜255にクリッピングし，B，R，Gの順でシリアル出力する．
 
 \paragraph{\texttt{loop}関数}
@@ -447,83 +435,209 @@ Arduinoコードは，重み行列の格納形式に応じて以下の3種類を
   
   \begin{figure}[h]
     \centering
-    \includegraphics[width=10cm]{フローチャート/Scanner共通/scanner_read.png}
+    \includegraphics[width=14cm]{フローチャート/Scanner共通/scanner_read.png}
     \caption{\texttt{read}関数（R/G/B順にLED点灯と読み取りを行う）のフローチャート}
     \label{fig:scanner_read}
   \end{figure}
   
   \begin{figure}[h]
     \centering
-    \includegraphics[width=11cm]{フローチャート/Scanner共通/scanner_readAndProcess.png}
+    \includegraphics[width=12cm]{フローチャート/Scanner共通/scanner_readAndProcess.png}
     \caption{\texttt{readAndProcess}関数（正規化およびNN推論処理）のフローチャート}
     \label{fig:scanner_readAndProcess}
   \end{figure}
   
   \begin{figure}[h]
     \centering
-    \includegraphics[width=13cm]{フローチャート/Scanner共通/scanner_loop_pixel.png}
+    \includegraphics[width=6cm]{フローチャート/Scanner共通/scanner_loop_pixel.png}
     \caption{\texttt{loop}関数における画素読み取り・保存処理のフローチャート}
     \label{fig:scanner_loop_pixel}
 \end{figure}
   
 \begin{figure}[h]
     \centering
-    \includegraphics[width=11cm]{フローチャート/Scanner共通/scanner_loop_minmax.png}
+    \includegraphics[width=13cm]{フローチャート/Scanner共通/scanner_loop_minmax.png}
     \caption{\texttt{loop}関数におけるMin/Maxキャリブレーション処理のフローチャート}
     \label{fig:scanner_loop_minmax}
 \end{figure}
 
 
 \clearpage
+修正版を作成します。これまでの修正方針（冗長表現の削除、定義済み用語の活用、参照の統一）に沿って整理します。
 
-\subsubsection{NN部分（ニューラルネットワーク推論）}
+latex\subsection{RGB画像読み取りシステムの処理フロー}
 
-NN部分では，共通部分の\texttt{readAndProcess}関数から呼び出される\texttt{forward\_rgb}関数を実装する．
-この関数は，正規化されたRGB入力（3次元）を入力層で受け取り，隠れ層1，隠れ層2を経て，出力層から補正されたRGB出力（3次元）を返す．
+RGBセンサーから画素値を逐次読み取り，ニューラルネットワークによってRGB値を補正した上で，PPM形式の画像として出力する．
 
-\texttt{forward\_rgb}関数における順伝播計算の流れは以下のとおりである．
-\begin{enumerate}
-    \item 入力層（3次元）から隠れ層1への変換：重み行列$W_1$との積とバイアス$b_1$の加算，ReLU活性化
-    \item 隠れ層1から隠れ層2への変換：重み行列$W_2$との積とバイアス$b_2$の加算，ReLU活性化
-    \item 隠れ層2から出力層（3次元）への変換：重み行列$W_3$との積とバイアス$b_3$の加算，Sigmoid活性化
-\end{enumerate}
+処理は，センサー入出力や画像バッファ管理を行う「共通部分」と，RGB補正を行う「NN部分」の2つに分けられる．
+共通部分は第\ref{sec:compression_implementation}節で述べた3種類の圧縮形式に依存しない処理であり，NN部分は各形式に応じた推論処理を実装する．
 
-\texttt{forward\_rgb}関数の実装は，重み行列の格納形式に応じて以下の3種類が存在する．
+\subsubsection{共通部分（センサー読み取りと画像バッファ管理）}
 
-\paragraph{密行列形式（\texttt{AI\_Model}）}
-隠れ層1および隠れ層2の重み行列（$W_1$，$W_2$，$W_3$）を通常の2次元配列として格納し，標準的な行列ベクトル積により順伝播計算を行う（図\ref{fig:nn_dense_forward}）．
-実装が単純であるが，メモリ使用量が大きいため，隠れ層の次元拡張に制約がある．
+共通部分は，RGBセンサーの読み取り，画素値の正規化，NN出力の保存，PPM形式での画像出力を担当し，以下の5つの関数から構成される．
 
-\paragraph{CSR形式（\texttt{AI\_CSR}）}
-プルーニングにより疎化された隠れ層1および隠れ層2の重み行列をCSR形式で格納し，非ゼロ要素のみを用いて行列ベクトル積を計算する（図\ref{fig:nn_csr_forward}）．
-CSR形式では，値配列（data），列インデックス（indices），行ポインタ（indptr）を用いて疎行列を表現する．
-メモリ使用量を削減できるため，より大きな隠れ層次元を扱うことが可能である．
+\paragraph{\texttt{allocateArray}関数}
+画像の高さ$N$と幅方向の要素数$M$を引数として受け取り，2次元配列（$N \times M$の画素バッファ）をヒープ領域に動的確保する（図\ref{fig:scanner_allocateArray}）．
+行ポインタの確保に失敗した場合や，途中の行の確保に失敗した場合には，確保済みメモリを解放して\texttt{NULL}を返すことで，メモリ不足に対処する．
 
-\paragraph{量子化CSR形式（\texttt{AI\_CSR\_Quantized}）}
-CSR形式に加えて，隠れ層1および隠れ層2の重みをint8形式に量子化することで，さらなるメモリ削減を実現する（図\ref{fig:nn_quantized_forward}）．
-推論時には，各層ごとに保存されたスケール$S$とゼロポイント$Z$を用いて逆量子化を行い，浮動小数点演算に変換して計算する．
-量子化による精度劣化を最小限に抑えるため，量子化感知訓練（QAT）を適用することも可能である．
+\paragraph{\texttt{setup}関数}
+シリアル通信の初期化，RGB LEDピンの出力設定および初期消灯，ボタン入力ピンの\texttt{INPUT\_PULLUP}設定，割り込みハンドラの登録を行う（図\ref{fig:scanner_setup}）．
+続いてシリアルモニタから画像の高さ$N$を読み取り，幅方向の要素数$M=3N$を計算し，\texttt{allocateArray}関数により画像バッファを動的確保する．
+確保に成功した場合は，全要素を0で初期化する．
 
+\paragraph{\texttt{read}関数}
+ループ変数\texttt{count}に応じてR，G，Bの順にLEDを点灯しながらアナログ入力を行う（図\ref{fig:scanner_read}）．
+\texttt{count==0}のときはRのみ点灯して\texttt{rgb[0]}を読み取り，\texttt{count==1}ではGのみ点灯して\texttt{rgb[1]}を読み取り，それ以外ではBのみ点灯して\texttt{rgb[2]}を読み取る．
+3色の読み取り後にはすべてのLEDを消灯する．
+
+\paragraph{\texttt{readAndProcess}関数}
+\texttt{read}関数を呼び出して\texttt{rgb[]}に格納されたセンサー値を取得し，事前にキャリブレーションされた最小値・最大値を用いて0〜1に正規化した入力ベクトル\texttt{RGBInput[3]}を生成する（図\ref{fig:scanner_readAndProcess}）．
+続いて\texttt{predict}関数を呼び出してニューラルネットワーク推論を行い，補正後のRGB値である\texttt{RGBOutput[3]}を得る．
+最後に，出力値を0〜255にクリッピングし，シリアル出力する．
+
+\paragraph{\texttt{loop}関数}
+画素読み取り・保存処理（図\ref{fig:scanner_loop_pixel}）とMin/Maxキャリブレーション処理（図\ref{fig:scanner_loop_minmax}）の2つを実行する．
+
+画素保存処理では，\texttt{buttonInputPressed}が真のとき，最新の\texttt{RGBOutput}を画像バッファに書き込む．
+全行の読み取りが完了した場合にはPPM形式で全画素を出力し，\texttt{NVIC\_SystemReset()}によりリセットする．
+
+キャリブレーション処理では，\texttt{buttonMinMaxPressed}が真のとき，変数\texttt{pushed}の偶奇に応じて最小値または最大値を更新する．
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=11cm]{フローチャート/Scanner共通/scanner_allocateArray.png}
+  \caption{\texttt{allocateArray}関数のフローチャート}
+  \label{fig:scanner_allocateArray}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=13cm]{フローチャート/Scanner共通/scanner_setup.png}
+  \caption{\texttt{setup}関数のフローチャート}
+  \label{fig:scanner_setup}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=14cm]{フローチャート/Scanner共通/scanner_read.png}
+  \caption{\texttt{read}関数のフローチャート}
+  \label{fig:scanner_read}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=12cm]{フローチャート/Scanner共通/scanner_readAndProcess.png}
+  \caption{\texttt{readAndProcess}関数のフローチャート}
+  \label{fig:scanner_readAndProcess}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=6cm]{フローチャート/Scanner共通/scanner_loop_pixel.png}
+  \caption{\texttt{loop}関数における画素読み取り・保存処理のフローチャート}
+  \label{fig:scanner_loop_pixel}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=13cm]{フローチャート/Scanner共通/scanner_loop_minmax.png}
+  \caption{\texttt{loop}関数におけるMin/Maxキャリブレーション処理のフローチャート}
+  \label{fig:scanner_loop_minmax}
+\end{figure}
 
 \clearpage
 
-\section{実験方法}
+%==================================================
+\subsubsection{NN部分（RGB補正ニューラルネットワーク）}
 
+NN部分では，共通部分で正規化された入力\texttt{RGBInput[3]}を受け取り，補正後RGBである\texttt{RGBOutput[3]}を推定する順伝播処理を実装する．
+共通部分の\texttt{readAndProcess}関数からは，圧縮形式に依らず共通のインタフェースとして\texttt{predict}関数を呼び出す．
+
+同一のネットワーク構造（入力3次元 → 隠れ層1: $H$次元 → 隠れ層2: $H$次元 → 出力3次元）を保ったまま，重みの保持方法を変えることで3種類の推論実装を比較した．
+以下では，各方式の処理を説明する．
+
+\paragraph{① 密行列形式 (非圧縮版)}
+
+非圧縮版では，隠れ層の重み行列を密行列として保持し，全結合の積和演算をそのまま実行する．
+図\ref{fig:scanner_forward_dense}に示すように，\texttt{predict}関数は\texttt{layer1\_dense\_relu}，\texttt{layer2\_dense\_relu}，\texttt{layer3\_dense}を順に呼び出し，入力から出力を得る．
+
+実装が単純である一方，層ごとに全要素を走査するため，計算量は隠れ層次元に比例して増加する．
+図\ref{fig:scanner_dense_layer_detail}に示す詳細では，各ニューロンについてバイアスから加算を開始し，入力との内積を計算した後，ReLUにより非線形変換する．
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=9cm]{フローチャート/ScannerNN/scanner_forward_dense.png}
+  \caption{非圧縮版\texttt{predict}関数のフローチャート}
+  \label{fig:scanner_forward_dense}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=8cm]{フローチャート/ScannerNN/scanner_dense_layer_detail.png}
+  \caption{非圧縮版の隠れ層計算詳細フローチャート}
+  \label{fig:scanner_dense_layer_detail}
+\end{figure}
+
+\paragraph{② CSR版（CSR形式）}
+
+CSR版では，隠れ層の重み行列をCSR形式で保持し，非ゼロ要素のみを走査して積和演算を行う．
+図\ref{fig:scanner_forward_csr}に示すように，\texttt{predict}関数は\texttt{layer1\_csr\_relu}，\texttt{layer2\_csr\_relu}を用いて隠れ層を計算し，最後に密行列の\texttt{layer3\_dense}を適用する．
+ネットワーク構造は非圧縮版と同一のまま，ゼロ重み成分をスキップして計算量を削減できる．
+
+図\ref{fig:scanner_csr_layer_detail}の詳細では，各行$r$について\texttt{indptr[r]}から\texttt{indptr[r+1]}までの非ゼロ要素のみをループし，列インデックス\texttt{indices[p]}を参照して積和を累積する．
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=9cm]{フローチャート/ScannerCSR/scanner_forward_csr.png}
+  \caption{CSR版\texttt{predict}関数のフローチャート}
+  \label{fig:scanner_forward_csr}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=6cm]{フローチャート/ScannerCSR/scanner_csr_layer_detail.png}
+  \caption{CSR版の隠れ層計算詳細フローチャート}
+  \label{fig:scanner_csr_layer_detail}
+\end{figure}
+
+\paragraph{③ CSR＋量子化版（量子化CSR形式）}
+
+CSR＋量子化版では，CSR形式に加え，隠れ層の非ゼロ重みを8ビット整数（\texttt{int8\_t}）として保存し，推論時にスケール係数で浮動小数点へ復元しながら計算を行う．
+図\ref{fig:scanner_forward_csr_quant}に示すように，\texttt{predict}関数は\texttt{layer1\_csr\_quantized\_relu}，\texttt{layer2\_csr\_quantized\_relu}，\texttt{layer3\_dense}を順に呼び出す．
+
+図\ref{fig:scanner_csr_quant_layer_detail}の詳細では，CSR走査は非量子化版と同一である一方，各非ゼロ要素の重みが\texttt{int8\_t}として保持されている．
+推論時には\texttt{(float)data\_quantized[p] / scale\_factor}として重みを復元し，積和を累積する．
+演算はfloatで実行しつつ重みの格納コストを削減できるため，メモリ制約下でも大きな隠れ層次元を扱える．
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=9cm]{フローチャート/ScannerQuant/scanner_forward_csr_quant.png}
+  \caption{CSR＋量子化版\texttt{predict}関数のフローチャート}
+  \label{fig:scanner_forward_csr_quant}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=9cm]{フローチャート/ScannerQuant/scanner_csr_quant_layer_detail.png}
+  \caption{CSR＋量子化版の隠れ層計算詳細フローチャート}
+  \label{fig:scanner_csr_quant_layer_detail}
+\end{figure}
+
+\clearpage
+
+
+
+\section{実験方法}
 本章では，前章で述べた段階的圧縮アプローチの有効性を検証するために実施した実験について述べる．
 
 \subsection{実験の目的と方針}
 
-本実験の目的は，Arduino Uno R4 WiFiのメモリ制約下において，ニューラルネットワークの隠れ層次元を拡張しつつ，推論精度を維持することである．
+目的は，第\ref{sec:memory_constraint}節で述べたメモリ制約の下で，ニューラルネットワークの隠れ層次元を拡張しつつ，推論精度を維持することである．
 具体的には，隠れ層次元を現行の40から600以上へ拡張可能とし，画像復元品質の向上を実現することを目指す．
-
-この目的を達成するため，重み圧縮手法としてCSR（Compressed Sparse Row）形式を第一優先とし，CSR圧縮のみでは不十分な場合にはCSR圧縮モデルに対して量子化を追加適用する方針とした．
-L1正則化による重みの疎化を活かすことで，メモリ効率と推論精度のバランスを最適化する．
-
-実験では，隠れ層次元40から開始し，「非圧縮（密行列形式）」「CSR圧縮」「CSR＋量子化」の3種類のモデルについてMSEを比較し，各圧縮手法が推論品質に与える影響を評価する．
+この目的を達成するため，第\ref{sec:staged_compression}節で述べた段階的圧縮アプローチに基づき，CSR圧縮を第一優先とし，必要に応じて量子化を追加適用する方針で実験を行う．
 
 \subsection{実験の全体フロー}
-
-本実験は，以下の3つのフェーズから構成される．
+実験は，以下の3つのフェーズから構成される．
 
 \begin{enumerate}
     \item \textbf{訓練・圧縮フェーズ}：PC上でPyTorchを用いてニューラルネットワークを訓練し，CSR形式への変換および量子化を適用してパラメータファイルを生成する
@@ -540,8 +654,7 @@ L1正則化による重みの疎化を活かすことで，メモリ効率と推
 % \end{figure}
 
 \subsection{実験条件}
-
-本実験では，隠れ層次元を変化させながら，各圧縮手法の効果を評価した．
+隠れ層次元を変化させながら，各圧縮手法の効果を評価した．
 表\ref{tab:experiment_conditions}に実験条件を示す．
 
 \begin{table}[h]
@@ -576,10 +689,10 @@ L1正則化による重みの疎化を活かすことで，メモリ効率と推
 \subsection{実験手順}
 
 \subsubsection{モデルの学習とパラメータ生成}
+\label{sec:training_procedure}
 
 モデルの学習およびパラメータ生成は，Jupyter Notebook（\texttt{train\_L1\_normalization.ipynb}）を用いて実施した．
-以下に各ステップの詳細を示す．
-
+各ステップの詳細を述べる．
 
 \paragraph{ステップ1：環境セットアップとデータ準備}
 まず，PyTorch，NumPy，Matplotlib等の必要なライブラリをインストールし，\texttt{cv2}，\texttt{torch}，\texttt{numpy}等をインポートした．
@@ -589,8 +702,7 @@ L1正則化による重みの疎化を活かすことで，メモリ効率と推
 
 \paragraph{ステップ2：ニューラルネットワークの学習}
 第3章で述べた4層全結合ニューラルネットワークを，L1正則化を適用して学習した．
-
-学習パラメータは表\ref{tab:training_params}のとおりである．
+学習パラメータを表\ref{tab:training_params}に示す．
 
 \begin{table}[h]
     \centering
@@ -615,14 +727,12 @@ L1正則化による重みの疎化を活かすことで，メモリ効率と推
     \end{tabular}
 \end{table}
 
-本実験では，隠れ層次元（\texttt{HIDDEN\_DIM}）を40, 50, 60, 70, 80, 120, 160, 200, 400, 600と変化させて複数のモデルを学習した．
+隠れ層次元（\texttt{HIDDEN\_DIM}）を40, 50, 60, 70, 80, 120, 160, 200, 400, 600と変化させて複数のモデルを学習した．
 学習完了後，密行列形式のパラメータファイル（\texttt{model\_parameters.h}）が自動生成される．
 このファイルには全層の重みとバイアスがC++配列として出力され，圧縮なしのベースラインモデルとして使用する．
 
-
 \paragraph{ステップ3：CSR形式への変換}
-学習済みモデルに対し，プルーニング閾値0.01でプルーニングを実施した後，重み行列をCSR形式に変換した．
-CSR形式への変換は，隠れ層1の重み行列（入力層$\rightarrow$隠れ層1）および隠れ層2の重み行列（隠れ層1$\rightarrow$隠れ層2）に対して適用した．
+学習済みモデルに対し，プルーニング閾値0.01でプルーニングを実施した後，隠れ層の重み行列をCSR形式に変換した．
 
 変換処理は以下の手順で実施した．
 \begin{enumerate}
@@ -638,10 +748,11 @@ CSR形式への変換は，隠れ層1の重み行列（入力層$\rightarrow$隠
 
 変換後のパラメータは，各隠れ層次元に応じて\texttt{model\_parameters\_csr40.h}，\texttt{model\_parameters\_csr80.h}等のファイル名で出力した．
 
+\clearpage
 \paragraph{ステップ4：量子化の適用（オプション）}
 CSR圧縮のみではメモリ制約を満たせない場合，CSR形式のパラメータに対してint8量子化を追加適用した．
 
-量子化処理は以下の手順で実施した．
+量子化処理は以下の手順で実施した
 \begin{enumerate}
     \item CSR形式の値配列（\texttt{data}）に対してスケールファクタを計算：
     \begin{equation}
@@ -651,10 +762,9 @@ CSR圧縮のみではメモリ制約を満たせない場合，CSR形式のパ�
     \begin{equation}
         \texttt{quantized} = \text{clip}(\text{round}(\texttt{data} \times \text{scale}), -128, 127)
     \end{equation}
-    \item 逆量子化誤差を算出して精度劣化を確認
 \end{enumerate}
 
-量子化は隠れ層1および隠れ層2の重み行列に対して，各層ごとに独立したスケールファクタを用いて適用した．
+量子化は隠れ層の重み行列に対して，各層ごとに独立したスケールファクタを用いて適用した．
 量子化後のパラメータは，\texttt{model\_parameters\_csr\_quantized40.h}等のファイル名で出力した．
 
 \paragraph{次元変更時の手順}
@@ -727,24 +837,19 @@ Arduinoに接続したRGBカラーセンサを用いて参照画像をスキャ�
 
 
 \subsection{評価方法}
-
 推論精度の評価指標として，第2章で定義した平均二乗誤差（MSE）を用いた（式\ref{eq:mse_definition}，式\ref{eq:mse_rgb}参照）．
 MSEの値が小さいほど，参照画像との差異が少なく，色補正の精度が高いことを示す．
 
-評価には自作のMSE計算ツール（\texttt{mse\_calculator.html}）を使用した．
+評価には授業で配布されたMSE計算ツール（\texttt{mse\_calculator.html}）を使用した．
 このツールはブラウザ上で動作し，参照画像とスキャン結果のPPMファイルをドラッグ＆ドロップすることでMSEを算出できる．
 各実験条件のすべてのスキャン結果についてMSEを算出し，平均値・最小値・最大値を求めた．
 
+コンパイル時間の計測については，Arduino IDEで各モデルをコンパイルする際に，コンパイル開始時と終了時に\texttt{micros()}関数を用いて時間を計測し，その差分をコンパイル時間として記録した．
+これにより，各圧縮手法および隠れ層次元におけるコンパイル時間を比較し，圧縮手法がコンパイル効率に与える影響を評価した．
+
 \subsection{比較対象}
 
-本実験では，以下の3種類のモデルを比較対象とした．
-
-\begin{enumerate}
-    \item \textbf{密行列形式（非圧縮）}：L1正則化のみを適用し，圧縮処理を行わないベースラインモデル
-    \item \textbf{CSR圧縮}：プルーニング後にCSR形式へ変換したモデル（隠れ層1および隠れ層2に適用）
-    \item \textbf{CSR＋量子化}：CSR圧縮に加えてint8量子化を適用したモデル（隠れ層1および隠れ層2に適用）
-\end{enumerate}
-
+本実験では，第\ref{sec:compression_implementation}節で述べた3種類のモデル（密行列形式，CSR圧縮，CSR＋量子化）を比較対象とした．
 これらのモデルについて，各隠れ層次元におけるMSEとメモリ使用量を比較し，段階的圧縮アプローチの有効性を検証した．
 最終的な目標は，MSEを許容範囲内に抑えつつ，隠れ層次元を600以上へ拡張可能とすることである．
 
@@ -752,7 +857,7 @@ MSEの値が小さいほど，参照画像との差異が少なく，色補正�
 
 \section{実験結果}
 
-本章では，前章で述べた実験方法に基づいて実施した実験の結果を示す．
+前章で述べた実験方法に基づいて実施した実験の結果を示す．
 
 \subsection{MSE測定結果}
 
@@ -775,7 +880,7 @@ MSEの値が小さいほど，参照画像との差異が少なく，色補正�
         \hline
         密行列形式 & 60 & 138.00 & 423.22 & 305.48 \\
         \hline
-        密行列形式 & 70 & コンパイルエラー & コンパイルエラー & コンパイルエラー \\
+        密行列形式 & 70 & \multicolumn{3}{c|}{コンパイルエラー（メモリ不足）} \\
         \hline
         \multicolumn{5}{|c|}{\textbf{CSR圧縮}} \\
         \hline
@@ -793,7 +898,7 @@ MSEの値が小さいほど，参照画像との差異が少なく，色補正�
         \hline
         CSR圧縮 & 600 & 253.44 & 2143.81 & 670.69 \\
         \hline
-        CSR圧縮 & 800 & コンパイルエラー & コンパイルエラー & コンパイルエラー \\
+        CSR圧縮 & 800 & \multicolumn{3}{c|}{コンパイルエラー（メモリ不足）} \\
         \hline
         \multicolumn{5}{|c|}{\textbf{CSR＋量子化}} \\
         \hline
@@ -803,20 +908,14 @@ MSEの値が小さいほど，参照画像との差異が少なく，色補正�
         \hline
         CSR＋量子化 & 120 & 169.37 & 310.63 & 244.83 \\
         \hline
-        CSR＋量子化 & 160 & -- & -- & -- \\
+        CSR＋量子化 & 160--600 & \multicolumn{3}{c|}{測定未実施} \\
         \hline
-        CSR＋量子化 & 200 & -- & -- & -- \\
-        \hline
-        CSR＋量子化 & 400 & -- & -- & -- \\
-        \hline
-        CSR＋量子化 & 600 & -- & -- & -- \\
-        \hline
-        CSR＋量子化 & 800 & コンパイルエラー & コンパイルエラー & コンパイルエラー \\
+        CSR＋量子化 & 800 & \multicolumn{3}{c|}{コンパイルエラー（メモリ不足）} \\
         \hline
     \end{tabular}
 \end{table}
 
-また，同一次元における圧縮手法間の比較を容易にするため，表\ref{tab:results_by_dimension}に隠れ層次元別の結果を示す．
+同一次元における圧縮手法間の比較を表\ref{tab:results_by_dimension}に示す．
 
 \begin{table}[h]
     \centering
@@ -828,441 +927,1154 @@ MSEの値が小さいほど，参照画像との差異が少なく，色補正�
         \hline
         40 & 595.95 & 518.58 & 408.97 \\
         \hline
-        50 & 406.93 & -- & -- \\
-        \hline
         60 & 305.48 & -- & -- \\
         \hline
-        70 & コンパイルエラー & -- & -- \\
+        80 & -- & 464.86 & 270.68 \\
         \hline
-        80 & コンパイルエラー & 464.86 & 270.68 \\
+        120 & -- & 620.49 & 244.83 \\
         \hline
-        120 & コンパイルエラー & 620.49 & 244.83 \\
+        200 & -- & 493.35 & -- \\
         \hline
-        160 & コンパイルエラー & 589.08 & -- \\
+        400 & -- & 864.40 & -- \\
         \hline
-        200 & コンパイルエラー & 493.35 & -- \\
-        \hline
-        400 & コンパイルエラー & 864.40 & -- \\
-        \hline
-        600 & コンパイルエラー & 670.69 & -- \\
-        \hline
-        800 & コンパイルエラー & コンパイルエラー & コンパイルエラー \\
+        600 & -- & 670.69 & -- \\
         \hline
     \end{tabular}
 \end{table}
 
-\subsection{コンパイル時間とメモリ使用量}
+\subsection{メモリ使用量}
 
-各条件におけるArduinoのコンパイル時間とメモリ使用量を表\ref{tab:results_compile_memory}に示す．
+各条件におけるメモリ使用量を表\ref{tab:results_memory}に示す．
 
 \begin{table}[h]
     \centering
-    \caption{コンパイル時間とメモリ使用量}
-    \label{tab:results_compile_memory}
+    \caption{圧縮手法別メモリ使用量}
+    \label{tab:results_memory}
     \begin{tabular}{|l|c|c|c|}
         \hline
-        \textbf{圧縮手法} & \textbf{隠れ層次元} & \textbf{コンパイル時間} & \textbf{メモリ使用量} \\
+        \textbf{圧縮手法} & \textbf{隠れ層次元} & \textbf{メモリ使用量} & \textbf{使用率} \\
         \hline
         \hline
-        \multicolumn{4}{|c|}{\textbf{非圧縮（密行列形式）}} \\
+        密行列形式 & 40 & 14,524バイト & 44\% \\
         \hline
-        密行列形式 & 40 & 4.303s & 14524バイト（44\%） \\
+        密行列形式 & 60 & 23,164バイト & 70\% \\
         \hline
-        密行列形式 & 50 & 4.589s & 18444バイト（56\%） \\
+        密行列形式 & 70 & \multicolumn{2}{c|}{コンパイルエラー} \\
         \hline
-        密行列形式 & 60 & 4.831s & 23164バイト（70\%） \\
         \hline
-        密行列形式 & 70 & コンパイルエラー & コンパイルエラー \\
+        CSR圧縮 & 40 & 8,488バイト & 25\% \\
         \hline
-        \multicolumn{4}{|c|}{\textbf{CSR圧縮}} \\
+        CSR圧縮 & 200 & 12,332バイト & 37\% \\
         \hline
-        CSR圧縮 & 40 & 3.783s & 8488バイト（25\%） \\
+        CSR圧縮 & 600 & 21,976バイト & 67\% \\
         \hline
-        CSR圧縮 & 80 & 4.037s & 9508バイト（29\%） \\
+        CSR圧縮 & 800 & \multicolumn{2}{c|}{コンパイルエラー} \\
         \hline
-        CSR圧縮 & 120 & 4.062s & 10520バイト（32\%） \\
         \hline
-        CSR圧縮 & 160 & 4.042s & 11332バイト（34\%） \\
+        CSR＋量子化 & 40 & 8,160バイト & 24\% \\
         \hline
-        CSR圧縮 & 200 & 4.027s & 12332バイト（37\%） \\
+        CSR＋量子化 & 200 & 12,000バイト & 36\% \\
         \hline
-        CSR圧縮 & 400 & 4.316s & 17204バイト（52\%） \\
+        CSR＋量子化 & 600 & 21,684バイト & 66\% \\
         \hline
-        CSR圧縮 & 600 & 4.802s & 21976バイト（67\%） \\
-        \hline
-        CSR圧縮 & 800 & コンパイルエラー & コンパイルエラー \\
-        \hline
-        \multicolumn{4}{|c|}{\textbf{CSR＋量子化}} \\
-        \hline
-        CSR＋量子化 & 40 & 3.772s & 8160バイト（24\%） \\
-        \hline
-        CSR＋量子化 & 80 & 3.809s & 9148バイト（27\%） \\
-        \hline
-        CSR＋量子化 & 120 & 4.028s & 10132バイト（30\%） \\
-        \hline
-        CSR＋量子化 & 160 & 4.033s & 12000バイト（36\%） \\
-        \hline
-        CSR＋量子化 & 200 & 4.033s & 12000バイト（36\%） \\
-        \hline
-        CSR＋量子化 & 400 & 4.307s & 16836バイト（51\%） \\
-        \hline
-        CSR＋量子化 & 600 & 4.801s & 21684バイト（66\%） \\
-        \hline
-        CSR＋量子化 & 800 & コンパイルエラー & コンパイルエラー \\
+        CSR＋量子化 & 800 & \multicolumn{2}{c|}{コンパイルエラー} \\
         \hline
     \end{tabular}
 \end{table}
 
-
-
-\subsection{詳細データ}
-
-以下に，各実験条件における個別のスキャン結果を示す．
-
-\subsubsection{非圧縮（密行列形式）}
-
-表\ref{tab:results_dense_detail_40}に，密行列形式（40次元）の詳細な測定結果を示す．
-
-\begin{table}[h]
-    \centering
-    \caption{密行列形式（40次元）の詳細測定結果}
-    \label{tab:results_dense_detail_40}
-    \begin{tabular}{|c|c||c|c|}
-        \hline
-        \textbf{ファイル} & \textbf{MSE} & \textbf{ファイル} & \textbf{MSE} \\
-        \hline
-        nn1.ppm & 484.04 & nn6.ppm & 715.63 \\
-        \hline
-        nn2.ppm & 713.74 & nn7.ppm & 523.63 \\
-        \hline
-        nn3.ppm & 733.93 & nn8.ppm & 792.85 \\
-        \hline
-        nn4.ppm & 277.67 & nn9.ppm & 284.15 \\
-        \hline
-        nn5.ppm & 782.33 & nn10.ppm & 651.52 \\
-        \hline
-    \end{tabular}
-\end{table}
-
-表\ref{tab:results_dense_detail_50}に，密行列形式（50次元）の詳細な測定結果を示す．
-
-\begin{table}[h]
-    \centering
-    \caption{密行列形式（50次元）の詳細測定結果}
-    \label{tab:results_dense_detail_50}
-    \begin{tabular}{|c|c||c|c|}
-        \hline
-        \textbf{ファイル} & \textbf{MSE} & \textbf{ファイル} & \textbf{MSE} \\
-        \hline
-        nn50\_1.ppm & 369.30 & nn50\_6.ppm & 231.11 \\
-        \hline
-        nn50\_2.ppm & 486.26 & nn50\_7.ppm & 463.85 \\
-        \hline
-        nn50\_3.ppm & 444.11 & nn50\_8.ppm & 307.26 \\
-        \hline
-        nn50\_4.ppm & 472.78 & nn50\_9.ppm & 342.67 \\
-        \hline
-        nn50\_5.ppm & 416.04 & nn50\_10.ppm & 535.59 \\
-        \hline
-    \end{tabular}
-\end{table}
-
-表\ref{tab:results_dense_detail_60}に，密行列形式（60次元）の詳細な測定結果を示す．
-
-\begin{table}[h]
-    \centering
-    \caption{密行列形式（60次元）の詳細測定結果}
-    \label{tab:results_dense_detail_60}
-    \begin{tabular}{|c|c||c|c|}
-        \hline
-        \textbf{ファイル} & \textbf{MSE} & \textbf{ファイル} & \textbf{MSE} \\
-        \hline
-        nn60\_1.ppm & 193.07 & nn60\_6.ppm & 332.41 \\
-        \hline
-        nn60\_2.ppm & 138.00 & nn60\_7.ppm & 297.22 \\
-        \hline
-        nn60\_3.ppm & 376.22 & nn60\_8.ppm & 417.44 \\
-        \hline
-        nn60\_4.ppm & 227.26 & nn60\_9.ppm & 240.33 \\
-        \hline
-        nn60\_5.ppm & 423.22 & nn60.ppm & 409.30 \\
-        \hline
-    \end{tabular}
-\end{table}
-
-\subsubsection{CSR圧縮}
-
-表\ref{tab:results_csr_detail}に，CSR圧縮モデルの詳細な測定結果を示す．
-
-\begin{table}[h]
-    \centering
-    \caption{CSR圧縮の詳細測定結果}
-    \label{tab:results_csr_detail}
-    \begin{tabular}{|c|c|c|c|}
-        \hline
-        \textbf{次元} & \textbf{ファイル} & \textbf{MSE} & \textbf{備考} \\
-        \hline
-        \hline
-        \multirow{10}{*}{40} & csr1.ppm & 600.00 & \multirow{10}{*}{測定完了} \\
-        \cline{2-3}
-        & csr2.ppm & 517.48 & \\
-        \cline{2-3}
-        & csr3.ppm & 569.78 & \\
-        \cline{2-3}
-        & csr4.ppm & 659.04 & \\
-        \cline{2-3}
-        & csr5.ppm & 324.00 & \\
-        \cline{2-3}
-        & csr6.ppm & 365.07 & \\
-        \cline{2-3}
-        & csr7.ppm & 522.59 & \\
-        \cline{2-3}
-        & csr8.ppm & 495.04 & \\
-        \cline{2-3}
-        & csr9.ppm & 692.37 & \\
-        \cline{2-3}
-        & csr10.ppm & 440.41 & \\
-        \hline
-        \hline
-        \multirow{10}{*}{80} & 1.ppm & 644.59 & \multirow{10}{*}{測定完了} \\
-        \cline{2-3}
-        & 2.ppm & 459.37 & \\
-        \cline{2-3}
-        & 3.ppm & 361.33 & \\
-        \cline{2-3}
-        & 4.ppm & 225.19 & \\
-        \cline{2-3}
-        & 5.ppm & 729.26 & \\
-        \cline{2-3}
-        & 6.ppm & 408.15 & \\
-        \cline{2-3}
-        & 7.ppm & 380.59 & \\
-        \cline{2-3}
-        & 8.ppm & 499.85 & \\
-        \cline{2-3}
-        & 9.ppm & 437.44 & \\
-        \cline{2-3}
-        & 10.ppm & 472.85 & \\
-        \hline
-        \hline
-        \multirow{10}{*}{120} & 1.ppm & 724.67 & \multirow{10}{*}{測定完了} \\
-        \cline{2-3}
-        & 2.ppm & 295.37 & \\
-        \cline{2-3}
-        & 3.ppm & 663.78 & \\
-        \cline{2-3}
-        & 4.ppm & 514.59 & \\
-        \cline{2-3}
-        & 5.ppm & 694.22 & \\
-        \cline{2-3}
-        & 6.ppm & 710.96 & \\
-        \cline{2-3}
-        & 7.ppm & 656.44 & \\
-        \cline{2-3}
-        & 8.ppm & 584.59 & \\
-        \cline{2-3}
-        & 9.ppm & 814.33 & \\
-        \cline{2-3}
-        & 10.ppm & 545.93 & \\
-        \hline
-        \hline
-        \multirow{10}{*}{160} & 1.ppm & 394.30 & \multirow{10}{*}{測定完了} \\
-        \cline{2-3}
-        & 2.ppm & 516.96 & \\
-        \cline{2-3}
-        & 3.ppm & 663.78 & \\
-        \cline{2-3}
-        & 4.ppm & 668.63 & \\
-        \cline{2-3}
-        & 5.ppm & 1179.59 & \\
-        \cline{2-3}
-        & 6.ppm & 353.07 & \\
-        \cline{2-3}
-        & 7.ppm & 686.56 & \\
-        \cline{2-3}
-        & 8.ppm & 295.52 & \\
-        \cline{2-3}
-        & 9.ppm & 434.04 & \\
-        \cline{2-3}
-        & 10.ppm & 698.33 & \\
-        \hline
-        \hline
-        \multirow{10}{*}{200} & 1.ppm & 563.52 & \multirow{10}{*}{測定完了} \\
-        \cline{2-3}
-        & 2.ppm & 291.41 & \\
-        \cline{2-3}
-        & 3.ppm & 235.52 & \\
-        \cline{2-3}
-        & 4.ppm & 675.11 & \\
-        \cline{2-3}
-        & 5.ppm & 662.07 & \\
-        \cline{2-3}
-        & 6.ppm & 714.96 & \\
-        \cline{2-3}
-        & 7.ppm & 678.93 & \\
-        \cline{2-3}
-        & 8.ppm & 462.56 & \\
-        \cline{2-3}
-        & 9.ppm & 979.85 & \\
-        \cline{2-3}
-        & 10.ppm & 331.59 & \\
-        \hline
-        \hline
-        \multirow{10}{*}{400} & 1.ppm & 390.89 & \multirow{10}{*}{測定完了} \\
-        \cline{2-3}
-        & 2.ppm & 736.11 & \\
-        \cline{2-3}
-        & 3.ppm & 701.15 & \\
-        \cline{2-3}
-        & 4.ppm & 324.52 & \\
-        \cline{2-3}
-        & 5.ppm & 616.00 & \\
-        \cline{2-3}
-        & 6.ppm & 1127.33 & \\
-        \cline{2-3}
-        & 7.ppm & 421.78 & \\
-        \cline{2-3}
-        & 8.ppm & 1913.30 & \\
-        \cline{2-3}
-        & 9.ppm & 1978.81 & \\
-        \cline{2-3}
-        & 10.ppm & 434.30 & \\
-        \hline
-        \hline
-        \multirow{10}{*}{600} & 1.ppm & 740.33 & \multirow{10}{*}{測定完了} \\
-        \cline{2-3}
-        & 2.ppm & 1427.52 & \\
-        \cline{2-3}
-        & 3.ppm & 2143.81 & \\
-        \cline{2-3}
-        & 4.ppm & 285.26 & \\
-        \cline{2-3}
-        & 5.ppm & 253.44 & \\
-        \cline{2-3}
-        & 6.ppm & 258.63 & \\
-        \cline{2-3}
-        & 7.ppm & 292.15 & \\
-        \cline{2-3}
-        & 8.ppm & 384.85 & \\
-        \cline{2-3}
-        & 9.ppm & 326.15 & \\
-        \cline{2-3}
-        & 10.ppm & 594.78 & \\
-        \hline
-        \hline
-        800 & -- & -- & コンパイルエラー \\
-        \hline
-    \end{tabular}
-\end{table}
-
-\subsubsection{CSR＋量子化}
-
-表\ref{tab:results_quantized_detail}に，CSR＋量子化モデルの詳細な測定結果を示す．
-
-\begin{table}[h]
-    \centering
-    \caption{CSR＋量子化の詳細測定結果}
-    \label{tab:results_quantized_detail}
-    \begin{tabular}{|c|c|c|c|}
-        \hline
-        \textbf{次元} & \textbf{ファイル} & \textbf{MSE} & \textbf{備考} \\
-        \hline
-        \hline
-        \multirow{10}{*}{40} & q1.ppm & 289.30 & \multirow{10}{*}{測定完了} \\
-        \cline{2-3}
-        & q2.ppm & 304.44 & \\
-        \cline{2-3}
-        & q3.ppm & 381.19 & \\
-        \cline{2-3}
-        & q4.ppm & 588.15 & \\
-        \cline{2-3}
-        & q5.ppm & 278.78 & \\
-        \cline{2-3}
-        & q6.ppm & 471.30 & \\
-        \cline{2-3}
-        & q7.ppm & 582.63 & \\
-        \cline{2-3}
-        & q8.ppm & 324.44 & \\
-        \cline{2-3}
-        & q9.ppm & 321.37 & \\
-        \cline{2-3}
-        & q10.ppm & 548.11 & \\
-        \hline
-        \hline
-        \multirow{10}{*}{80} & q1.ppm & 235.74 & \multirow{10}{*}{測定完了} \\
-        \cline{2-3}
-        & q2.ppm & 237.63 & \\
-        \cline{2-3}
-        & q3.ppm & 200.22 & \\
-        \cline{2-3}
-        & q4.ppm & 292.22 & \\
-        \cline{2-3}
-        & q5.ppm & 282.70 & \\
-        \cline{2-3}
-        & q6.ppm & 268.26 & \\
-        \cline{2-3}
-        & q7.ppm & 323.96 & \\
-        \cline{2-3}
-        & q8.ppm & 270.19 & \\
-        \cline{2-3}
-        & q9.ppm & 313.37 & \\
-        \cline{2-3}
-        & q10.ppm & 282.48 & \\
-        \hline
-        \hline
-        \multirow{10}{*}{120} & q1.ppm & 297.70 & \multirow{10}{*}{測定完了} \\
-        \cline{2-3}
-        & q2.ppm & 180.11 & \\
-        \cline{2-3}
-        & q3.ppm & 239.15 & \\
-        \cline{2-3}
-        & q4.ppm & 310.63 & \\
-        \cline{2-3}
-        & q5.ppm & 309.41 & \\
-        \cline{2-3}
-        & q6.ppm & 169.37 & \\
-        \cline{2-3}
-        & q7.ppm & 228.59 & \\
-        \cline{2-3}
-        & q8.ppm & 257.85 & \\
-        \cline{2-3}
-        & q9.ppm & 196.19 & \\
-        \cline{2-3}
-        & q10.ppm & 259.30 & \\
-        \hline
-        160 & -- & -- & 測定未実施 \\
-        \hline
-        200 & -- & -- & 測定未実施 \\
-        \hline
-        400 & -- & -- & 測定未実施 \\
-        \hline
-        600 & -- & -- & 測定未実施 \\
-        \hline
-        800 & -- & -- & コンパイルエラー \\
-        \hline
-    \end{tabular}
-\end{table}
-
+\clearpage
 \subsection{結果のまとめ}
 
-現時点で得られた実験結果をまとめると，以下のとおりである．
+得られた実験結果を以下にまとめる．
 
-\begin{enumerate}
-    \item 非圧縮（密行列形式）では，40次元でMSE平均値730.13，50次元で406.93，60次元で305.48と，次元を増やすほど精度が向上したが，70次元ではメモリ不足によりコンパイルエラーが発生した．
-    \item CSR圧縮（40次元）のMSE平均値は518.58であり，非圧縮（40次元）の730.13と比較して約29\%改善した．
-    \item CSR圧縮（80次元）のMSE平均値は464.86であり，非圧縮（40次元）と比較して約36\%改善した．
-    \item CSR圧縮により，隠れ層次元を600次元まで拡張してもArduino Uno R4 WiFiのメモリ制約内で動作可能であった（メモリ使用量67\%）．
-    \item CSR＋量子化により，さらにメモリ効率が向上し，600次元でもメモリ使用量66\%で動作可能であった．
-    \item CSR圧縮（120次元以上）およびCSR＋量子化モデルについては，MSE測定を実施予定である．
-\end{enumerate}
+\subsubsection{隠れ層次元の拡張可能範囲}
+\begin{itemize}
+    \item 非圧縮（密行列形式）：60次元まで動作可能，70次元でメモリ不足
+    \item CSR圧縮：600次元まで動作可能（メモリ使用率67\%），800次元でメモリ不足
+    \item CSR＋量子化：600次元まで動作可能（メモリ使用率66\%），800次元でメモリ不足
+\end{itemize}
 
-これらの結果から，CSR形式による圧縮は推論精度を維持しつつ隠れ層次元の拡張を可能にする有効な手法であることが示唆される．
+CSR圧縮により，非圧縮と比較して約10倍の次元拡張が可能となった．
+
+\subsubsection{推論精度（MSE）}
+40次元における各手法のMSE平均値を比較すると，非圧縮が595.95，CSR圧縮が518.58，CSR＋量子化が408.97であった．
+CSR＋量子化は非圧縮と比較して約31\%のMSE改善を達成した．
+
+測定済みの範囲において最良のMSE平均値は，CSR＋量子化（120次元）の244.83であった．
+一方，CSR圧縮では次元を増加させてもMSEが単調に減少せず，400次元で864.40，600次元で670.69とばらつきが見られた．
+
+\subsubsection{メモリ効率}
+40次元における各手法のメモリ使用量を比較すると，非圧縮が14,524バイト（44\%），CSR圧縮が8,488バイト（25\%），CSR＋量子化が8,160バイト（24\%）であった．
+CSR圧縮により約42\%，CSR＋量子化により約44\%のメモリ削減を達成した．
+
 詳細な考察は次章で述べる．
+なお，各実験条件における個別のスキャン結果は付録\ref{sec:appendix_detail}に示す．
+
+\clearpage
+\section{考察}
+
+\section{}
+
+\clearpage
+\appendix
+\section{詳細測定データ}
+\label{sec:appendix_detail}
+本付録では，各実験条件における個別のスキャン結果を示す．
+各条件につき10回のスキャンを実施し，MSEを算出した．
+
+\subsection{非圧縮（密行列形式）の詳細測定結果}
+表\ref{tab:appendix_dense}に，密行列形式モデルの個別スキャン結果を示す．
+
+\begin{table}[h]
+    \centering
+    \caption{密行列形式の詳細測定結果（MSE）}
+    \label{tab:appendix_dense}
+    \begin{tabular}{|c|c|c|c|}
+        \hline
+        \textbf{スキャン} & \textbf{40次元} & \textbf{50次元} & \textbf{60次元} \\
+        \hline
+        1 & 484.04 & 369.30 & 193.07 \\
+        \hline
+        2 & 713.74 & 486.26 & 138.00 \\
+        \hline
+        3 & 733.93 & 444.11 & 376.22 \\
+        \hline
+        4 & 277.67 & 472.78 & 227.26 \\
+        \hline
+        5 & 782.33 & 416.04 & 423.22 \\
+        \hline
+        6 & 715.63 & 231.11 & 332.41 \\
+        \hline
+        7 & 523.63 & 463.85 & 297.22 \\
+        \hline
+        8 & 792.85 & 307.26 & 417.44 \\
+        \hline
+        9 & 284.15 & 342.67 & 240.33 \\
+        \hline
+        10 & 651.52 & 535.59 & 409.30 \\
+        \hline
+        \hline
+        \textbf{最小値} & 277.67 & 231.11 & 138.00 \\
+        \hline
+        \textbf{最大値} & 792.85 & 535.59 & 423.22 \\
+        \hline
+        \textbf{平均値} & 595.95 & 406.93 & 305.48 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+70次元以上はメモリ不足によりコンパイルエラーが発生したため，測定を実施できなかった．
+
+\clearpage
+
+\subsection{CSR圧縮の詳細測定結果}
+表\ref{tab:appendix_csr}に，CSR圧縮モデルの個別スキャン結果を示す．
+
+\begin{table}[h]
+    \centering
+    \caption{CSR圧縮の詳細測定結果（MSE）}
+    \label{tab:appendix_csr}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|}
+        \hline
+        \textbf{スキャン} & \textbf{40次元} & \textbf{80次元} & \textbf{120次元} & \textbf{160次元} & \textbf{200次元} & \textbf{400次元} & \textbf{600次元} \\
+        \hline
+        1 & 600.00 & 644.59 & 724.67 & 394.30 & 563.52 & 390.89 & 740.33 \\
+        \hline
+        2 & 517.48 & 459.37 & 295.37 & 516.96 & 291.41 & 736.11 & 1427.52 \\
+        \hline
+        3 & 569.78 & 361.33 & 663.78 & 663.78 & 235.52 & 701.15 & 2143.81 \\
+        \hline
+        4 & 659.04 & 225.19 & 514.59 & 668.63 & 675.11 & 324.52 & 285.26 \\
+        \hline
+        5 & 324.00 & 729.26 & 694.22 & 1179.59 & 662.07 & 616.00 & 253.44 \\
+        \hline
+        6 & 365.07 & 408.15 & 710.96 & 353.07 & 714.96 & 1127.33 & 258.63 \\
+        \hline
+        7 & 522.59 & 380.59 & 656.44 & 686.56 & 678.93 & 421.78 & 292.15 \\
+        \hline
+        8 & 495.04 & 499.85 & 584.59 & 295.52 & 462.56 & 1913.30 & 384.85 \\
+        \hline
+        9 & 692.37 & 437.44 & 814.33 & 434.04 & 979.85 & 1978.81 & 326.15 \\
+        \hline
+        10 & 440.41 & 472.85 & 545.93 & 698.33 & 331.59 & 434.30 & 594.78 \\
+        \hline
+        \hline
+        \textbf{最小値} & 324.00 & 225.19 & 295.37 & 295.52 & 291.41 & 390.89 & 253.44 \\
+        \hline
+        \textbf{最大値} & 692.37 & 729.26 & 814.33 & 1179.59 & 979.85 & 1978.81 & 2143.81 \\
+        \hline
+        \textbf{平均値} & 518.58 & 464.86 & 620.49 & 589.08 & 493.35 & 864.40 & 670.69 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+800次元はメモリ不足によりコンパイルエラーが発生したため，測定を実施できなかった．
+
+\subsection{CSR＋量子化の詳細測定結果}
+表\ref{tab:appendix_quantized}に，CSR＋量子化モデルの個別スキャン結果を示す．
+
+\begin{table}[h]
+    \centering
+    \caption{CSR＋量子化の詳細測定結果（MSE）}
+    \label{tab:appendix_quantized}
+    \begin{tabular}{|c|c|c|c|}
+        \hline
+        \textbf{スキャン} & \textbf{40次元} & \textbf{80次元} & \textbf{120次元} \\
+        \hline
+        1 & 289.30 & 235.74 & 297.70 \\
+        \hline
+        2 & 304.44 & 237.63 & 180.11 \\
+        \hline
+        3 & 381.19 & 200.22 & 239.15 \\
+        \hline
+        4 & 588.15 & 292.22 & 310.63 \\
+        \hline
+        5 & 278.78 & 282.70 & 309.41 \\
+        \hline
+        6 & 471.30 & 268.26 & 169.37 \\
+        \hline
+        7 & 582.63 & 323.96 & 228.59 \\
+        \hline
+        8 & 324.44 & 270.19 & 257.85 \\
+        \hline
+        9 & 321.37 & 313.37 & 196.19 \\
+        \hline
+        10 & 548.11 & 282.48 & 259.30 \\
+        \hline
+        \hline
+        \textbf{最小値} & 278.78 & 200.22 & 169.37 \\
+        \hline
+        \textbf{最大値} & 588.15 & 323.96 & 310.63 \\
+        \hline
+        \textbf{平均値} & 408.97 & 270.68 & 244.83 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+160次元〜600次元は測定未実施，800次元はメモリ不足によりコンパイルエラーが発生した．
+
+\clearpage
+\section{ソースコード}
+\label{sec:appendix_code}
+
+本付録では，実験で使用したソースコードを示す．
+
+\subsection{AI\_Model.ino}
+\label{sec:code_ai_model}
+
+\begin{lstlisting}[language=C++,caption=AI\_Model.ino,label=code:ai_model]
+#include <Arduino.h>
+#include "model_parameters40.h"
+
+// 隠れ層次元（パラメータファイルと一致させる）
+#define HIDDEN_DIM 40
+
+// RGB点灯遅延
+#define RgbFlashDelay 50 
+
+// ピン割り当て
+#define PIN_IN A0
+#define led_r_pin 8
+#define led_g_pin 6
+#define led_b_pin 7
+#define buttonInputPin 3
+#define buttonMinMaxPin 2
+
+// ボタン押下を検知する変数 (余計な最適化を防ぐため、volatile宣言をしている)
+volatile bool buttonInputPressed = false;
+volatile bool buttonMinMaxPressed = false;
+
+// RGB読み取り用変数
+float r=0, g=0, b=0;
+float r_max=512, g_max=512, b_max=512;
+float r_min=0, g_min=0, b_min=0;
+
+float rgb[3]{0, 0, 0};
+float RGBInput[3]{0, 0, 0};
+float RGBOutput[3]{0, 0, 0};
+
+// RGBデータメモリ
+int N, M;
+float **array;
+int n=0, m=0;
+
+int pushed = 0;
+
+void buttonInput() {
+    buttonInputPressed = true;
+}
+
+
+void buttonMinMax() {
+    buttonMinMaxPressed = true;
+}
+
+
+float **allocateArray(int N, int M) {
+    float **array = (float **)malloc(N * sizeof(float *)); // 行ポインタの確保
+    if (array == NULL) {
+        Serial.println("メモリ確保失敗");
+        return NULL;
+    }
+
+    for (int i = 0; i < N; i++) {
+        array[i] = (float *)malloc(M * sizeof(float)); // 各行のメモリ確保
+        if (array[i] == NULL) {
+            Serial.println("メモリ確保失敗（部分的）");
+            // 確保済みのメモリを解放して終了
+            for (int j = 0; j < i; j++) {
+                free(array[j]);
+            }
+            free(array);
+            return NULL;
+        }
+    }
+    return array;
+}
+
+void read(){
+    for(int count = 0 ; count < 3 ; count++){
+        if(count == 0){
+            analogWrite(led_r_pin, 255);
+            analogWrite(led_g_pin,   0);
+            analogWrite(led_b_pin,   0);
+            delay(RgbFlashDelay);
+            rgb[0] = analogRead(PIN_IN);
+        }else if(count == 1){
+            analogWrite(led_r_pin,   0);
+            analogWrite(led_g_pin, 255); 
+            analogWrite(led_b_pin,   0);
+            delay(RgbFlashDelay);
+            rgb[1] = analogRead(PIN_IN);
+        }else{
+            analogWrite(led_r_pin,   0);
+            analogWrite(led_g_pin,   0);
+            analogWrite(led_b_pin, 255);
+            delay(RgbFlashDelay);     
+            rgb[2] = analogRead(PIN_IN);
+        }
+    }
+    analogWrite(led_r_pin, 0);
+    analogWrite(led_g_pin, 0);
+    analogWrite(led_b_pin, 0);
+}
+
+static inline float relu(float x){ return x > 0 ? x : 0; }
+
+void layer1_dense_relu(const float x[3], float h1[HIDDEN_DIM]){
+	for(int j=0;j<HIDDEN_DIM;++j){
+		float s = bias_1[j];
+		for(int i=0;i<3;++i) s += weight_1[j*3 + i] * x[i];
+		h1[j] = relu(s);
+	}
+}
+
+void layer2_dense_relu(const float h1[HIDDEN_DIM], float h2[HIDDEN_DIM]){
+	for(int r=0;r<HIDDEN_DIM;++r){
+		float s = bias_2[r];
+		for(int c=0;c<HIDDEN_DIM;++c) s += weight_2[r*HIDDEN_DIM + c] * h1[c];
+		h2[r] = relu(s);
+	}
+}
+
+void layer3_dense(const float h2[HIDDEN_DIM], float y[3]){
+	for(int m=0;m<3;++m){
+		float s = bias_3[m];
+		for(int k=0;k<HIDDEN_DIM;++k) s += weight_3[m*HIDDEN_DIM + k] * h2[k];
+		y[m] = s;
+	}
+}
+
+// predict
+static void predict(const float in_rgb[3], float out_rgb[3]){
+	float h1[HIDDEN_DIM], h2[HIDDEN_DIM];
+	layer1_dense_relu(in_rgb, h1);
+	layer2_dense_relu(h1, h2);
+	layer3_dense(h2, out_rgb);
+}
+
+
+// Arduino's analog input detects 0-5V with 10-bit values
+// https://deviceplus.jp/arduino/arduino_f07/
+void readAndProcess(){
+    read();
+    RGBInput[0] = (float(rgb[0])-r_min)/r_max;
+    RGBInput[1] = (float(rgb[1])-g_min)/g_max;
+    RGBInput[2] = (float(rgb[2])-b_min)/b_max;
+    
+    // Monitoring read value
+    // Serial.print("Measured B, R, G: ");
+    // Serial.println(String(RGBInput[2])+","+String(RGBInput[0])+","+String(RGBInput[1]));    
+
+    // ニューラルネットで読み込み値を修正
+    micros();
+    predict(RGBInput, RGBOutput);
+    micros();
+    
+    // 0-255でクリッピング
+    RGBOutput[0] = min(max(RGBOutput[0]*255, 0), 255);
+    RGBOutput[1] = min(max(RGBOutput[1]*255, 0), 255);
+    RGBOutput[2] = min(max(RGBOutput[2]*255, 0), 255);
+
+    // Serial.print("Predicted B, R, G: ");
+    Serial.println("Blue:"+String((int)RGBOutput[2]) + ", Red:"+String((int)RGBOutput[0]) + ", Green:"+ String((int)RGBOutput[1]));
+    // Serial.println("Red:"+String(RGBInput[0]) + ", Green:"+ String(RGBInput[1]) + ", Blue:"+String(RGBInput[2]));
+}
+
+// このリセットコードは旧版Arduino用、Arduino UNO R4 WiFiでは不要
+// void softwareReset() {
+//     asm volatile ("jmp 0");  // プログラムカウンタをリセット
+// }
+
+
+void setup() {
+  // put your setup code here, to run once:
+    Serial.begin(9600);
+    pinMode(led_r_pin, OUTPUT);
+    pinMode(led_g_pin, OUTPUT);
+    pinMode(led_b_pin, OUTPUT);
+    analogWrite(led_r_pin, 0);
+    analogWrite(led_b_pin, 0);
+    analogWrite(led_g_pin, 0);
+
+    pinMode(buttonInputPin, INPUT_PULLUP);pinMode(buttonMinMaxPin, INPUT_PULLUP);
+
+    attachInterrupt(digitalPinToInterrupt(buttonInputPin), buttonInput, FALLING);
+    attachInterrupt(digitalPinToInterrupt(buttonMinMaxPin), buttonMinMax, FALLING);
+
+    Serial.println("画像の Height（行数）を入力してください: ");
+    while (Serial.available() == 0) {
+        // 何もせずに待機
+    }
+    N = Serial.parseInt();
+    M = N*3; // RGBの値を入れるために3倍しておく
+    Serial.println("Height: " + String(N));
+    Serial.println("Width: " + String((int)(M/3)));
+    array = allocateArray(N, M);
+
+    if (array == NULL) {
+        Serial.println("配列の確保に失敗");
+        return;
+    }
+
+    // 配列を初期化
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < M; j++) {
+            array[i][j] = 0;
+        }
+    }
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+    readAndProcess();
+
+    if (buttonInputPressed) {
+        array[n][m]   = RGBOutput[0];
+        array[n][m+1] = RGBOutput[1];
+        array[n][m+2] = RGBOutput[2];
+
+        Serial.println(String(n)+" 行目 "+String((int)(m/3))+" 列目 の画素を読み込みました。");
+
+        if((m+=3)>=M){
+            m = 0 ;
+            if((n+=1)>=N){
+                n = 0;
+                Serial.println("画像の読み取りが完了しました。");
+                Serial.println("以下のテキストを画像ファイル（.ppm）に貼り付けてください。");
+                Serial.println("--------------------------------------------------");
+                Serial.println("P3");
+                Serial.println(String(N)+" "+String((int)(M/3)));
+                Serial.println("255");
+                for (int i = 0; i < N; i++) {
+                    for (int j = 0; j < M; j++) {
+                        Serial.print((int)array[i][j]);
+                        Serial.print(" ");
+                    }
+                    Serial.println();
+                }
+                Serial.println("--------------------------------------------------");
+                Serial.println();
+                delay(500); 
+                // softwareReset();
+                NVIC_SystemReset();
+            } 
+        }
+        buttonInputPressed = false;
+    }
+
+    if (buttonMinMaxPressed) {
+        if(pushed%2==0){
+            r_min=rgb[0], g_min=rgb[1], b_min=rgb[2];
+            Serial.println("最小値が更新されました："+String(b_min)+","+String(r_min)+","+String(g_min));
+        }
+        else{
+            r_max=rgb[0]-r_min, g_max=rgb[1]-g_min, b_max=rgb[2]-b_min;
+            Serial.println("最大値が更新されました："+String(b_max)+","+String(r_max)+","+String(g_max));
+        }
+        buttonMinMaxPressed = false;  // フラグをリセット
+        pushed++;
+        delay(500);
+    }
+}
+\end{lstlisting}
+
+\clearpage
+\subsection{AI\_CSR.ino}
+\label{sec:code_ai_csr}
+
+\begin{lstlisting}[language=C++,caption=AI\_CSR.ino,label=code:ai_csr]
+#include <Arduino.h>
+#include "model_parameters600.h"
+#include "model_parameters_csr600.h"
+
+// ========== モデル設定 ==========
+// 注意: この値は学習時に使用したHIDDEN_DIMと一致させること
+#ifndef HIDDEN_DIM
+#define HIDDEN_DIM 600  // 隠れ層の次元（学習時の値と一致させる）
+#endif
+// =================================
+
+// RGB点灯遅延
+#define RgbFlashDelay 50
+
+// ピン割り当て
+#define PIN_IN A0
+#define led_r_pin 8
+#define led_g_pin 6
+#define led_b_pin 7
+#define buttonInputPin 3
+#define buttonMinMaxPin 2
+
+// ボタン押下を検知する変数 (余計な最適化を防ぐため、volatile宣言をしている)
+volatile bool buttonInputPressed = false;
+volatile bool buttonMinMaxPressed = false;
+
+// RGB読み取り用変数
+float r=0, g=0, b=0;
+float r_max=512, g_max=512, b_max=512;
+float r_min=0, g_min=0, b_min=0;
+
+float rgb[3]{0, 0, 0};
+float RGBInput[3]{0, 0, 0};
+float RGBOutput[3]{0, 0, 0};
+
+// RGBデータメモリ
+int N, M;
+float **array;
+int n=0, m=0;
+
+int pushed = 0;
+
+void buttonInput() {
+    buttonInputPressed = true;
+}
+
+
+void buttonMinMax() {
+    buttonMinMaxPressed = true;
+}
+
+
+float **allocateArray(int N, int M) {
+    float **array = (float **)malloc(N * sizeof(float *)); // 行ポインタの確保
+    if (array == NULL) {
+        Serial.println("メモリ確保失敗");
+        return NULL;
+    }
+
+    for (int i = 0; i < N; i++) {
+        array[i] = (float *)malloc(M * sizeof(float)); // 各行のメモリ確保
+        if (array[i] == NULL) {
+            Serial.println("メモリ確保失敗（部分的）");
+            // 確保済みのメモリを解放して終了
+            for (int j = 0; j < i; j++) {
+                free(array[j]);
+            }
+            free(array);
+            return NULL;
+        }
+    }
+    return array;
+}
+
+void read(){
+    for(int count = 0 ; count < 3 ; count++){
+        if(count == 0){
+            analogWrite(led_r_pin, 255);
+            analogWrite(led_g_pin,   0);
+            analogWrite(led_b_pin,   0);
+            delay(RgbFlashDelay);
+            rgb[0] = analogRead(PIN_IN);
+        }else if(count == 1){
+            analogWrite(led_r_pin,   0);
+            analogWrite(led_g_pin, 255); 
+            analogWrite(led_b_pin,   0);
+            delay(RgbFlashDelay);
+            rgb[1] = analogRead(PIN_IN);
+        }else{
+            analogWrite(led_r_pin,   0);
+            analogWrite(led_g_pin,   0);
+            analogWrite(led_b_pin, 255);
+            delay(RgbFlashDelay);     
+            rgb[2] = analogRead(PIN_IN);
+        }
+    }
+    analogWrite(led_r_pin, 0);
+    analogWrite(led_g_pin, 0);
+    analogWrite(led_b_pin, 0);
+}
+
+static inline float relu(float x){ return x > 0 ? x : 0; }
+
+void layer1_csr_relu(const float x[3], float h1[HIDDEN_DIM]){
+	for(int r=0;r<HIDDEN_DIM;++r){
+		float s = 0.0f;
+		uint16_t start = indptr_1[r];
+		uint16_t end   = indptr_1[r+1];
+		for(uint16_t p=start;p<end;++p){
+			uint16_t c = indices_1[p];
+			s += data_1[p] * x[c];
+		}
+		s += bias_1[r];
+		h1[r] = relu(s);
+	}
+}
+
+void layer2_csr_relu(const float h1[HIDDEN_DIM], float h2[HIDDEN_DIM]){
+	for(int r=0;r<HIDDEN_DIM;++r){
+		float s = 0.0f;
+		uint16_t start = indptr_2[r];
+		uint16_t end   = indptr_2[r+1];
+		for(uint16_t p=start;p<end;++p){
+			uint16_t c = indices_2[p];
+			s += data_2[p] * h1[c];
+		}
+		s += bias_2[r];
+		h2[r] = relu(s);
+	}
+}
+
+void layer3_dense(const float h2[HIDDEN_DIM], float y[3]){
+	for(int m=0;m<3;++m){
+		float s = bias_3[m];
+		for(int k=0;k<HIDDEN_DIM;++k) s += weight_3[m*HIDDEN_DIM + k] * h2[k];
+		y[m] = s;
+	}
+}
+
+// predict
+static void predict(const float in_rgb[3], float out_rgb[3]){
+	float h1[HIDDEN_DIM], h2[HIDDEN_DIM];
+	layer1_csr_relu(in_rgb, h1);
+	layer2_csr_relu(h1, h2);
+	layer3_dense(h2, out_rgb);
+}
+
+
+// Arduino's analog input detects 0-5V with 10-bit values
+// https://deviceplus.jp/arduino/arduino_f07/
+void readAndProcess(){
+    read();
+    RGBInput[0] = (float(rgb[0])-r_min)/r_max;
+    RGBInput[1] = (float(rgb[1])-g_min)/g_max;
+    RGBInput[2] = (float(rgb[2])-b_min)/b_max;
+    
+    // Monitoring read value
+    // Serial.print("Measured B, R, G: ");
+    // Serial.println(String(RGBInput[2])+","+String(RGBInput[0])+","+String(RGBInput[1]));    
+
+    // ニューラルネットで読み込み値を修正
+    micros();
+    predict(RGBInput, RGBOutput);
+    micros();
+    
+    // 0-255でクリッピング
+    RGBOutput[0] = min(max(RGBOutput[0]*255, 0), 255);
+    RGBOutput[1] = min(max(RGBOutput[1]*255, 0), 255);
+    RGBOutput[2] = min(max(RGBOutput[2]*255, 0), 255);
+
+    // Serial.print("Predicted B, R, G: ");
+    Serial.println("Blue:"+String((int)RGBOutput[2]) + ", Red:"+String((int)RGBOutput[0]) + ", Green:"+ String((int)RGBOutput[1]));
+    // Serial.println("Red:"+String(RGBInput[0]) + ", Green:"+ String(RGBInput[1]) + ", Blue:"+String(RGBInput[2]));
+}
+
+// このリセットコードは旧版Arduino用、Arduino UNO R4 WiFiでは不要
+// void softwareReset() {
+//     asm volatile ("jmp 0");  // プログラムカウンタをリセット
+// }
+
+
+void setup() {
+  // put your setup code here, to run once:
+    Serial.begin(9600);
+    pinMode(led_r_pin, OUTPUT);
+    pinMode(led_g_pin, OUTPUT);
+    pinMode(led_b_pin, OUTPUT);
+    analogWrite(led_r_pin, 0);
+    analogWrite(led_b_pin, 0);
+    analogWrite(led_g_pin, 0);
+
+    pinMode(buttonInputPin, INPUT_PULLUP);pinMode(buttonMinMaxPin, INPUT_PULLUP);
+
+    attachInterrupt(digitalPinToInterrupt(buttonInputPin), buttonInput, FALLING);
+    attachInterrupt(digitalPinToInterrupt(buttonMinMaxPin), buttonMinMax, FALLING);
+
+    Serial.println("画像の Height（行数）を入力してください: ");
+    while (Serial.available() == 0) {
+        // 何もせずに待機
+    }
+    N = Serial.parseInt();
+    M = N*3; // RGBの値を入れるために3倍しておく
+    Serial.println("Height: " + String(N));
+    Serial.println("Width: " + String((int)(M/3)));
+    array = allocateArray(N, M);
+
+    if (array == NULL) {
+        Serial.println("配列の確保に失敗");
+        return;
+    }
+
+    // 配列を初期化
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < M; j++) {
+            array[i][j] = 0;
+        }
+    }
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+    readAndProcess();
+
+    if (buttonInputPressed) {
+        array[n][m]   = RGBOutput[0];
+        array[n][m+1] = RGBOutput[1];
+        array[n][m+2] = RGBOutput[2];
+
+        Serial.println(String(n)+" 行目 "+String((int)(m/3))+" 列目 の画素を読み込みました。");
+
+        if((m+=3)>=M){
+            m = 0 ;
+            if((n+=1)>=N){
+                n = 0;
+                Serial.println("画像の読み取りが完了しました。");
+                Serial.println("以下のテキストを画像ファイル（.ppm）に貼り付けてください。");
+                Serial.println("--------------------------------------------------");
+                Serial.println("P3");
+                Serial.println(String(N)+" "+String((int)(M/3)));
+                Serial.println("255");
+                for (int i = 0; i < N; i++) {
+                    for (int j = 0; j < M; j++) {
+                        Serial.print((int)array[i][j]);
+                        Serial.print(" ");
+                    }
+                    Serial.println();
+                }
+                Serial.println("--------------------------------------------------");
+                Serial.println();
+                delay(500); 
+                // softwareReset();
+                NVIC_SystemReset();
+            } 
+        }
+        buttonInputPressed = false;
+    }
+
+    if (buttonMinMaxPressed) {
+        if(pushed%2==0){
+            r_min=rgb[0], g_min=rgb[1], b_min=rgb[2];
+            Serial.println("最小値が更新されました："+String(b_min)+","+String(r_min)+","+String(g_min));
+        }
+        else{
+            r_max=rgb[0]-r_min, g_max=rgb[1]-g_min, b_max=rgb[2]-b_min;
+            Serial.println("最大値が更新されました："+String(b_max)+","+String(r_max)+","+String(g_max));
+        }
+        buttonMinMaxPressed = false;  // フラグをリセット
+        pushed++;
+        delay(500);
+    }
+}
+\end{lstlisting}
+
+\clearpage
+\subsection{AI\_CSR\_Quantized.ino}
+\label{sec:code_ai_csr_quantized}
+
+\begin{lstlisting}[language=C++,caption=AI\_CSR\_Quantized.ino,label=code:ai_csr_quantized]
+#include <Arduino.h>
+#include "model_parameters40.h"
+#include "model_parameters_csr_quantized40.h"
+
+// ========== モデル設定 ==========
+// 注意: この値は学習時に使用したHIDDEN_DIMと一致させること
+#ifndef HIDDEN_DIM
+#define HIDDEN_DIM 40  // 隠れ層の次元（学習時の値と一致させる）
+#endif
+// =================================
+
+// RGB点灯遅延
+#define RgbFlashDelay 50 
+
+// ピン割り当て
+#define PIN_IN A0
+#define led_r_pin 8
+#define led_g_pin 6
+#define led_b_pin 7
+#define buttonInputPin 3
+#define buttonMinMaxPin 2
+
+// ボタン押下を検知する変数 (余計な最適化を防ぐため、volatile宣言をしている)
+volatile bool buttonInputPressed = false;
+volatile bool buttonMinMaxPressed = false;
+
+// RGB読み取り用変数
+float r=0, g=0, b=0;
+float r_max=512, g_max=512, b_max=512;
+float r_min=0, g_min=0, b_min=0;
+
+float rgb[3]{0, 0, 0};
+float RGBInput[3]{0, 0, 0};
+float RGBOutput[3]{0, 0, 0};
+
+// RGBデータメモリ
+int N, M;
+float **array;
+int n=0, m=0;
+
+int pushed = 0;
+
+void buttonInput() {
+    buttonInputPressed = true;
+}
+
+void buttonMinMax() {
+    buttonMinMaxPressed = true;
+}
+
+float **allocateArray(int N, int M) {
+    float **array = (float **)malloc(N * sizeof(float *)); // 行ポインタの確保
+    if (array == NULL) {
+        Serial.println("メモリ確保失敗");
+        return NULL;
+    }
+
+    for (int i = 0; i < N; i++) {
+        array[i] = (float *)malloc(M * sizeof(float)); // 各行のメモリ確保
+        if (array[i] == NULL) {
+            Serial.println("メモリ確保失敗（部分的）");
+            // 確保済みのメモリを解放して終了
+            for (int j = 0; j < i; j++) {
+                free(array[j]);
+            }
+            free(array);
+            return NULL;
+        }
+    }
+    return array;
+}
+
+void read(){
+    for(int count = 0 ; count < 3 ; count++){
+        if(count == 0){
+            analogWrite(led_r_pin, 255);
+            analogWrite(led_g_pin,   0);
+            analogWrite(led_b_pin,   0);
+            delay(RgbFlashDelay);
+            rgb[0] = analogRead(PIN_IN);
+        }else if(count == 1){
+            analogWrite(led_r_pin,   0);
+            analogWrite(led_g_pin, 255); 
+            analogWrite(led_b_pin,   0);
+            delay(RgbFlashDelay);
+            rgb[1] = analogRead(PIN_IN);
+        }else{
+            analogWrite(led_r_pin,   0);
+            analogWrite(led_g_pin,   0);
+            analogWrite(led_b_pin, 255);
+            delay(RgbFlashDelay);     
+            rgb[2] = analogRead(PIN_IN);
+        }
+    }
+    analogWrite(led_r_pin, 0);
+    analogWrite(led_g_pin, 0);
+    analogWrite(led_b_pin, 0);
+}
+
+static inline float relu(float x){ return x > 0 ? x : 0; }
+
+// 量子化対応のCSR層（1層目、int8_tデータをfloatに逆量子化しながら計算）
+void layer1_csr_quantized_relu(const float x[3], float h1[HIDDEN_DIM]){
+	for(int r=0;r<HIDDEN_DIM;++r){
+		float s = 0.0f;
+		uint16_t start = indptr_1[r];
+		uint16_t end   = indptr_1[r+1];
+		for(uint16_t p=start;p<end;++p){
+			uint16_t c = indices_1[p];
+			// int8_tをfloatに逆量子化
+			float weight_val = (float)data_1_quantized[p] / scale_factor_1;
+			s += weight_val * x[c];
+		}
+		s += bias_1[r];
+		h1[r] = relu(s);
+	}
+}
+
+// 量子化対応のCSR層（2層目、int8_tデータをfloatに逆量子化しながら計算）
+void layer2_csr_quantized_relu(const float h1[HIDDEN_DIM], float h2[HIDDEN_DIM]){
+	for(int r=0;r<HIDDEN_DIM;++r){
+		float s = 0.0f;
+		uint16_t start = indptr_2[r];
+		uint16_t end   = indptr_2[r+1];
+		for(uint16_t p=start;p<end;++p){
+			uint16_t c = indices_2[p];
+			// int8_tをfloatに逆量子化
+			float weight_val = (float)data_2_quantized[p] / scale_factor_2;
+			s += weight_val * h1[c];
+		}
+		s += bias_2[r];
+		h2[r] = relu(s);
+	}
+}
+
+void layer3_dense(const float h2[HIDDEN_DIM], float y[3]){
+	for(int m=0;m<3;++m){
+		float s = bias_3[m];
+		for(int k=0;k<HIDDEN_DIM;++k) s += weight_3[m*HIDDEN_DIM + k] * h2[k];
+		y[m] = s;
+	}
+}
+
+// predict
+static void predict(const float in_rgb[3], float out_rgb[3]){
+	float h1[HIDDEN_DIM], h2[HIDDEN_DIM];
+	layer1_csr_quantized_relu(in_rgb, h1);
+	layer2_csr_quantized_relu(h1, h2);
+	layer3_dense(h2, out_rgb);
+}
+
+// Arduino's analog input detects 0-5V with 10-bit values
+// https://deviceplus.jp/arduino/arduino_f07/
+void readAndProcess(){
+    read();
+    RGBInput[0] = (float(rgb[0])-r_min)/r_max;
+    RGBInput[1] = (float(rgb[1])-g_min)/g_max;
+    RGBInput[2] = (float(rgb[2])-b_min)/b_max;
+    
+    // ニューラルネットで読み込み値を修正
+    micros();
+    predict(RGBInput, RGBOutput);
+    micros();
+    
+    // 0-255でクリッピング
+    RGBOutput[0] = min(max(RGBOutput[0]*255, 0), 255);
+    RGBOutput[1] = min(max(RGBOutput[1]*255, 0), 255);
+    RGBOutput[2] = min(max(RGBOutput[2]*255, 0), 255);
+
+    Serial.println("Blue:"+String((int)RGBOutput[2]) + ", Red:"+String((int)RGBOutput[0]) + ", Green:"+ String((int)RGBOutput[1]));
+}
+
+void setup() {
+  // put your setup code here, to run once:
+    Serial.begin(9600);
+    pinMode(led_r_pin, OUTPUT);
+    pinMode(led_g_pin, OUTPUT);
+    pinMode(led_b_pin, OUTPUT);
+    analogWrite(led_r_pin, 0);
+    analogWrite(led_b_pin, 0);
+    analogWrite(led_g_pin, 0);
+
+    pinMode(buttonInputPin, INPUT_PULLUP);pinMode(buttonMinMaxPin, INPUT_PULLUP);
+
+    attachInterrupt(digitalPinToInterrupt(buttonInputPin), buttonInput, FALLING);
+    attachInterrupt(digitalPinToInterrupt(buttonMinMaxPin), buttonMinMax, FALLING);
+
+    Serial.println("画像の Height（行数）を入力してください: ");
+    while (Serial.available() == 0) {
+        // 何もせずに待機
+    }
+    N = Serial.parseInt();
+    M = N*3; // RGBの値を入れるために3倍しておく
+    Serial.println("Height: " + String(N));
+    Serial.println("Width: " + String((int)(M/3)));
+    array = allocateArray(N, M);
+
+    if (array == NULL) {
+        Serial.println("配列の確保に失敗");
+        return;
+    }
+
+    // 配列を初期化
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < M; j++) {
+            array[i][j] = 0;
+        }
+    }
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+    readAndProcess();
+
+    if (buttonInputPressed) {
+        array[n][m]   = RGBOutput[0];
+        array[n][m+1] = RGBOutput[1];
+        array[n][m+2] = RGBOutput[2];
+
+        Serial.println(String(n)+" 行目 "+String((int)(m/3))+" 列目 の画素を読み込みました。");
+
+        if((m+=3)>=M){
+            m = 0 ;
+            if((n+=1)>=N){
+                n = 0;
+                Serial.println("画像の読み取りが完了しました。");
+                Serial.println("以下のテキストを画像ファイル（.ppm）に貼り付けてください。");
+                Serial.println("--------------------------------------------------");
+                Serial.println("P3");
+                Serial.println(String(N)+" "+String((int)(M/3)));
+                Serial.println("255");
+                for (int i = 0; i < N; i++) {
+                    for (int j = 0; j < M; j++) {
+                        Serial.print((int)array[i][j]);
+                        Serial.print(" ");
+                    }
+                    Serial.println();
+                }
+                Serial.println("--------------------------------------------------");
+                Serial.println();
+                delay(500); 
+                NVIC_SystemReset();
+            } 
+        }
+        buttonInputPressed = false;
+    }
+
+    if (buttonMinMaxPressed) {
+        if(pushed%2==0){
+            r_min=rgb[0], g_min=rgb[1], b_min=rgb[2];
+            Serial.println("最小値が更新されました："+String(b_min)+","+String(r_min)+","+String(g_min));
+        }
+        else{
+            r_max=rgb[0]-r_min, g_max=rgb[1]-g_min, b_max=rgb[2]-b_min;
+            Serial.println("最大値が更新されました："+String(b_max)+","+String(r_max)+","+String(g_max));
+        }
+        buttonMinMaxPressed = false;  // フラグをリセット
+        pushed++;
+        delay(500);
+    }
+}
+\end{lstlisting}
+
+\clearpage
+\subsection{train\_L1\_normalization.ipynb}
+\label{sec:code_train}
+
+ノートブックファイルの主要なPythonコードセルを示す．
+
+\begin{lstlisting}[language=Python,caption=train\_L1\_normalization.ipynb,label=code:train]
+import cv2
+import torch
+import torch.nn as nn
+import torch.optim as optim
+import numpy as np
+import matplotlib.pyplot as plt
+%matplotlib inline
+
+# 推論データ
+X = np.array([[...]], dtype=np.float32)
+
+# 正解データ
+Y = np.array([[...]], dtype=np.float32)
+
+X_tensor = torch.tensor(X, dtype=torch.float32)
+Y_tensor = torch.tensor(Y, dtype=torch.float32)
+
+# ========== モデル設定（次元を変更する場合はここを編集） ==========
+HIDDEN_DIM = 40  # 隠れ層の次元（40, 100, 200などに変更可能）
+# ================================================================
+
+# モデル定義
+class ColorNet(nn.Module):
+    def __init__(self, hidden_dim=40):
+        super(ColorNet, self).__init__()
+        self.hidden_dim = hidden_dim
+        self.model = nn.Sequential(
+            nn.Linear(3, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, 3),
+        )
+
+    def forward(self, x):
+        return self.model(x)
+
+model = ColorNet(hidden_dim=HIDDEN_DIM)
+print(f"モデル定義完了: 隠れ層次元 = {HIDDEN_DIM}")
+
+# 損失関数（MSE）
+criterion = nn.MSELoss()
+
+# 最適化手法
+optimizer = optim.Adam(model.parameters(), lr=0.01)
+
+# L1正則化の係数
+lambda_l1 = 1e-6
+
+# 学習ループ
+epochs = 50000
+for epoch in range(epochs):
+    optimizer.zero_grad()
+
+    outputs = model(X_tensor)
+    mse = criterion(outputs, Y_tensor)
+
+    # --- L1 正則化-----------------------------
+    l1 = torch.tensor(0.0, requires_grad=False)
+    for name, p in model.named_parameters():
+        if 'weight' in name:
+            l1 = l1 + p.abs().sum()
+    loss = mse + lambda_l1 * l1
+    # -----------------------------------------
+
+    loss.backward()
+    optimizer.step()
+
+    if epoch % 500 == 0:
+        print(f'Epoch [{epoch}/{epochs}]  MSE: {mse.item():.6f}  L1: {l1.item():.2f}  Loss: {loss.item():.6f}')
+
+with torch.no_grad():
+    predictions = model(X_tensor)
+    print("\n予測結果：")
+    print(predictions.numpy())
+
+def convert_to_cpp_array(tensor: torch.Tensor, name: str, dtype: str = "float"):
+    flat = tensor.detach().numpy().flatten()
+    array_str = f"{dtype} {name}[] = {{"
+    array_str += ", ".join(map(str, flat))
+    array_str += "};"
+    return array_str
+
+cpp_code = f"// モデルパラメータ (隠れ層次元: {HIDDEN_DIM})\n"
+
+layer_idx = 1
+for layer in model.model:
+    if isinstance(layer, torch.nn.Linear):
+        cpp_code += convert_to_cpp_array(layer.weight, f"weight_{layer_idx}") + "\n"
+        cpp_code += convert_to_cpp_array(layer.bias,   f"bias_{layer_idx}") + "\n"
+        layer_idx += 1
+
+with open("model_parameters.h", "w") as f:
+    f.write(cpp_code)
+
+print(f"\nC++ 用のパラメータファイル (model_parameters.h) を作成しました。")
+print(f"隠れ層次元: {HIDDEN_DIM}")
+\end{lstlisting}
 
 \clearpage
 \begin{thebibliography}{9}
-\bibitem{jacob2018quantization} B. Jacob et al., ``Quantization and Training of Neural Networks for Efficient Integer-Arithmetic-Only Inference,'' CVPR, 2018.
 \bibitem{han2015deep} Song Han et al., ``Learning both Weights and Connections for Efficient Neural Networks,'' NeurIPS, 2015.
+\bibitem{jacob2018quantization} B. Jacob et al., ``Quantization and Training of Neural Networks for Efficient Integer-Arithmetic-Only Inference,'' CVPR, 2018.
 \end{thebibliography}
 
 

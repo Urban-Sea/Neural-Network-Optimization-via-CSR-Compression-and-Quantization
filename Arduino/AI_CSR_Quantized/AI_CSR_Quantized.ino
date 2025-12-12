@@ -142,7 +142,7 @@ void layer3_dense(const float h2[HIDDEN_DIM], float y[3]){
 }
 
 // 使いやすい forward
-static void forward_rgb(const float in_rgb[3], float out_rgb[3]){
+static void predict(const float in_rgb[3], float out_rgb[3]){
 	float h1[HIDDEN_DIM], h2[HIDDEN_DIM];
 	layer1_csr_quantized_relu(in_rgb, h1);
 	layer2_csr_quantized_relu(h1, h2);
@@ -159,7 +159,7 @@ void readAndProcess(){
     
     // ニューラルネットで読み込み値を修正
     micros();
-    forward_rgb(RGBInput, RGBOutput);
+    predict(RGBInput, RGBOutput);
     micros();
     
     // 0-255でクリッピング
