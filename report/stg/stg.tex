@@ -92,18 +92,22 @@
 また，predict関数の処理時間を計測し，実行速度についても評価する．
 
 \subsection{平均二乗誤差（MSE）}
-平均二乗誤差（MSE）は，2枚の画像の対応するピクセル位置における輝度差の2乗の平均値として定義され，以下の式で表される．
+平均二乗誤差（MSE: Mean Squared Error）は，2枚の画像の対応するピクセル位置における輝度差の2乗の平均値として定義され，以下の式で表される．
 \begin{equation}
 \text{MSE} = \frac{1}{m \times n} \sum_{i=1}^{m} \sum_{j=1}^{n} \left( I(i,j) - K(i,j) \right)^2
+\label{eq:mse_definition}
 \end{equation}
 ここで，$I$と$K$は比較対象となる2枚の画像，$m \times n$は画像サイズを表す．
 
 本実験ではRGB画像を扱うため，各ピクセルについてR，G，Bチャネルごとの差の2乗を加算し，チャネル数で除した値をMSEとして算出する．
-具体的な計算式を以下に示す：
+具体的な計算式を以下に示す．
 \begin{equation}
 \text{MSE} = \frac{(r_{\text{diff}})^2 + (g_{\text{diff}})^2 + (b_{\text{diff}})^2}{3}
+\label{eq:mse_rgb}
 \end{equation}
-\clearpage
+
+MSEの値が小さいほど，2枚の画像間の差異が少なく，色再現性が高いことを示す．
+本研究では，このMSEを推論精度の評価指標として用いる．
 
 
 \clearpage
@@ -116,19 +120,44 @@
 
 \subsubsection{ネットワーク構造}
 本実験で採用したモデルは，全結合型（Fully Connected）の4層ニューラルネットワークである．
-入力層はRGBの3次元，2つの隠れ層はそれぞれ40次元（40個のニューロンが全結合），出力層は再びRGBの3次元とした．
+入力層はRGBの3次元，2つの隠れ層はそれぞれ可変次元（実験では40〜600次元），出力層は再びRGBの3次元とした．
+各層の構成を表\ref{tab:nn_structure}に示す．
+
+\begin{table}[h]
+    \centering
+    \caption{ニューラルネットワークの構造}
+    \label{tab:nn_structure}
+    \begin{tabular}{|l|c|l|}
+        \hline
+        \textbf{層} & \textbf{次元数} & \textbf{活性化関数} \\
+        \hline
+        入力層 & 3 & -- \\
+        \hline
+        隠れ層1 & 40〜600（可変） & ReLU \\
+        \hline
+        隠れ層2 & 40〜600（可変） & ReLU \\
+        \hline
+        出力層 & 3 & Sigmoid \\
+        \hline
+    \end{tabular}
+\end{table}
+
 各ニューロンにおける推論は以下の式で表される．
 \begin{equation}
 y = x_1 w_1 + x_2 w_2 + \cdots + x_{n-1} w_{n-1} + b
 \end{equation}
 ここで，$w_i$は重み，$b$はバイアスを表す．
-算出された値はReLU活性化関数を通過し，次層へ伝搬される．
+算出された値は活性化関数を通過し，次層へ伝搬される．
 
 モデルはPyTorchにより定義・訓練し，L1正則化を導入して重みの疎化を促進した．
 訓練後の重みおよびバイアスはC++配列としてエクスポートし，Arduino上で実行可能な形式に変換した．
-さらに，本研究では隠れ層の次元拡張性を検証するため，40次元に加えて80次元，120次元のモデルについても実験を行った．
+
+本研究で適用する圧縮手法（CSR形式，量子化）は，主にパラメータ数の多い隠れ層1および隠れ層2の重み行列に対して適用する．
+隠れ層の次元数を拡張するとパラメータ数が増加し，メモリ使用量が増大するため，圧縮手法の適用が不可欠となる．
 
 \subsection{隠れ層の圧縮手法}
+\label{sec:compression_methods}
+本研究では，ニューラルネットワークの隠れ層パラメータに対して以下の圧縮手法を適用する．
 
 \subsubsection{圧縮の必要性}
 Arduino Uno R4 WiFiのようなマイクロコントローラでは，利用可能なメモリ（SRAM約32\,KB，Flash 256\,KB）が極めて限定的である．
@@ -141,13 +170,6 @@ Arduino Uno R4 WiFiのようなマイクロコントローラでは，利用可�
 \end{itemize}
 float32形式では10\,KBを超える場合，Arduino上での動作が困難となる．
 したがって，隠れ層の次元を拡張しながら高い推論性能を維持するには，重みデータの圧縮が不可欠である．
-
-\subsubsection{圧縮手法の概観}
-ニューラルネットワークの圧縮手法は多岐にわたるが，本研究のようなマイクロコントローラ環境では，実装の複雑さと圧縮効果のバランスが重要となる．
-代表的な手法として，プルーニング（枝刈り），疎行列表現（CSR形式など），量子化が挙げられる．
-
-これらの手法は独立に適用することも，組み合わせて適用することも可能である．
-以下では，各手法の原理と特徴を述べた上で，本研究における適用方針を示す．
 
 \clearpage
 \subsubsection{プルーニング（Pruning）}
@@ -238,6 +260,9 @@ float32からint8への変換により，さらに約4倍のメモリ削減が�
     \end{tabular}
 \end{table}
 
+\subsubsection{段階的圧縮アプローチ}
+\label{sec:staged_compression}
+
 本研究では，段階的な圧縮アプローチを採用する．
 その理由は以下のとおりである．
 
@@ -311,34 +336,174 @@ CSR圧縮によりMSEが許容範囲内に収まり，かつメモリ制約を�
 
 \subsection{ソフトウェア構成}
 
-本システムのソフトウェアは，学習フェーズとデプロイフェーズの2段階で構成される．
+本システムのソフトウェアは，PC上で実行する学習フェーズと，Arduino上で実行するデプロイフェーズの2段階で構成される．
+本節では，まずニューラルネットワークの構造を述べた後，各フェーズの処理内容について説明する．
+
+\subsubsection{ニューラルネットワークの構造}
+本システムで使用するニューラルネットワークは，RGB色補正を目的とした4層の全結合ネットワークである．
+ネットワーク構造の詳細（各層の次元数，活性化関数，推論の数式）については，第3章の表\ref{tab:nn_structure}を参照されたい．
+
+学習フェーズでは，隠れ層1および隠れ層2の次元数を40〜600の範囲で変化させて複数のモデルを訓練した．
+デプロイフェーズでは，訓練済みモデルのパラメータをArduinoに組み込み，実機上で推論を実行する．
 
 \subsubsection{学習フェーズ}
+
 学習フェーズでは，PC上でPythonおよびPyTorchを用いてニューラルネットワークの学習を行う．
 学習にはJupyter Notebook（\texttt{train\_L1\_normalization.ipynb}）を使用し，以下の処理を実行する．
 \begin{enumerate}
     \item データの読み込みと前処理
     \item L1正則化を適用したニューラルネットワークの学習
-    \item プルーニングおよびCSR形式への変換
+    \item プルーニングおよびCSR形式への変換（隠れ層1，隠れ層2の重み行列に適用）
     \item Arduinoで読み込み可能なヘッダファイル（\texttt{.h}）の生成
 \end{enumerate}
 
+L1正則化により隠れ層1および隠れ層2の重みが疎化され，プルーニング後にCSR形式へ変換することで，メモリ使用量を大幅に削減できる．
+
+\subsubsection{圧縮手法の実装}
+\label{sec:compression_implementation}
+
+第\ref{sec:compression_methods}節で述べた圧縮手法に基づき，本システムでは3種類の実装を用意した．
+
+\begin{enumerate}
+    \item \textbf{密行列形式（AI\_Model）}：圧縮なし．2次元配列で重み行列を格納し，標準的な行列ベクトル積で順伝播を行う．
+    \item \textbf{CSR形式（AI\_CSR）}：プルーニング後にCSR形式へ変換．\texttt{data}，\texttt{indices}，\texttt{indptr}配列を用いて非ゼロ要素のみを計算する．
+    \item \textbf{量子化CSR形式（AI\_CSR\_Quantized）}：CSR形式に加えてint8量子化を適用．推論時にスケールファクタで逆量子化を行う．
+\end{enumerate}
+
+各実装はArduinoスケッチとして独立したディレクトリ（\texttt{AI\_Model/}，\texttt{AI\_CSR/}，\texttt{AI\_CSR\_Quantized/}）に配置される．
+
 \subsubsection{デプロイフェーズ}
-デプロイフェーズでは，生成したパラメータファイルをArduinoに組み込み，実機上で推論を実行する．
-Arduinoコードは用途に応じて以下の3種類を用意した．
+
+デプロイフェーズでは，学習フェーズで生成したパラメータファイルをArduinoに組み込み，実機上で推論を実行する．
+Arduinoコードは，重み行列の格納形式に応じて以下の3種類を用意した．
+
 \begin{itemize}
-    \item \texttt{AI\_Model}：密行列形式（非圧縮）のニューラルネットワーク
-    \item \texttt{AI\_CSR}：CSR形式で圧縮したニューラルネットワーク
-    \item \texttt{AI\_CSR\_Quantized}：CSR形式に量子化を追加適用したニューラルネットワーク
+    \item \texttt{AI\_Model}：密行列形式（非圧縮）のニューラルネットワーク．隠れ層1および隠れ層2の重み行列を通常の2次元配列として格納する．
+    \item \texttt{AI\_CSR}：CSR形式で圧縮したニューラルネットワーク．隠れ層1および隠れ層2の重み行列をCSR形式で格納し，メモリ使用量を削減する．
+    \item \texttt{AI\_CSR\_Quantized}：CSR形式に量子化を追加適用したニューラルネットワーク．隠れ層1および隠れ層2の重みをint8形式に量子化し，さらなるメモリ削減を実現する．
 \end{itemize}
 
-\begin{lstlisting}[language=C, caption=Arduinoメインプログラム（抜粋）]
-% TODO: コードを記載
-\end{lstlisting}
+次節では，これらのニューラルネットワークを組み込んだRGB画像読み取りシステムの処理フローについて述べる．
 
-\begin{lstlisting}[language=C, caption=CSR形式での行列ベクトル積演算]
-% TODO: コードを記載
-\end{lstlisting}
+
+\clearpage
+
+\subsection{RGB画像読み取りシステムの処理フロー}
+
+本節では，Arduinoで動作するRGB画像読み取りシステムの処理フローについて述べる．
+本システムでは，RGBセンサーから画素値を逐次読み取り，前節で述べたニューラルネットワークによってRGB値を補正した上で，PPM形式の画像として出力する．
+
+処理は大きく，センサー入出力や画像バッファ管理を行う「共通部分」と，RGB補正を行う「NN部分」の2つに分けられる．
+共通部分はニューラルネットワークの格納形式（密行列形式，CSR形式，量子化CSR形式）に依存しない処理であり，NN部分は格納形式に応じた推論処理を実装する．
+
+\subsubsection{共通部分（センサー読み取りと画像バッファ管理）}
+
+共通部分では，RGBセンサーの読み取り，画素値の正規化，NN出力の保存，PPM形式での画像出力などを実装する．
+主に以下の5つの関数から構成される．
+
+\paragraph{\texttt{allocateArray}関数}
+画像の高さ $N$ と幅方向の要素数 $M$ を引数として受け取り，2次元配列（$N \times M$ の画素バッファ）をヒープ領域に動的確保する（図\ref{fig:scanner_allocateArray}）．
+行ポインタの確保に失敗した場合や，途中の行の確保に失敗した場合には，確保済みメモリを解放して\texttt{NULL}を返すことで，メモリ不足に対処する．
+
+\paragraph{\texttt{setup}関数}
+シリアル通信の初期化，RGB LEDピンの出力設定および初期消灯，ボタン入力ピンの\texttt{INPUT\_PULLUP}設定，割り込みハンドラの登録を行う（図\ref{fig:scanner_setup}）．
+続いてシリアルモニタから画像の高さ（Height）$N$ を読み取り，幅方向の要素数 $M=3N$ を計算し，\texttt{allocateArray}関数により画像バッファを動的確保する．
+確保に成功した場合は，全要素を0で初期化する．
+
+\paragraph{\texttt{read}関数}
+ループ変数\texttt{count}に応じてR，G，Bの順にLEDを点灯しながらアナログ入力を行う（図\ref{fig:scanner_read}）．
+すなわち，\texttt{count==0}のときはRのみ点灯して\texttt{rgb[0]}を読み取り，\texttt{count==1}ではGのみ点灯して\texttt{rgb[1]}を読み取り，それ以外（\texttt{count==2}）ではBのみ点灯して\texttt{rgb[2]}を読み取る．
+3色の読み取り後にはすべてのLEDを消灯する．
+
+\paragraph{\texttt{readAndProcess}関数}
+まず\texttt{read}関数を呼び出し\texttt{rgb[]}に格納された生のセンサー値を取得し，事前にキャリブレーションされた最小値（\texttt{r\_min}，\texttt{g\_min}，\texttt{b\_min}）と最大値（\texttt{r\_max}，\texttt{g\_max}，\texttt{b\_max}）を用いて0〜1に正規化した入力ベクトル\texttt{RGBInput[3]}を生成する（図\ref{fig:scanner_readAndProcess}）．
+続いて\texttt{forward\_rgb}関数を呼び出してニューラルネットワーク推論を行い，補正後のRGB値である\texttt{RGBOutput[3]}を得る．
+ここで呼び出される\texttt{forward\_rgb}関数が，入力層から隠れ層1，隠れ層2を経て出力層に至る順伝播計算を実行する．
+最後に，出力値を0〜255にクリッピングし，B，R，Gの順でシリアル出力する．
+
+\paragraph{\texttt{loop}関数}
+処理を2つに分割して実行する．
+1つ目は画素読み取りと保存を行う処理（図\ref{fig:scanner_loop_pixel}），2つ目はMin/Maxキャリブレーションを行う処理（図\ref{fig:scanner_loop_minmax}）である．
+
+画素保存処理では，\texttt{buttonInputPressed}が真のとき，最新の\texttt{RGBOutput}を\texttt{array[n][m..m+2]}に書き込み，列インデックス\texttt{m}を3進める．
+行が埋まれば\texttt{n}をインクリメントし，全行の読み取りが完了した場合にはPPM形式で全画素を出力し，\texttt{NVIC\_SystemReset()}によりリセットする．
+
+キャリブレーション処理では，\texttt{buttonMinMaxPressed}が真のとき，変数\texttt{pushed}の偶奇に応じて最小値または最大値を更新する．
+最小値は\texttt{rgb[]}そのものを保存し，最大値は\texttt{rgb[]}から最小値を引いた差分として設定する．
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=11cm]{フローチャート/Scanner共通/scanner_allocateArray.png}
+  \caption{RGB画像バッファを動的確保する\texttt{allocateArray}関数のフローチャート}
+  \label{fig:scanner_allocateArray}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=13cm]{フローチャート/Scanner共通/scanner_setup.png}
+    \caption{RGB画像読み取りシステムの\texttt{setup}関数のフローチャート}
+    \label{fig:scanner_setup}
+  \end{figure}
+  
+  \begin{figure}[h]
+    \centering
+    \includegraphics[width=10cm]{フローチャート/Scanner共通/scanner_read.png}
+    \caption{\texttt{read}関数（R/G/B順にLED点灯と読み取りを行う）のフローチャート}
+    \label{fig:scanner_read}
+  \end{figure}
+  
+  \begin{figure}[h]
+    \centering
+    \includegraphics[width=11cm]{フローチャート/Scanner共通/scanner_readAndProcess.png}
+    \caption{\texttt{readAndProcess}関数（正規化およびNN推論処理）のフローチャート}
+    \label{fig:scanner_readAndProcess}
+  \end{figure}
+  
+  \begin{figure}[h]
+    \centering
+    \includegraphics[width=13cm]{フローチャート/Scanner共通/scanner_loop_pixel.png}
+    \caption{\texttt{loop}関数における画素読み取り・保存処理のフローチャート}
+    \label{fig:scanner_loop_pixel}
+\end{figure}
+  
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=11cm]{フローチャート/Scanner共通/scanner_loop_minmax.png}
+    \caption{\texttt{loop}関数におけるMin/Maxキャリブレーション処理のフローチャート}
+    \label{fig:scanner_loop_minmax}
+\end{figure}
+
+
+\clearpage
+
+\subsubsection{NN部分（ニューラルネットワーク推論）}
+
+NN部分では，共通部分の\texttt{readAndProcess}関数から呼び出される\texttt{forward\_rgb}関数を実装する．
+この関数は，正規化されたRGB入力（3次元）を入力層で受け取り，隠れ層1，隠れ層2を経て，出力層から補正されたRGB出力（3次元）を返す．
+
+\texttt{forward\_rgb}関数における順伝播計算の流れは以下のとおりである．
+\begin{enumerate}
+    \item 入力層（3次元）から隠れ層1への変換：重み行列$W_1$との積とバイアス$b_1$の加算，ReLU活性化
+    \item 隠れ層1から隠れ層2への変換：重み行列$W_2$との積とバイアス$b_2$の加算，ReLU活性化
+    \item 隠れ層2から出力層（3次元）への変換：重み行列$W_3$との積とバイアス$b_3$の加算，Sigmoid活性化
+\end{enumerate}
+
+\texttt{forward\_rgb}関数の実装は，重み行列の格納形式に応じて以下の3種類が存在する．
+
+\paragraph{密行列形式（\texttt{AI\_Model}）}
+隠れ層1および隠れ層2の重み行列（$W_1$，$W_2$，$W_3$）を通常の2次元配列として格納し，標準的な行列ベクトル積により順伝播計算を行う（図\ref{fig:nn_dense_forward}）．
+実装が単純であるが，メモリ使用量が大きいため，隠れ層の次元拡張に制約がある．
+
+\paragraph{CSR形式（\texttt{AI\_CSR}）}
+プルーニングにより疎化された隠れ層1および隠れ層2の重み行列をCSR形式で格納し，非ゼロ要素のみを用いて行列ベクトル積を計算する（図\ref{fig:nn_csr_forward}）．
+CSR形式では，値配列（data），列インデックス（indices），行ポインタ（indptr）を用いて疎行列を表現する．
+メモリ使用量を削減できるため，より大きな隠れ層次元を扱うことが可能である．
+
+\paragraph{量子化CSR形式（\texttt{AI\_CSR\_Quantized}）}
+CSR形式に加えて，隠れ層1および隠れ層2の重みをint8形式に量子化することで，さらなるメモリ削減を実現する（図\ref{fig:nn_quantized_forward}）．
+推論時には，各層ごとに保存されたスケール$S$とゼロポイント$Z$を用いて逆量子化を行い，浮動小数点演算に変換して計算する．
+量子化による精度劣化を最小限に抑えるため，量子化感知訓練（QAT）を適用することも可能である．
+
 
 \clearpage
 
@@ -349,7 +514,7 @@ Arduinoコードは用途に応じて以下の3種類を用意した．
 \subsection{実験の目的と方針}
 
 本実験の目的は，Arduino Uno R4 WiFiのメモリ制約下において，ニューラルネットワークの隠れ層次元を拡張しつつ，推論精度を維持することである．
-具体的には，隠れ層次元を現行の40から100〜200へ拡張可能とし，画像復元品質の向上と読み取り時間の短縮を実現することを目指す．
+具体的には，隠れ層次元を現行の40から600以上へ拡張可能とし，画像復元品質の向上を実現することを目指す．
 
 この目的を達成するため，重み圧縮手法としてCSR（Compressed Sparse Row）形式を第一優先とし，CSR圧縮のみでは不十分な場合にはCSR圧縮モデルに対して量子化を追加適用する方針とした．
 L1正則化による重みの疎化を活かすことで，メモリ効率と推論精度のバランスを最適化する．
@@ -387,11 +552,15 @@ L1正則化による重みの疎化を活かすことで，メモリ効率と推
         \hline
         \textbf{項目} & \textbf{設定値} \\
         \hline
-        隠れ層次元 & 40, 80, 120 \\
+        隠れ層次元 & 40, 50, 60, 70, 80, 120, 160, 200, 400, 600 \\
         \hline
         プルーニング閾値 & 0.01（固定） \\
         \hline
-        正則化 & L1正則化 \\
+        正則化 & L1正則化（係数: $1 \times 10^{-6}$） \\
+        \hline
+        学習エポック数 & 50000 \\
+        \hline
+        最適化手法 & Adam（学習率: 0.01） \\
         \hline
         疎行列形式 & CSR形式 \\
         \hline
@@ -401,6 +570,8 @@ L1正則化による重みの疎化を活かすことで，メモリ効率と推
 \end{table}
 
 プルーニング閾値を0.01に固定した理由は，予備実験において精度と圧縮率のバランスが良好であったためである．
+また，L1正則化係数を$1 \times 10^{-6}$としたのは，重みの疎化を促進しつつ学習の収束性を維持するためである．
+
 
 \subsection{実験手順}
 
@@ -409,42 +580,102 @@ L1正則化による重みの疎化を活かすことで，メモリ効率と推
 モデルの学習およびパラメータ生成は，Jupyter Notebook（\texttt{train\_L1\_normalization.ipynb}）を用いて実施した．
 以下に各ステップの詳細を示す．
 
-\paragraph{ステップ1：データ準備}\mbox{}\newline
-まず，学習に必要なライブラリ（PyTorch，NumPy，SciPy等）をインポートした．
-次に，参照画像としてPPM形式のカラーチャート画像を読み込み，推論用データを準備した．
 
-\paragraph{ステップ2：ニューラルネットワークの学習}\mbox{}\newline
-L1正則化を適用したニューラルネットワークを学習した．
-学習時には，隠れ層次元を指定するパラメータ\texttt{HIDDEN\_DIM}を設定した．
-本実験では，\texttt{HIDDEN\_DIM}を40, 80, 120と変化させて複数のモデルを学習した．
+\paragraph{ステップ1：環境セットアップとデータ準備}
+まず，PyTorch，NumPy，Matplotlib等の必要なライブラリをインストールし，\texttt{cv2}，\texttt{torch}，\texttt{numpy}等をインポートした．
+
+次に，PPM形式のカラーチャート画像を読み込み，参照画像（3$\times$3および6$\times$6のカラーチャート）を準備した．
+推論用データ（$X$）と正解データ（$Y$）は0〜1の範囲に正規化し，\texttt{formatted\_arrays.txt}として保存した．
+
+\paragraph{ステップ2：ニューラルネットワークの学習}
+第3章で述べた4層全結合ニューラルネットワークを，L1正則化を適用して学習した．
+
+学習パラメータは表\ref{tab:training_params}のとおりである．
+
+\begin{table}[h]
+    \centering
+    \caption{学習パラメータ}
+    \label{tab:training_params}
+    \begin{tabular}{|l|l|}
+        \hline
+        \textbf{項目} & \textbf{設定値} \\
+        \hline
+        損失関数 & MSE + L1正則化 \\
+        \hline
+        L1正則化係数 & $1 \times 10^{-6}$ \\
+        \hline
+        最適化手法 & Adam \\
+        \hline
+        学習率 & 0.01 \\
+        \hline
+        エポック数 & 50000 \\
+        \hline
+        進捗表示間隔 & 500エポックごと \\
+        \hline
+    \end{tabular}
+\end{table}
+
+本実験では，隠れ層次元（\texttt{HIDDEN\_DIM}）を40, 50, 60, 70, 80, 120, 160, 200, 400, 600と変化させて複数のモデルを学習した．
 学習完了後，密行列形式のパラメータファイル（\texttt{model\_parameters.h}）が自動生成される．
-このファイルは，圧縮なしのベースラインモデルとして使用する．
+このファイルには全層の重みとバイアスがC++配列として出力され，圧縮なしのベースラインモデルとして使用する．
 
-\paragraph{ステップ3：CSR形式への変換}\mbox{}\newline
+
+\paragraph{ステップ3：CSR形式への変換}
 学習済みモデルに対し，プルーニング閾値0.01でプルーニングを実施した後，重み行列をCSR形式に変換した．
-変換処理では，閾値以下の重みを0として扱い，非ゼロ要素のみを値配列（data），列インデックス（indices），行ポインタ（indptr）として抽出した．
-変換後のパラメータは\texttt{model\_parameters\_csr.h}として出力される．
+CSR形式への変換は，隠れ層1の重み行列（入力層$\rightarrow$隠れ層1）および隠れ層2の重み行列（隠れ層1$\rightarrow$隠れ層2）に対して適用した．
 
-各隠れ層次元に対してこの処理を行い，生成されたファイルは以下のようにリネームして管理した．
-\begin{itemize}
-    \item 40次元：\texttt{model\_parameters\_csr40.h}
-    \item 80次元：\texttt{model\_parameters\_csr80.h}
-    \item 120次元：\texttt{model\_parameters\_csr120.h}
-\end{itemize}
+変換処理は以下の手順で実施した．
+\begin{enumerate}
+    \item 重み行列を取得し，絶対値が0.01未満の要素を0に設定（プルーニング）
+    \item 非ゼロ要素を抽出し，CSR形式の3つの配列に変換：
+    \begin{itemize}
+        \item \texttt{data}：非ゼロ要素の値配列（float32）
+        \item \texttt{indices}：列インデックス配列（uint16\_t）
+        \item \texttt{indptr}：行ポインタ配列（uint16\_t）
+    \end{itemize}
+    \item スパース性（非ゼロ率）と圧縮率を算出
+\end{enumerate}
 
-\paragraph{ステップ4：量子化の適用（オプション）}\mbox{}\newline
-CSR圧縮のみではメモリ制約を満たせない場合，またはさらなる圧縮が必要な場合には，CSR形式のパラメータに対してint8量子化を追加適用した．
-量子化処理では，float32形式の重みをint8形式に変換し，スケールおよびゼロポイントを算出した．
-量子化後のパラメータは\texttt{model\_parameters\_csr\_quantized.h}として出力される．
+変換後のパラメータは，各隠れ層次元に応じて\texttt{model\_parameters\_csr40.h}，\texttt{model\_parameters\_csr80.h}等のファイル名で出力した．
+
+\paragraph{ステップ4：量子化の適用（オプション）}
+CSR圧縮のみではメモリ制約を満たせない場合，CSR形式のパラメータに対してint8量子化を追加適用した．
+
+量子化処理は以下の手順で実施した．
+\begin{enumerate}
+    \item CSR形式の値配列（\texttt{data}）に対してスケールファクタを計算：
+    \begin{equation}
+        \text{scale} = \frac{127.0}{\max(|\texttt{data}|)}
+    \end{equation}
+    \item 各要素を量子化し，$-128$〜$127$の範囲にクリッピング：
+    \begin{equation}
+        \texttt{quantized} = \text{clip}(\text{round}(\texttt{data} \times \text{scale}), -128, 127)
+    \end{equation}
+    \item 逆量子化誤差を算出して精度劣化を確認
+\end{enumerate}
+
+量子化は隠れ層1および隠れ層2の重み行列に対して，各層ごとに独立したスケールファクタを用いて適用した．
+量子化後のパラメータは，\texttt{model\_parameters\_csr\_quantized40.h}等のファイル名で出力した．
+
+\paragraph{次元変更時の手順}
+異なる次元で実験する場合は，以下の手順を実行した．
+\begin{enumerate}
+    \item Jupyter Notebookで\texttt{HIDDEN\_DIM}を変更
+    \item 学習を実行し，密行列形式パラメータを生成
+    \item CSR変換を実行し，CSR形式パラメータを生成
+    \item 必要に応じて量子化を適用
+    \item 生成ファイルをArduinoプロジェクトにコピー
+    \item Arduinoコードの\texttt{HIDDEN\_DIM}を同じ値に設定
+\end{enumerate}
+
 \clearpage
+
 \subsubsection{Arduinoへのデプロイ}
 
 生成したパラメータファイルをArduinoプロジェクトに組み込み，実機へ書き込みを行った．
-以下に詳細な手順を示す．
 
-\paragraph{ステップ1：パラメータファイルの配置}\mbox{}\newline
-生成されたパラメータファイルを，対応するArduinoプロジェクトフォルダにコピーした．
-表\ref{tab:parameter_files}にファイルの配置先を示す．
+\paragraph{ステップ1：パラメータファイルの配置}
+生成されたパラメータファイルを，表\ref{tab:parameter_files}に示す対応するArduinoプロジェクトフォルダにコピーした．
 
 \begin{table}[h]
     \centering
@@ -454,107 +685,55 @@ CSR圧縮のみではメモリ制約を満たせない場合，またはさら�
         \hline
         \textbf{生成ファイル} & \textbf{コピー先} & \textbf{用途} \\
         \hline
-        \texttt{model\_parameters.h} & \texttt{Arduino/AI\_Model/} & 密行列形式モデル \\
+        \texttt{model\_parameters*.h} & \texttt{Arduino/AI\_Model/} & 密行列形式 \\
         \hline
-        \texttt{model\_parameters\_csr*.h} & \texttt{Arduino/AI\_CSR/} & CSR形式モデル \\
+        \texttt{model\_parameters\_csr*.h} & \texttt{Arduino/AI\_CSR/} & CSR形式 \\
         \hline
-        \texttt{model\_parameters\_csr\_quantized.h} & \texttt{Arduino/AI\_CSR\_Quantized/} & CSR+量子化モデル \\
+        \texttt{model\_parameters\_csr\_quantized*.h} & \texttt{Arduino/AI\_CSR\_Quantized/} & CSR+量子化 \\
         \hline
     \end{tabular}
 \end{table}
 
-\paragraph{ステップ2：Arduinoコードの設定}\mbox{}\newline
-各Arduinoプロジェクト内の\texttt{.ino}ファイルを開き，以下の設定を行った．
+\paragraph{ステップ2：Arduinoコードの設定}
+各Arduinoプロジェクト内の\texttt{.ino}ファイルにおいて，\texttt{HIDDEN\_DIM}マクロを学習時と同一の値に設定し，対応するパラメータファイルをインクルードした．
 
-まず，\texttt{HIDDEN\_DIM}マクロを学習時と同一の値に設定した．
-\begin{lstlisting}[language=C, caption=隠れ層次元の設定]
+\begin{lstlisting}[language=C, caption=Arduinoコードの設定例（80次元の場合）]
 #define HIDDEN_DIM 80  // 学習時と同じ値に設定
+#include "model_parameters_csr80.h"  // 対応するファイルをインクルード
 \end{lstlisting}
 
-次に，使用するパラメータファイルをインクルードした．
-\begin{lstlisting}[language=C, caption=パラメータファイルのインクルード]
-#include "model_parameters_csr80.h"  // 対応するファイルを指定
-\end{lstlisting}
+\texttt{HIDDEN\_DIM}の値とパラメータファイルの次元が一致していない場合，正常に動作しないため注意が必要である．
 
-なお，\texttt{HIDDEN\_DIM}の値と読み込むパラメータファイルの次元が一致していない場合，正常に動作しないため注意が必要である．
-
-\paragraph{ステップ3：コンパイルとアップロード}\mbox{}\newline
-Arduino IDEを用いて，以下の手順でコンパイルおよびアップロードを行った．
-\begin{enumerate}
-    \item Arduino IDEで対象の\texttt{.ino}ファイルを開く
-    \item ボード設定を「Arduino UNO R4 WiFi」に設定する
-    \item 接続されているシリアルポートを選択する
-    \item 「検証」ボタンでコンパイルエラーがないことを確認する
-    \item 「アップロード」ボタンでArduinoに書き込む
-\end{enumerate}
-
-コンパイル時には，メモリ使用量が表示される．
-SRAM使用量が32\,KBを超える場合はアップロードに失敗するため，その場合はより高い圧縮率の手法を適用する必要がある．
+\paragraph{ステップ3：コンパイルとアップロード}
+Arduino IDEを用いて，ボード設定を「Arduino UNO R4 WiFi」に設定し，コンパイル・アップロードを行った．
+コンパイル時に表示されるSRAM使用量が32\,KBを超える場合はアップロードに失敗するため，その場合はより高い圧縮率の手法を適用する必要がある．
 
 \clearpage
 \subsubsection{スキャン実行とデータ取得}
 
 Arduinoに接続したRGBカラーセンサを用いて参照画像をスキャンし，推論結果をPPM形式の画像ファイルとして出力した．
-スキャンは以下の手順で実施した．
 
-\paragraph{ステップ1：キャリブレーション}\mbox{}\newline
+\paragraph{ステップ1：キャリブレーション}
 センサの感度は環境光や個体差により変動するため，測定前にキャリブレーションを行った．
-具体的には，2つのタクトスイッチを用いたプログラムにより，黒と白のサンプルを事前に測定し，センサ出力の最小値および最大値を取得した．
+2つのタクトスイッチを用いて，黒色サンプルで最小値を，白色サンプルで最大値を記録し，これらを基準として読み取り範囲を正規化した．
 
-キャリブレーション手順は以下のとおりである．
-\begin{enumerate}
-    \item 赤色タクトスイッチ（D2ピン）を押し，キャリブレーションモードに入る
-    \item 黒色サンプルをセンサにかざし，青色タクトスイッチ（D3ピン）を押して最小値を記録する
-    \item 白色サンプルをセンサにかざし，青色タクトスイッチを押して最大値を記録する
-    \item 赤色タクトスイッチを押し，キャリブレーションモードを終了する
-\end{enumerate}
+\paragraph{ステップ2：カラーチャートの読み取り}
+キャリブレーション完了後，3$\times$3のカラーチャートを1セルずつセンサで読み取った．
+取得したRGB値はニューラルネットワークによる推論を経て補正され，全9セルの読み取りが完了するまで繰り返した．
 
-これらの値を基準として読み取り範囲を正規化することで，安定したRGB値の取得を可能とした．
+\paragraph{ステップ3：PPM画像の出力}
+取得したRGBデータは，シリアル通信を介してPC上のスキャナプログラム（\texttt{scanner.c}）に送信され，PPM形式の画像ファイルとして出力された．
+出力ファイルは実験条件ごとにフォルダを分けて保存し，各条件につき10回程度のスキャンを実施した．
 
-\paragraph{ステップ2：カラーチャートの読み取り}\mbox{}\newline
-キャリブレーション完了後，3$\times$3のカラーチャートをセンサで読み取った．
-読み取り手順は以下のとおりである．
-\begin{enumerate}
-    \item カラーチャートの各セルにセンサを順番にかざす
-    \item 青色タクトスイッチ（D3ピン）を押してRGB値を取得する
-    \item 取得したRGB値はニューラルネットワークによる推論を経て補正される
-    \item 全9セルの読み取りが完了するまで繰り返す
-\end{enumerate}
-
-\paragraph{ステップ3：PPM画像の出力}\mbox{}\newline
-取得したRGBデータは，シリアル通信を介してPC上のスキャナプログラム（\texttt{scanner.c}）に送信され，PPM（Portable Pixel Map）形式の画像ファイルとして出力された．
-PPM形式は非圧縮のラスタ画像フォーマットであり，画素値を直接比較できるため，後続のMSE評価に適している．
-
-出力されたPPMファイルは，実験条件ごとに以下のフォルダに整理して保存した．
-\begin{itemize}
-    \item 密行列形式（40次元）：\texttt{ppm/AI\_Model.data/}
-    \item CSR形式（40次元）：\texttt{ppm/csr\_40\_0.01/}
-    \item CSR形式（80次元）：\texttt{ppm/csr\_80\_0.01/}
-    \item CSR形式（120次元）：\texttt{ppm/csr\_120\_0.01/}
-\end{itemize}
-
-各実験条件につき複数回（10回程度）のスキャンを実施し，結果のばらつきを考慮した．
 
 \subsection{評価方法}
 
-推論精度の評価指標として，平均二乗誤差（MSE: Mean Squared Error）を用いた．
-MSEは以下の式で定義される．
-\begin{equation}
-    \text{MSE} = \frac{1}{N} \sum_{i=1}^{N} (y_i - \hat{y}_i)^2
-\end{equation}
-ここで，$N$は画素数，$y_i$は参照画像の画素値，$\hat{y}_i$はスキャン結果の画素値である．
+推論精度の評価指標として，第2章で定義した平均二乗誤差（MSE）を用いた（式\ref{eq:mse_definition}，式\ref{eq:mse_rgb}参照）．
+MSEの値が小さいほど，参照画像との差異が少なく，色補正の精度が高いことを示す．
 
 評価には自作のMSE計算ツール（\texttt{mse\_calculator.html}）を使用した．
-このツールはブラウザ上で動作し，2つのPPM画像をドラッグ＆ドロップするだけでMSEを算出できる．
-
-評価手順は以下のとおりである．
-\begin{enumerate}
-    \item ブラウザで\texttt{mse\_calculator.html}を開く
-    \item 参照画像（\texttt{ppm/reference\_image1.ppm}）をドラッグ＆ドロップする
-    \item スキャン結果のPPMファイルをドラッグ＆ドロップする
-    \item 算出されたMSE値を記録する
-    \item 各実験条件のすべてのスキャン結果についてMSEを算出し，平均値・最小値・最大値を求める
-\end{enumerate}
+このツールはブラウザ上で動作し，参照画像とスキャン結果のPPMファイルをドラッグ＆ドロップすることでMSEを算出できる．
+各実験条件のすべてのスキャン結果についてMSEを算出し，平均値・最小値・最大値を求めた．
 
 \subsection{比較対象}
 
@@ -562,13 +741,15 @@ MSEは以下の式で定義される．
 
 \begin{enumerate}
     \item \textbf{密行列形式（非圧縮）}：L1正則化のみを適用し，圧縮処理を行わないベースラインモデル
-    \item \textbf{CSR圧縮}：プルーニング後にCSR形式へ変換したモデル
-    \item \textbf{CSR＋量子化}：CSR圧縮に加えてint8量子化を適用したモデル
+    \item \textbf{CSR圧縮}：プルーニング後にCSR形式へ変換したモデル（隠れ層1および隠れ層2に適用）
+    \item \textbf{CSR＋量子化}：CSR圧縮に加えてint8量子化を適用したモデル（隠れ層1および隠れ層2に適用）
 \end{enumerate}
 
 これらのモデルについて，各隠れ層次元におけるMSEとメモリ使用量を比較し，段階的圧縮アプローチの有効性を検証した．
-最終的な目標は，MSEを許容範囲内に抑えつつ，隠れ層次元を100〜200へ拡張可能とすることである．
+最終的な目標は，MSEを許容範囲内に抑えつつ，隠れ層次元を600以上へ拡張可能とすることである．
+
 \clearpage
+
 \section{実験結果}
 
 本章では，前章で述べた実験方法に基づいて実施した実験の結果を示す．
