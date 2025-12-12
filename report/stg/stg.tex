@@ -180,14 +180,14 @@ Hanら\cite{han2015deep}は，重要接続の学習，閾値による削減，�
 L1正則化により重みを0に近づけた後，閾値0.01でプルーニングを実施する．
 この処理により多くの重みが0となり，後述する疎行列表現による効率的な格納が可能となる．
 
-\paragraph{メリット}
+プルーニングの主なメリットは以下のとおりである．
 \begin{itemize}
     \item パラメータ削減：非ゼロ率を大幅に低下可能（40次元モデルで1,923から200以下も実現可能）
     \item 計算量削減：不要な演算が減少し推論が高速化
     \item 精度維持：軽微な削減であれば再訓練により精度回復が可能
 \end{itemize}
 
-\paragraph{デメリット}
+一方，デメリットとして以下が挙げられる．
 \begin{itemize}
     \item 再訓練なしでは精度低下が生じやすい
     \item インデックス保存など疎行列特有のオーバーヘッドが存在
@@ -199,7 +199,7 @@ L1正則化により重みを0に近づけた後，閾値0.01でプルーニン�
 CSR形式は，非ゼロ要素のみを行単位でまとめて保存する疎行列表現であり，値配列（data），列インデックス（indices），行ポインタ（indptr）で構成される．
 行方向のアクセスが高速であり，行列ベクトル積を多用するニューラルネットワークの推論に適している．
 
-\paragraph{メリット}
+CSR形式の主なメリットは以下のとおりである．
 \begin{itemize}
     \item 行方向のアクセスが高速で推論が効率的
     \item インデックス管理が最適化されメモリ効率が高い
@@ -207,7 +207,7 @@ CSR形式は，非ゼロ要素のみを行単位でまとめて保存する疎�
     \item 非ゼロ率に応じて3〜10倍のメモリ削減が可能
 \end{itemize}
 
-\paragraph{デメリット}
+一方，デメリットとして以下が挙げられる．
 \begin{itemize}
     \item 変換時にソートが必要
     \item 列方向アクセスは非効率
@@ -227,14 +227,14 @@ r = S(q - Z)
 量子化は，プルーニングやCSR形式とは独立に適用可能であり，CSR形式で格納された重みに対しても追加適用できる．
 float32からint8への変換により，さらに約4倍のメモリ削減が期待できる．
 
-\paragraph{メリット}
+量子化の主なメリットは以下のとおりである．
 \begin{itemize}
     \item メモリ削減：32ビットから8ビットへの変換により約4倍削減
     \item 計算高速化：整数演算により浮動小数点演算より低レイテンシ
     \item 精度維持：量子化感知訓練（QAT）を用いることでMSEをほぼ維持可能
 \end{itemize}
 
-\paragraph{デメリット}
+一方，デメリットとして以下が挙げられる．
 \begin{itemize}
     \item モデル規模が小さい場合，チャネルごとの差により誤差が生じやすい
     \item スケール・ゼロポイントの計算やint32蓄積処理など実装がやや複雑
@@ -856,12 +856,12 @@ MSEの値が小さいほど，参照画像との差異が少なく，色補正�
 \clearpage
 
 \section{実験結果}
-
 前章で述べた実験方法に基づいて実施した実験の結果を示す．
+評価指標であるMSE，メモリ使用量，コンパイル時間の順に結果を述べ，最後に結果をまとめる．
 
-\subsection{MSE測定結果}
-
+\subsection{推論精度（MSE）}
 各圧縮手法および隠れ層次元におけるMSE測定結果を表\ref{tab:results_mse_comparison}に示す．
+各条件につき10回のスキャンを実施し，最小値・最大値・平均値を算出した．
 
 \begin{table}[h]
     \centering
@@ -872,7 +872,7 @@ MSEの値が小さいほど，参照画像との差異が少なく，色補正�
         \textbf{圧縮手法} & \textbf{隠れ層次元} & \textbf{MSE最小値} & \textbf{MSE最大値} & \textbf{MSE平均値} \\
         \hline
         \hline
-        \multicolumn{5}{|c|}{\textbf{非圧縮（密行列形式）}} \\
+        \multicolumn{5}{|c|}{\textbf{密行列形式}} \\
         \hline
         密行列形式 & 40 & 277.67 & 792.85 & 595.95 \\
         \hline
@@ -914,7 +914,6 @@ MSEの値が小さいほど，参照画像との差異が少なく，色補正�
         \hline
     \end{tabular}
 \end{table}
-
 同一次元における圧縮手法間の比較を表\ref{tab:results_by_dimension}に示す．
 
 \begin{table}[h]
@@ -923,15 +922,19 @@ MSEの値が小さいほど，参照画像との差異が少なく，色補正�
     \label{tab:results_by_dimension}
     \begin{tabular}{|c|c|c|c|}
         \hline
-        \textbf{隠れ層次元} & \textbf{非圧縮} & \textbf{CSR圧縮} & \textbf{CSR＋量子化} \\
+        \textbf{隠れ層次元} & \textbf{密行列形式} & \textbf{CSR圧縮} & \textbf{CSR＋量子化} \\
         \hline
         40 & 595.95 & 518.58 & 408.97 \\
+        \hline
+        50 & 406.93 & -- & -- \\
         \hline
         60 & 305.48 & -- & -- \\
         \hline
         80 & -- & 464.86 & 270.68 \\
         \hline
         120 & -- & 620.49 & 244.83 \\
+        \hline
+        160 & -- & 589.08 & -- \\
         \hline
         200 & -- & 493.35 & -- \\
         \hline
@@ -942,9 +945,28 @@ MSEの値が小さいほど，参照画像との差異が少なく，色補正�
     \end{tabular}
 \end{table}
 
+\clearpage
+図\ref{fig:mse_120dim}に隠れ層次元120までのMSE平均値の推移を，図\ref{fig:mse_600dim}に600次元までの推移を示す．
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=14cm]{結果/mse/mse_vs_dimension_120dim.png}
+    \caption{隠れ層次元とMSE平均値の関係（120次元まで）}
+    \label{fig:mse_120dim}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=14cm]{結果/mse/mse_vs_dimension_600dim.png}
+    \caption{隠れ層次元とMSE平均値の関係（600次元まで）}
+    \label{fig:mse_600dim}
+\end{figure}
+
+\clearpage
 \subsection{メモリ使用量}
 
-各条件におけるメモリ使用量を表\ref{tab:results_memory}に示す．
+各条件におけるArduino Uno R4 WiFiのSRAM使用量を表\ref{tab:results_memory}に示す．
+使用率は，利用可能なSRAM（32,768バイト）に対する割合である．
 
 \begin{table}[h]
     \centering
@@ -955,25 +977,49 @@ MSEの値が小さいほど，参照画像との差異が少なく，色補正�
         \textbf{圧縮手法} & \textbf{隠れ層次元} & \textbf{メモリ使用量} & \textbf{使用率} \\
         \hline
         \hline
+        \multicolumn{4}{|c|}{\textbf{密行列形式}} \\
+        \hline
         密行列形式 & 40 & 14,524バイト & 44\% \\
+        \hline
+        密行列形式 & 50 & 18,444バイト & 56\% \\
         \hline
         密行列形式 & 60 & 23,164バイト & 70\% \\
         \hline
         密行列形式 & 70 & \multicolumn{2}{c|}{コンパイルエラー} \\
         \hline
         \hline
+        \multicolumn{4}{|c|}{\textbf{CSR圧縮}} \\
+        \hline
         CSR圧縮 & 40 & 8,488バイト & 25\% \\
         \hline
+        CSR圧縮 & 80 & 9,508バイト & 29\% \\
+        \hline
+        CSR圧縮 & 120 & 10,520バイト & 32\% \\
+        \hline
+        CSR圧縮 & 160 & 11,332バイト & 34\% \\
+        \hline
         CSR圧縮 & 200 & 12,332バイト & 37\% \\
+        \hline
+        CSR圧縮 & 400 & 17,204バイト & 52\% \\
         \hline
         CSR圧縮 & 600 & 21,976バイト & 67\% \\
         \hline
         CSR圧縮 & 800 & \multicolumn{2}{c|}{コンパイルエラー} \\
         \hline
         \hline
+        \multicolumn{4}{|c|}{\textbf{CSR＋量子化}} \\
+        \hline
         CSR＋量子化 & 40 & 8,160バイト & 24\% \\
         \hline
+        CSR＋量子化 & 80 & 9,148バイト & 27\% \\
+        \hline
+        CSR＋量子化 & 120 & 10,132バイト & 30\% \\
+        \hline
+        CSR＋量子化 & 160 & 12,000バイト & 36\% \\
+        \hline
         CSR＋量子化 & 200 & 12,000バイト & 36\% \\
+        \hline
+        CSR＋量子化 & 400 & 16,836バイト & 51\% \\
         \hline
         CSR＋量子化 & 600 & 21,684バイト & 66\% \\
         \hline
@@ -982,38 +1028,280 @@ MSEの値が小さいほど，参照画像との差異が少なく，色補正�
     \end{tabular}
 \end{table}
 
+
+\clearpage
+図\ref{fig:memory_120dim}に隠れ層次元120までのメモリ使用量の推移を，図\ref{fig:memory_600dim}に600次元までの推移を示す．
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=14cm]{結果/memory/memory_vs_dimension_120dim.png}
+    \caption{隠れ層次元とメモリ使用量の関係（120次元まで）}
+    \label{fig:memory_120dim}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=14cm]{結果/memory/memory_vs_dimension_600dim.png}
+    \caption{隠れ層次元とメモリ使用量の関係（600次元まで）}
+    \label{fig:memory_600dim}
+\end{figure}
+
+\clearpage
+\subsection{コンパイル時間}
+各条件におけるArduino IDEでのコンパイル時間を表\ref{tab:results_compile_time}に示す．
+
+\begin{table}[h]
+    \centering
+    \caption{圧縮手法別コンパイル時間}
+    \label{tab:results_compile_time}
+    \begin{tabular}{|l|c|c|}
+        \hline
+        \textbf{圧縮手法} & \textbf{隠れ層次元} & \textbf{コンパイル時間} \\
+        \hline
+        \hline
+        \multicolumn{3}{|c|}{\textbf{密行列形式}} \\
+        \hline
+        密行列形式 & 40 & 4.303秒 \\
+        \hline
+        密行列形式 & 50 & 4.589秒 \\
+        \hline
+        密行列形式 & 60 & 4.831秒 \\
+        \hline
+        密行列形式 & 70 & コンパイルエラー \\
+        \hline
+        \hline
+        \multicolumn{3}{|c|}{\textbf{CSR圧縮}} \\
+        \hline
+        CSR圧縮 & 40 & 3.783秒 \\
+        \hline
+        CSR圧縮 & 80 & 4.037秒 \\
+        \hline
+        CSR圧縮 & 120 & 4.062秒 \\
+        \hline
+        CSR圧縮 & 160 & 4.042秒 \\
+        \hline
+        CSR圧縮 & 200 & 4.027秒 \\
+        \hline
+        CSR圧縮 & 400 & 4.316秒 \\
+        \hline
+        CSR圧縮 & 600 & 4.802秒 \\
+        \hline
+        CSR圧縮 & 800 & コンパイルエラー \\
+        \hline
+        \hline
+        \multicolumn{3}{|c|}{\textbf{CSR＋量子化}} \\
+        \hline
+        CSR＋量子化 & 40 & 3.772秒 \\
+        \hline
+        CSR＋量子化 & 80 & 3.809秒 \\
+        \hline
+        CSR＋量子化 & 120 & 4.028秒 \\
+        \hline
+        CSR＋量子化 & 160 & 4.033秒 \\
+        \hline
+        CSR＋量子化 & 200 & 4.033秒 \\
+        \hline
+        CSR＋量子化 & 400 & 4.307秒 \\
+        \hline
+        CSR＋量子化 & 600 & 4.801秒 \\
+        \hline
+        CSR＋量子化 & 800 & コンパイルエラー \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\clearpage
+
+図\ref{fig:compile_time_120dim}に隠れ層次元120までのコンパイル時間の推移を，図\ref{fig:compile_time_600dim}に600次元までの推移を示す．
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=14cm]{結果/compile_time/compile_time_vs_dimension_120dim.png}
+    \caption{隠れ層次元とコンパイル時間の関係（120次元まで）}
+    \label{fig:compile_time_120dim}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=14cm]{結果/compile_time/compile_time_vs_dimension_600dim.png}
+    \caption{隠れ層次元とコンパイル時間の関係（600次元まで）}
+    \label{fig:compile_time_600dim}
+\end{figure}
+
 \clearpage
 \subsection{結果のまとめ}
 
-得られた実験結果を以下にまとめる．
+実験結果を，実験目的である「隠れ層次元の拡張」と「推論精度の維持」の観点からまとめる．
 
 \subsubsection{隠れ層次元の拡張可能範囲}
+
+各圧縮手法における動作可能な最大次元は以下のとおりであった．
+
 \begin{itemize}
-    \item 非圧縮（密行列形式）：60次元まで動作可能，70次元でメモリ不足
-    \item CSR圧縮：600次元まで動作可能（メモリ使用率67\%），800次元でメモリ不足
-    \item CSR＋量子化：600次元まで動作可能（メモリ使用率66\%），800次元でメモリ不足
+    \item 密行列形式：60次元（メモリ使用率70\%），70次元でコンパイルエラー
+    \item CSR圧縮：600次元（メモリ使用率67\%），800次元でコンパイルエラー
+    \item CSR＋量子化：600次元（メモリ使用率66\%），800次元でコンパイルエラー
 \end{itemize}
 
-CSR圧縮により，非圧縮と比較して約10倍の次元拡張が可能となった．
+CSR圧縮により，密行列形式と比較して約10倍の次元拡張が可能となり，目標である600次元以上の動作を達成した．
 
 \subsubsection{推論精度（MSE）}
-40次元における各手法のMSE平均値を比較すると，非圧縮が595.95，CSR圧縮が518.58，CSR＋量子化が408.97であった．
-CSR＋量子化は非圧縮と比較して約31\%のMSE改善を達成した．
+
+40次元における各手法のMSE平均値は，密行列形式が595.95，CSR圧縮が518.58，CSR＋量子化が408.97であった．
+CSR＋量子化は密行列形式と比較して約31\%のMSE改善を達成した．
 
 測定済みの範囲において最良のMSE平均値は，CSR＋量子化（120次元）の244.83であった．
-一方，CSR圧縮では次元を増加させてもMSEが単調に減少せず，400次元で864.40，600次元で670.69とばらつきが見られた．
+一方，CSR圧縮では次元を増加させてもMSEが単調に減少せず，120次元で620.49，400次元で864.40とばらつきが見られた．
+
 
 \subsubsection{メモリ効率}
-40次元における各手法のメモリ使用量を比較すると，非圧縮が14,524バイト（44\%），CSR圧縮が8,488バイト（25\%），CSR＋量子化が8,160バイト（24\%）であった．
+
+40次元における各手法のメモリ使用量は，密行列形式が14,524バイト（44\%），CSR圧縮が8,488バイト（25\%），CSR＋量子化が8,160バイト（24\%）であった．
 CSR圧縮により約42\%，CSR＋量子化により約44\%のメモリ削減を達成した．
 
+\subsubsection{コンパイル時間}
+
+コンパイル時間は全条件で3.7〜4.8秒の範囲であり，圧縮手法による顕著な差は見られなかった．
+隠れ層次元の増加に伴いコンパイル時間は緩やかに増加したが，実用上の問題となる水準ではなかった．
+
 詳細な考察は次章で述べる．
-なお，各実験条件における個別のスキャン結果は付録\ref{sec:appendix_detail}に示す．
+各実験条件における個別のスキャン結果は付録\ref{sec:appendix_detail}に示す．
 
 \clearpage
+
 \section{考察}
 
-\section{}
+実験結果に基づき，各圧縮手法の特性と得られた知見について考察する．
+
+\subsection{実験目的の達成度}
+
+第\ref{sec:staged_compression}節で述べた段階的圧縮アプローチにより，以下の成果が得られた．
+
+\subsubsection{隠れ層次元の拡張}
+
+目標であった隠れ層次元600以上への拡張は，CSR圧縮およびCSR＋量子化の両手法で達成された．
+表\ref{tab:results_memory}に示すように，密行列形式では60次元（メモリ使用率70\%）が限界であったのに対し，CSR圧縮では600次元（メモリ使用率67\%）まで動作可能となり，約10倍の次元拡張を実現した．
+
+この結果は，L1正則化によるプルーニングとCSR形式の組み合わせが，メモリ制約の厳しいマイクロコントローラ環境において有効であることを示している．
+
+\subsubsection{推論精度の維持}
+
+表\ref{tab:results_mse_comparison}に示すMSE平均値の観点では，CSR＋量子化（120次元）が244.83で最良の結果を示した．
+これは密行列形式（60次元）の305.48を約20\%上回る性能であり，圧縮によって次元拡張と精度向上の両立が可能であることが示された．
+
+\subsection{各圧縮手法の特性分析}
+
+\subsubsection{密行列形式の特性}
+
+表\ref{tab:results_by_dimension}より，密行列形式では隠れ層次元の増加に伴いMSEが単調に減少した（40次元：595.95 → 60次元：305.48）．
+これは，次元増加によりモデルの表現能力が向上し，RGB補正の精度が改善されたことを示している．
+図\ref{fig:mse_120dim}においても，密行列形式のMSEが次元増加に伴い減少する傾向が確認できる．
+
+一方，表\ref{tab:results_memory}に示すように，メモリ使用量は次元の2乗に比例して増加するため，70次元でメモリ制約を超過した．
+この結果は，第\ref{sec:memory_constraint}節で述べたメモリ制約の影響を実験的に検証できた．
+
+\subsubsection{CSR圧縮の特性}
+
+CSR圧縮では，隠れ層次元を増加させてもMSEが単調に減少せず，大きなばらつきが観測された．
+表\ref{tab:results_mse_comparison}より，MSE平均値は80次元で464.86，120次元で620.49，200次元で493.35と不規則に変動している．
+図\ref{fig:mse_600dim}においても，CSR圧縮（青線）が次元増加に対して非単調な挙動を示していることが視覚的に確認できる．
+
+さらに，表\ref{tab:results_mse_comparison}の最小値・最大値から算出した最大/最小比は，40次元で2.14，200次元で3.36，600次元で8.46と，次元が大きくなるほど増大している．
+このばらつきの原因として，以下の要因が考えられる．
+
+\paragraph{プルーニング閾値の固定による影響}
+
+本実験ではプルーニング閾値を0.01に固定した．
+しかし，隠れ層次元が増加すると，L1正則化により各重みの絶対値は相対的に小さくなる傾向がある．
+これは，同じ出力を得るために多数のニューロンで負荷を分散するためである．
+
+その結果，大きな次元のモデルでは，閾値0.01によって削除される重みの割合が増加し，本来保持すべき重要な接続が失われる可能性がある．
+表\ref{tab:results_memory}より，CSR圧縮のメモリ使用量は40次元で8,488バイト，600次元で21,976バイトであり，次元が15倍になってもメモリは約2.6倍にしか増加していない．
+これは，高次元モデルほどプルーニングにより多くの重みが削除されていることを示唆している．
+
+\paragraph{疎行列構造の不均一性}
+
+CSR形式では，行（ニューロン）ごとに非ゼロ要素数が異なる．
+プルーニングにより一部のニューロンの接続が極端に少なくなると，そのニューロンの出力が不安定になり，後続の層に誤差が伝播する．
+
+特に，入力層から隠れ層1への接続は3次元からの拡張であるため，プルーニングにより特定の入力チャネル（R, G, Bのいずれか）との接続が失われると，色補正の精度に大きな影響を与える可能性がある．
+
+\paragraph{スキャンごとのばらつき増大}
+
+表\ref{tab:results_mse_comparison}に示すように，次元が大きくなるほどMSEの最大値と最小値の差が拡大している．
+600次元では最小値253.44に対し最大値2143.81と約8.5倍の開きがある．
+これは，プルーニング後のネットワークが特定の入力パターンに対して脆弱になっていることを示唆する．
+センサーのノイズや環境光の変動が，大次元モデルではより大きなMSE変動として現れていると考えられる．
+
+\subsubsection{CSR＋量子化の特性}
+
+表\ref{tab:results_mse_comparison}より，CSR＋量子化ではCSR圧縮と異なり，次元増加に伴いMSEが安定して減少した（40次元：408.97 → 120次元：244.83）．
+図\ref{fig:mse_120dim}においても，CSR＋量子化（黄色線）が最も低いMSEを示し，次元増加に対して単調に減少していることが確認できる．
+
+また，表\ref{tab:results_mse_comparison}より，スキャンごとのばらつきも小さく，120次元で最大/最小比は1.83（最小169.37，最大310.63）であった．
+この安定性の要因として，以下が考えられる．
+
+\paragraph{量子化による正則化効果}
+
+int8量子化では，重みが$-128$〜$127$の離散値に制限される．
+この離散化は，一種の正則化として機能し，過学習を抑制する効果がある．
+
+具体的には，プルーニング後に残った小さな重み（例：0.02）が，量子化によって0または1に丸められることで，ノイズ的な重みが除去され，有意な重みのみが保持される．
+この効果により，CSR圧縮単体で見られた高次元でのMSEばらつきが抑制されたと考えられる．
+
+\paragraph{スケールファクタによる重みの正規化}
+
+量子化では，各層ごとにスケールファクタを計算する：
+\begin{equation}
+    \text{scale} = \frac{127.0}{\max(|w|)}
+\end{equation}
+
+このスケーリングにより，極端に大きな重みや小さな重みが抑制され，重みの分布が均一化される効果がある．
+結果として，特定のニューロンへの依存度が下がり，推論精度が向上した．
+
+\paragraph{プルーニングと量子化の相乗効果}
+
+Hanら\cite{han2016deep}は，プルーニングと量子化を組み合わせた「Deep Compression」により，精度を維持しながらAlexNetを35倍，VGG-16を49倍圧縮できることを示した．
+同論文では，プルーニングのみまたは量子化のみでは8\%程度までしか圧縮できないと精度が急落するのに対し，両手法を組み合わせると3\%程度まで圧縮しても精度維持が可能になることが報告されている．
+
+本実験においても，プルーニングで残った重みに量子化を適用することで，以下の相乗効果が生じたと考えられる．
+
+\begin{enumerate}
+    \item プルーニングにより量子化対象の重みが減少し，量子化誤差の総量が抑制される
+    \item 量子化によりプルーニング境界付近の微小な重みが0に丸められ，実質的に追加のプルーニングが行われる
+    \item 両手法の組み合わせにより，「重要な重みを高精度で保持し，不要な重みを徹底的に除去する」という効果が得られる
+\end{enumerate}
+
+表\ref{tab:results_by_dimension}において，同一の40次元で比較すると，密行列形式（595.95）→ CSR圧縮（518.58）→ CSR＋量子化（408.97）の順にMSEが改善している．
+これは，圧縮手法を段階的に適用することで推論精度が向上するという，Hanらの報告と整合する結果である．
+\clearpage
+\section{終わりに}
+
+本研究では，Arduino Uno R4 WiFiのメモリ制約下において，ニューラルネットワークの圧縮手法を段階的に適用し，
+推論精度を維持しながら隠れ層次元を拡張できるかを検証した．
+
+実験の結果，以下の知見が得られた．
+L1正則化によるプルーニングとCSR形式を組み合わせることで，密行列形式では60次元が限界であった隠れ層を600次元まで拡張でき，約10倍の次元拡張を実現した．
+さらに，CSR形式に量子化を追加適用することで，MSE平均値が密行列形式（60次元）の305.48からCSR＋量子化（120次元）の244.83へと約20\%改善し，圧縮と精度向上の両立が可能であることを示した．
+また，Hanらが報告したプルーニングと量子化の相乗効果が，本実験のような小規模モデルにおいても有効であることを確認した．
+
+一方，固定閾値によるプルーニングでは高次元モデルにおいてMSEのばらつきが増大する課題が明らかになった．
+今後は，さらなる精度向上ができるように研究を進めたい．
+
+本研究は，組込み機器やIoTデバイスのようなリソース制約の厳しい環境においても，適切な圧縮手法を用いることで実用的なニューラルネットワーク推論が可能であることを示せた．
+
+
+\clearpage
+\begin{thebibliography}{9}
+\bibitem{han2015deep} Song Han et al., ``Learning both Weights and Connections for Efficient Neural Networks,'' NeurIPS, 2015.
+\bibitem{jacob2018quantization} B. Jacob et al., ``Quantization and Training of Neural Networks for Efficient Integer-Arithmetic-Only Inference,'' CVPR, 2018.
+\bibitem{han2016deep}
+S. Han, H. Mao, and W. J. Dally,
+``Deep Compression: Compressing Deep Neural Networks with Pruning, Trained Quantization and Huffman Coding,''
+in Proc. International Conference on Learning Representations (ICLR), 2016.
+\end{thebibliography}
+
+
 
 \clearpage
 \appendix
@@ -1063,7 +1351,14 @@ CSR圧縮により約42\%，CSR＋量子化により約44\%のメモリ削減を
     \end{tabular}
 \end{table}
 
-70次元以上はメモリ不足によりコンパイルエラーが発生したため，測定を実施できなかった．
+各次元におけるメモリ使用量とコンパイル時間を以下に示す．
+
+\begin{itemize}
+    \item \textbf{40次元}：メモリ使用量 14,524バイト（44\%），コンパイル時間 4.303秒
+    \item \textbf{50次元}：メモリ使用量 18,444バイト（56\%），コンパイル時間 4.589秒
+    \item \textbf{60次元}：メモリ使用量 23,164バイト（70\%），コンパイル時間 4.831秒
+    \item \textbf{70次元}：コンパイルエラー（メモリ不足）
+\end{itemize}
 
 \clearpage
 
@@ -1108,8 +1403,20 @@ CSR圧縮により約42\%，CSR＋量子化により約44\%のメモリ削減を
     \end{tabular}
 \end{table}
 
-800次元はメモリ不足によりコンパイルエラーが発生したため，測定を実施できなかった．
+各次元におけるメモリ使用量とコンパイル時間を以下に示す．
 
+\begin{itemize}
+    \item \textbf{40次元}：メモリ使用量 8,488バイト（25\%），コンパイル時間 3.783秒
+    \item \textbf{80次元}：メモリ使用量 9,508バイト（29\%），コンパイル時間 4.037秒
+    \item \textbf{120次元}：メモリ使用量 10,520バイト（32\%），コンパイル時間 4.062秒
+    \item \textbf{160次元}：メモリ使用量 11,332バイト（34\%），コンパイル時間 4.042秒
+    \item \textbf{200次元}：メモリ使用量 12,332バイト（37\%），コンパイル時間 4.027秒
+    \item \textbf{400次元}：メモリ使用量 17,204バイト（52\%），コンパイル時間 4.316秒
+    \item \textbf{600次元}：メモリ使用量 21,976バイト（67\%），コンパイル時間 4.802秒
+    \item \textbf{800次元}：コンパイルエラー（メモリ不足）
+\end{itemize}
+
+\clearpage
 \subsection{CSR＋量子化の詳細測定結果}
 表\ref{tab:appendix_quantized}に，CSR＋量子化モデルの個別スキャン結果を示す．
 
@@ -1151,7 +1458,18 @@ CSR圧縮により約42\%，CSR＋量子化により約44\%のメモリ削減を
     \end{tabular}
 \end{table}
 
-160次元〜600次元は測定未実施，800次元はメモリ不足によりコンパイルエラーが発生した．
+各次元におけるメモリ使用量とコンパイル時間を以下に示す．
+
+\begin{itemize}
+    \item \textbf{40次元}：メモリ使用量 8,160バイト（24\%），コンパイル時間 3.772秒
+    \item \textbf{80次元}：メモリ使用量 9,148バイト（27\%），コンパイル時間 3.809秒
+    \item \textbf{120次元}：メモリ使用量 10,132バイト（30\%），コンパイル時間 4.028秒
+    \item \textbf{160次元}：メモリ使用量 12,000バイト（36\%），コンパイル時間 4.033秒（MSE測定未実施）
+    \item \textbf{200次元}：メモリ使用量 12,000バイト（36\%），コンパイル時間 4.033秒（MSE測定未実施）
+    \item \textbf{400次元}：メモリ使用量 16,836バイト（51\%），コンパイル時間 4.307秒（MSE測定未実施）
+    \item \textbf{600次元}：メモリ使用量 21,684バイト（66\%），コンパイル時間 4.801秒（MSE測定未実施）
+    \item \textbf{800次元}：コンパイルエラー（メモリ不足）
+\end{itemize}
 
 \clearpage
 \section{ソースコード}
@@ -2070,12 +2388,6 @@ with open("model_parameters.h", "w") as f:
 print(f"\nC++ 用のパラメータファイル (model_parameters.h) を作成しました。")
 print(f"隠れ層次元: {HIDDEN_DIM}")
 \end{lstlisting}
-
-\clearpage
-\begin{thebibliography}{9}
-\bibitem{han2015deep} Song Han et al., ``Learning both Weights and Connections for Efficient Neural Networks,'' NeurIPS, 2015.
-\bibitem{jacob2018quantization} B. Jacob et al., ``Quantization and Training of Neural Networks for Efficient Integer-Arithmetic-Only Inference,'' CVPR, 2018.
-\end{thebibliography}
 
 
 \end{document}
